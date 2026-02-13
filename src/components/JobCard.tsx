@@ -45,11 +45,14 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
     !job.licenses_required.every(l => l === 'None Required')
 
   const [saved, setSaved] = useState(false)
+  const [applied, setApplied] = useState(false)
 
   useEffect(() => {
     try {
       const savedJobs = JSON.parse(localStorage.getItem('savedJobs') || '[]')
       setSaved(savedJobs.includes(job.id))
+      const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
+      setApplied(appliedJobs.includes(job.id))
     } catch { /* ignore */ }
   }, [job.id])
 
@@ -71,26 +74,65 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
     } catch { /* ignore */ }
   }
 
+  const toggleApplied = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      const appliedJobs: string[] = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
+      let updated: string[]
+      if (appliedJobs.includes(job.id)) {
+        updated = appliedJobs.filter(id => id !== job.id)
+        setApplied(false)
+      } else {
+        updated = [...appliedJobs, job.id]
+        setApplied(true)
+      }
+      localStorage.setItem('appliedJobs', JSON.stringify(updated))
+      window.dispatchEvent(new Event('appliedJobsChanged'))
+    } catch { /* ignore */ }
+  }
+
   return (
     <Link href={`/jobs/${job.id}`}>
-      <div className="group relative rounded-xl border border-navy-100 bg-white p-5 transition-all duration-200 hover:shadow-lg hover:shadow-navy-100/50 hover:-translate-y-0.5 hover:border-navy-300">
-        {/* Save/Bookmark Button */}
-        <button
-          onClick={toggleSave}
-          className={`absolute top-4 right-4 p-1.5 rounded-lg transition-all ${
-            saved
-              ? 'text-amber-500 hover:text-amber-600'
-              : 'text-navy-300 opacity-0 group-hover:opacity-100 hover:text-navy-500'
-          }`}
-          aria-label={saved ? 'Unsave job' : 'Save job'}
-        >
-          <svg className="h-5 w-5" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-          </svg>
-        </button>
+      <div className={`group relative rounded-xl border bg-white p-5 transition-all duration-200 hover:shadow-lg hover:shadow-navy-100/50 hover:-translate-y-0.5 ${
+        applied
+          ? 'border-emerald-200 bg-emerald-50/30'
+          : 'border-navy-100 hover:border-navy-300'
+      }`}>
+        {/* Action Buttons */}
+        <div className="absolute top-4 right-4 flex items-center gap-1">
+          {/* Applied Button */}
+          <button
+            onClick={toggleApplied}
+            className={`p-1.5 rounded-lg transition-all text-xs font-medium ${
+              applied
+                ? 'text-emerald-600 bg-emerald-100'
+                : 'text-navy-300 opacity-0 group-hover:opacity-100 hover:text-emerald-600 hover:bg-emerald-50'
+            }`}
+            aria-label={applied ? 'Mark as not applied' : 'Mark as applied'}
+          >
+            <svg className="h-4.5 w-4.5" fill={applied ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+          {/* Save/Bookmark Button */}
+          <button
+            onClick={toggleSave}
+            className={`p-1.5 rounded-lg transition-all ${
+              saved
+                ? 'text-amber-500 hover:text-amber-600'
+                : 'text-navy-300 opacity-0 group-hover:opacity-100 hover:text-navy-500'
+            }`}
+            aria-label={saved ? 'Unsave job' : 'Save job'}
+          >
+            <svg className="h-5 w-5" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+          </button>
+        </div>
 
-        <div className="flex flex-col gap-3 pr-8">
-          {/* Top Row: Badge + Verified */}
+        <div className="flex flex-col gap-3 pr-16">
+          {/* Top Row: Badge + Verified + Applied Tag */}
           <div className="flex items-center gap-2">
             <span className={`inline-block rounded-lg px-2.5 py-1 text-xs font-semibold ${getPipelineStageBadgeColor(job.pipeline_stage)}`}>
               {job.pipeline_stage}
@@ -101,6 +143,11 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
                 Verified
+              </span>
+            )}
+            {applied && (
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
+                Applied
               </span>
             )}
           </div>

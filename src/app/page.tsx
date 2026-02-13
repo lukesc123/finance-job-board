@@ -12,6 +12,7 @@ import { debounce } from '@/lib/formatting'
 type SortBy = 'newest' | 'salary_high' | 'salary_low' | 'company_az' | 'relevance'
 
 const FILTER_KEYS: (keyof JobFilters)[] = ['category', 'job_type', 'pipeline_stage', 'remote_type', 'license', 'search', 'grad_date', 'salary_min', 'salary_max']
+const PAGE_SIZE = 20
 
 function filtersFromParams(params: URLSearchParams): JobFilters {
   return {
@@ -51,6 +52,9 @@ function HomePageContent() {
   const [showSaved, setShowSaved] = useState(() => searchParams.get('saved') === '1')
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set())
 
+  // Infinite scroll sentinel ref
+  const loadMoreRef = useRef<HTMLDivElement>(null)
+
   // Load saved job IDs from localStorage
   useEffect(() => {
     try {
@@ -66,6 +70,24 @@ function HomePageContent() {
     }
     window.addEventListener('savedJobsChanged', handleChange)
     return () => window.removeEventListener('savedJobsChanged', handleChange)
+  }, [])
+
+  // Infinite scroll with IntersectionObserver
+  useEffect(() => {
+    const sentinel = loadMoreRef.current
+    if (!sentinel) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount(prev => prev + PAGE_SIZE)
+        }
+      },
+      { rootMargin: '200px' }
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
   }, [])
 
   const updateURL = useCallback((newFilters: JobFilters, newSort: string, newShowSaved?: boolean) => {
@@ -360,22 +382,34 @@ function HomePageContent() {
               {sortedJobs.slice(0, visibleCount).map((job) => (
                 <JobCard key={job.id} job={job} searchQuery={filters.search} />
               ))}
+              {/* Infinite scroll sentinel */}
               {sortedJobs.length > visibleCount && (
-                <div className="pt-4 text-center">
-                  <button
-                    onClick={() => setVisibleCount(prev => prev + 20)}
-                    className="inline-flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-6 py-3 text-sm font-semibold text-navy-700 transition hover:bg-navy-50 hover:border-navy-300"
-                  >
-                    Show More Jobs
-                    <span className="text-xs text-navy-400">
-                      ({sortedJobs.length - visibleCount} remaining)
-                    </span>
-                  </button>
+                <div ref={loadMoreRef} className="pt-4 flex flex-col items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-navy-200 border-t-navy-500"></div>
+                    <span className="text-sm text-navy-400">Loading more jobs...</span>
+                  </div>
+                  <span className="text-xs text-navy-300">{sortedJobs.length - visibleCount} remaining</span>
                 </div>
               )}
             </>
           )}
         </div>
+
+        {/* Back to top */}
+        {!loading && sortedJobs.length > 10 && visibleCount > PAGE_SIZE && (
+          <div className="mt-8 text-center">
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="inline-flex items-center gap-1.5 text-xs text-navy-400 hover:text-navy-600 transition-colors"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+              </svg>
+              Back to top
+            </button>
+          </div>
+        )}
       </section>
     </div>
   )
