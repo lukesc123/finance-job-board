@@ -6,6 +6,7 @@ import { timeAgo, formatSalary, formatDate } from '@/lib/formatting'
 import { Job } from '@/types'
 import SimilarJobs from '@/components/SimilarJobs'
 import JobDetailActions from '@/components/JobDetailActions'
+import TrackView from '@/components/TrackView'
 
 // Revalidate every 5 minutes for ISR
 export const revalidate = 300
@@ -130,6 +131,15 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <TrackView
+          jobId={job.id}
+          jobTitle={job.title}
+          companyName={job.company?.name || 'Company'}
+          location={job.location}
+          salary={salary || ''}
+          pipelineStage={job.pipeline_stage}
+        />
+
       {/* Top bar with back navigation */}
       <div className="bg-white border-b border-navy-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
