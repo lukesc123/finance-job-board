@@ -311,12 +311,12 @@ function HomePageContent() {
           />
         </div>
 
-        {/* Results Count + Saved Toggle */}
+        <RecentlyViewed />
+
+          {/* Results Count + Saved Toggle */}
         <div className="mb-6 flex items-center justify-between">
           {loading ? (
-            <RecentlyViewed />
-
-          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-navy-300 border-t-navy-600"></div>
               <span className="text-sm text-navy-600">Loading jobs...</span>
             </div>
