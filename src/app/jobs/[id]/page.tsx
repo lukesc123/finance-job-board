@@ -83,6 +83,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   }
 
   const salary = formatSalary(job.salary_min, job.salary_max)
+  const applyUrl = job.apply_url && !job.apply_url.startsWith('http') ? 'https://' + job.apply_url : job.apply_url
   const badgeColor = getPipelineStageBadgeColor(job.pipeline_stage)
   const hasLicenseInfo = job.licenses_required && job.licenses_required.length > 0 && !job.licenses_required.every(l => l === 'None Required')
 
@@ -182,14 +183,6 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                   ) : (
                     <p className="text-lg font-semibold text-navy-700">{job.company?.name}</p>
                   )}
-                  {job.is_verified && (
-                    <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
-                      <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Verified
-                    </span>
-                  )}
                 </div>
                 {/* Posted time */}
                 <p className="text-sm text-navy-500 mt-3">
@@ -206,7 +199,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               {/* Apply Button - Desktop */}
               <div className="hidden sm:block shrink-0">
                 <a
-                  href={job.apply_url}
+                  href={applyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
@@ -378,7 +371,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 )}
               </div>
               <a
-                href={job.apply_url}
+                href={applyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
