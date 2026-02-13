@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const { data: cands, error } = await supabaseAdmin.from('jobs').select('*, company:companies(*)').eq('is_active', true).neq('id', jobId).limit(100)
     if (error) throw error
     const scored = (cands||[]).map(j => {
-      let s = 0; if (j.category===src.category) s+=3; if (j.pipeline_stage===src.pipeline_stage) s+=2; if (j.company_id===src.company_id) s+=2; if (j.remote_type===src.remote_type) s+=1; if (j.job_type===src.job_type) s+=1;
+      let s = 0; if (j.category===src.category) s+=3; if (j.pipeline_stage===src.pipeline_stage) s+=5; if (j.company_id===src.company_id) s+=2; if (j.remote_type===src.remote_type) s+=1; if (j.job_type===src.job_type) s+=1;
       const sc=src.location?.split(',')[0]?.trim().toLowerCase(), jc=j.location?.split(',')[0]?.trim().toLowerCase();
       if (sc&&jc&&sc===jc) s+=2; return {...j, _s: s}
     })
