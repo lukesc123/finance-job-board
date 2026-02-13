@@ -215,6 +215,14 @@ function HomePageContent() {
 
   const uniqueCompanies = new Set(jobs.map((job) => job.company_id)).size
 
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    jobs.forEach(job => {
+      if (job.category) counts[job.category] = (counts[job.category] || 0) + 1
+    })
+    return counts
+  }, [jobs])
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -252,13 +260,22 @@ function HomePageContent() {
                   handleFilterChange(newFilters)
                   window.scrollTo({ top: 400, behavior: 'smooth' })
                 }}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors inline-flex items-center gap-1.5 ${
                   filters.category === cat
                     ? 'bg-white text-navy-950'
                     : 'bg-navy-800 text-navy-200 hover:bg-navy-700 hover:text-white'
                 }`}
               >
                 {cat}
+                {categoryCounts[cat] > 0 && (
+                  <span className={`text-[10px] font-bold rounded-full min-w-[18px] h-[18px] inline-flex items-center justify-center ${
+                    filters.category === cat
+                      ? 'bg-navy-950 text-white'
+                      : 'bg-navy-700 text-navy-300'
+                  }`}>
+                    {categoryCounts[cat]}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -286,6 +303,7 @@ function HomePageContent() {
             onFilterChange={handleFilterChange}
             sortBy={sortBy}
             onSortChange={handleSortChange}
+            hasSearch={!!filters.search}
           />
         </div>
 

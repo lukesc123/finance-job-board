@@ -15,12 +15,14 @@ interface FiltersProps {
   onFilterChange: (filters: JobFilters) => void
   sortBy: string
   onSortChange: (sort: string) => void
+  hasSearch?: boolean
 }
 
 const selectClassName = "rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900 transition hover:border-navy-300 focus:border-navy-500 focus:outline-none focus:ring-2 focus:ring-navy-500/20"
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest first' },
+  { value: 'relevance', label: 'Most relevant', searchOnly: true },
   { value: 'salary_high', label: 'Salary: High to Low' },
   { value: 'salary_low', label: 'Salary: Low to High' },
   { value: 'company_az', label: 'Company A-Z' },
@@ -31,6 +33,7 @@ export default function Filters({
   onFilterChange,
   sortBy,
   onSortChange,
+  hasSearch = false,
 }: FiltersProps) {
   const [filtersOpen, setFiltersOpen] = useState(true)
 
@@ -39,7 +42,6 @@ export default function Filters({
     const handleResize = () => {
       setFiltersOpen(window.innerWidth >= 640)
     }
-
     handleResize()
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
@@ -88,8 +90,12 @@ export default function Filters({
       remote_type: { ...Object.fromEntries(REMOTE_TYPES.map((r) => [r, r])) },
       license: { ...Object.fromEntries(FINANCE_LICENSES.map((l) => [l, l])) },
       grad_date: { [value]: `Graduating: ${value}` },
-      salary_min: { [value]: `Min: $${parseInt(value) >= 1000 ? `${Math.round(parseInt(value) / 1000)}K` : value}` },
-      salary_max: { [value]: `Max: $${parseInt(value) >= 1000 ? `${Math.round(parseInt(value) / 1000)}K` : value}` },
+      salary_min: {
+        [value]: `Min: $${parseInt(value) >= 1000 ? `${Math.round(parseInt(value) / 1000)}K` : value}`,
+      },
+      salary_max: {
+        [value]: `Max: $${parseInt(value) >= 1000 ? `${Math.round(parseInt(value) / 1000)}K` : value}`,
+      },
     }
     return labels[key]?.[value] || value
   }
@@ -107,6 +113,9 @@ export default function Filters({
 
   const activeFilterCount = activeFilters.length
 
+  // Filter sort options: show "Most relevant" only when search is active
+  const visibleSortOptions = SORT_OPTIONS.filter(opt => !opt.searchOnly || hasSearch)
+
   return (
     <div className="space-y-6">
       {/* Sort Dropdown - Always Visible */}
@@ -120,7 +129,7 @@ export default function Filters({
           onChange={(e) => onSortChange(e.target.value)}
           className={`${selectClassName} w-full`}
         >
-          {SORT_OPTIONS.map((option) => (
+          {visibleSortOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -303,7 +312,6 @@ export default function Filters({
               </button>
             )}
           </div>
-
           <div className="flex flex-wrap gap-2">
             {activeFilters.map(({ key, value }) => (
               <div
@@ -318,7 +326,7 @@ export default function Filters({
                   className="inline-flex items-center justify-center rounded text-navy-600 transition hover:bg-navy-200 hover:text-navy-900"
                   aria-label={`Remove ${key} filter`}
                 >
-                  <span className="text-lg leading-none">×</span>
+                  <span className="text-lg leading-none">&times;</span>
                 </button>
               </div>
             ))}
