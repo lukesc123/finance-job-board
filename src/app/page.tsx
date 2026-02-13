@@ -240,7 +240,7 @@ function HomePageContent() {
           {!loading && jobs.length > 0 && (
             <div className="flex items-center justify-center gap-6 text-sm text-navy-100 mb-6">
               <span>{jobs.length} active jobs</span>
-              <span>ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢</span>
+              <span className="text-navy-400">|</span>
               <span>{uniqueCompanies} companies</span>
             </div>
           )}
