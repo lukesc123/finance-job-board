@@ -181,6 +181,16 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                     </span>
                   )}
                 </div>
+                {/* Posted time */}
+                <p className="text-sm text-navy-500 mt-3">
+                  Posted {timeAgo(job.posted_date)}
+                  {job.last_verified_at && (
+                    <span className="text-navy-300 mx-1.5">{'|'}</span>
+                  )}
+                  {job.last_verified_at && (
+                    <span>Verified {timeAgo(job.last_verified_at)}</span>
+                  )}
+                </p>
               </div>
 
               {/* Apply Button - Desktop */}
