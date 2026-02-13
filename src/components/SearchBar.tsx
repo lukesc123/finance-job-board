@@ -5,13 +5,15 @@ import { useState, useRef, useEffect } from 'react'
 interface SearchBarProps {
   onSearch: (query: string) => void
   placeholder?: string
+  initialValue?: string
 }
 
 export default function SearchBar({
   onSearch,
-  placeholder = 'Search jobs by title, company, location...'
+  placeholder = 'Search jobs by title, company, location...',
+  initialValue = ''
 }: SearchBarProps) {
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(initialValue)
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Focus search bar on "/" key press

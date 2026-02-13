@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef, Suspense } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import SearchBar from '@/components/SearchBar'
 import Filters from '@/components/Filters'
 import JobCard from '@/components/JobCard'
@@ -10,22 +11,46 @@ import { debounce } from '@/lib/formatting'
 
 type SortBy = 'newest' | 'salary_high' | 'salary_low' | 'company_az'
 
-export default function HomePage() {
-  const [filters, setFilters] = useState<JobFilters>({
-    category: '',
-    job_type: '',
-    pipeline_stage: '',
-    remote_type: '',
-    license: '',
-    search: '',
-    grad_date: '',
-  })
+const FILTER_KEYS: (keyof JobFilters)[] = ['category', 'job_type', 'pipeline_stage', 'remote_type', 'license', 'search', 'grad_date']
 
+function filtersFromParams(params: URLSearchParams): JobFilters {
+  return {
+    category: (params.get('category') || '') as JobFilters['category'],
+    job_type: (params.get('job_type') || '') as JobFilters['job_type'],
+    pipeline_stage: (params.get('pipeline_stage') || '') as JobFilters['pipeline_stage'],
+    remote_type: (params.get('remote_type') || '') as JobFilters['remote_type'],
+    license: (params.get('license') || '') as JobFilters['license'],
+    search: params.get('search') || '',
+    grad_date: params.get('grad_date') || '',
+  }
+}
+
+function filtersToParams(filters: JobFilters, sortBy: string): string {
+  const params = new URLSearchParams()
+  FILTER_KEYS.forEach(key => {
+    if (filters[key]) params.set(key, filters[key])
+  })
+  if (sortBy !== 'newest') params.set('sort', sortBy)
+  return params.toString()
+}
+
+function HomePageContent() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const isInitialMount = useRef(true)
+
+  const [filters, setFilters] = useState<JobFilters>(() => filtersFromParams(searchParams))
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [sortBy, setSortBy] = useState<SortBy>('newest')
+  const [sortBy, setSortBy] = useState<SortBy>(() => (searchParams.get('sort') as SortBy) || 'newest')
   const [visibleCount, setVisibleCount] = useState(20)
+
+  const updateURL = useCallback((newFilters: JobFilters, newSort: string) => {
+    const qs = filtersToParams(newFilters, newSort)
+    const url = qs ? `/?${qs}` : '/'
+    router.replace(url, { scroll: false })
+  }, [router])
 
   const fetchJobs = useCallback(async (filterState: JobFilters) => {
     setLoading(true)
@@ -57,12 +82,19 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchJobs(filters)
+    isInitialMount.current = false
   }, [])
 
   const handleFilterChange = (newFilters: JobFilters) => {
     setFilters(newFilters)
     setVisibleCount(20)
     fetchJobs(newFilters)
+    updateURL(newFilters, sortBy)
+  }
+
+  const handleSortChange = (newSort: string) => {
+    setSortBy(newSort as SortBy)
+    updateURL(filters, newSort)
   }
 
   const debouncedSearch = useMemo(
@@ -71,8 +103,9 @@ export default function HomePage() {
         const newFilters = { ...filters, search: query }
         setFilters(newFilters)
         fetchJobs(newFilters)
+        updateURL(newFilters, sortBy)
       }, 300),
-    [filters, fetchJobs]
+    [filters, fetchJobs, sortBy, updateURL]
   )
 
   const handleSearch = (query: string) => {
@@ -128,5 +161,127 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-navy$´äÔÀÑ•áÐµÝ¡¥Ñ”Áä´ÄØÁà´ÐÍ´éÁà´Ø±œéÁà´àˆø(€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰µ…àµÜ´Ñá°µàµ…ÕÑ¼Ñ•áÐµ•¹Ñ•Èˆø(€€€€€€€€€€ñ Ä±…ÍÍ9…µ”ô‰Ñ•áÐ´Ñá°Í´éÑ•áÐ´Õá°™½¹Ðµ‰½±µˆ´Ðˆø(€€€€€€€€€€€¹ÑÉäµ1•Ù•°¥¹…¹”)½‰Ì(€€€€€€€€€€ð½ Äø(€€€€€€€€€€ñÀ±…ÍÍ9…µ”ô‰Ñ•áÐµ±œÑ•áÐµ¹…Ùä´ÈÀÀµˆ´Øˆø(€€€€€€€€€€€ÕÉ…Ñ•Á½Í¥Ñ¥½¹Ì™É½´½µÁ…¹ä…É••ÈÁ…•Ì¸¥¹Ñ¡”É¥¡Ð½ÁÁ½ÉÑÕ¹¥Ñä™½Èå½ÕÈ™¥¹…¹”…É••È¸(€€€€€€€€€€ð½Àø(€€€€€€€€€ì…±½…‘¥¹œ€˜˜©½‰Ì¹±•¹Ñ €ø€À€˜˜€ (€€€€€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰™±•à¥Ñ•µÌµ•¹Ñ•È©ÕÍÑ¥™äµ•¹Ñ•È…À´ØÑ•áÐµÍ´Ñ•áÐµ¹…Ùä´ÄÀÀˆø(€€€€€€€€€€€€€€ñÍÁ…¸ùí©½‰Ì¹±•¹Ñ¡ô…Ñ¥Ù”©½‰Ìð½ÍÁ…¸ø(€€€€€€€€€€€€€€ñÍÁ…¸ûŠˆð½ÍÁ…¸ø(€€€€€€€€€€€€€€ñÍÁ…¸ùíÕ¹¥ÅÕ•½µÁ…¹¥•Íô½µÁ…¹¥•Ìð½ÍÁ…¸ø(€€€€€€€€€€€€ð½‘¥Øø(€€€€€€€€€€¥ô(€€€€€€€€ð½‘¥Øø(€€€€€€ð½Í•Ñ¥½¸ø((€€€€€ì¼¨5…¥¸½¹Ñ•¹Ð€¨½ô(€€€€€€ñÍ•Ñ¥½¸±…ÍÍ9…µ”ô‰µ…àµÜ´Ñá°µàµ…ÕÑ¼Áà´ÐÍ´éÁà´Ø±œéÁà´àÁä´ÄÈˆø(€€€€€€€ì¼¨ÉÉ½È	…¹¹•È€¨½ô(€€€€€€€í•ÉÉ½È€˜˜€ (€€€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰µˆ´àÉ½Õ¹‘•µ±œ‰œµÉ•´ÔÀ‰½É‘•È‰½É‘•ÈµÉ•´ÈÀÀÁà´ÐÁä´Ìˆø(€€€€€€€€€€€€ñÀ±…ÍÍ9…µ”ô‰Ñ•áÐµÍ´Ñ•áÐµÉ•´ÜÀÀˆùí•ÉÉ½Éôð½Àø(€€€€€€€€€€ð½‘¥Øø(€€€€€€€€¥ô((€€€€€€€ì¼¨M•…É 	…È€¨½ô(€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰µˆ´àˆø(€€€€€€€€€€ñM•…É¡	…È½¹M•…É õí¡…¹‘±•M•…É¡ô€¼ø(€€€€€€€€ð½‘¥Øø((€€€€€€€ì¼¨¥±Ñ•ÉÌ€¨½ô(€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰µˆ´àˆø(€€€€€€€€€€ñ¥±Ñ•ÉÌ(€€€€€€€€€€€™¥±Ñ•ÉÌõí™¥±Ñ•ÉÍô(€€€€€€€€€€€½¹¥±Ñ•É¡…¹”õí¡…¹‘±•¥±Ñ•É¡…¹•ô(€€€€€€€€€€€Í½ÉÑ	äõíÍ½ÉÑ	åô(€€€€€€€€€€€½¹M½ÉÑ¡…¹”õì¡Ù…°¤€ôøÍ•ÑM½ÉÑ	ä¡Ù…°…ÌM½ÉÑ	ä¥ô(€€€€€€€€€€¼ø(€€€€€€€€ð½‘¥Øø((€€€€€€€ì¼¨I•ÍÕ±ÑÌ½Õ¹Ð€¨½ô(€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰µˆ´Øˆø(€€€€€€€€€í±½…‘¥¹œ€ü€ (€€€€€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰™±•à¥Ñ•µÌµ•¹Ñ•È…À´Èˆø(€€€€€€€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰¥¹±¥¹”µ‰±½¬ ´ÐÜ´Ð…¹¥µ…Ñ”µÍÁ¥¸É½Õ¹‘•µ™Õ±°‰½É‘•È´È‰½É‘•Èµ¹…Ùä´ÌÀÀ‰½É‘•ÈµÐµ¹…Ùä´ØÀÀˆøð½‘¥Øø(€€€€€€€€€€€€€€ñÍÁ…¸±…ÍÍ9…µ”ô‰Ñ•áÐµÍ´Ñ•áÐµ¹…Ùä´ØÀÀˆù1½…‘¥¹œ©½‰Ì¸¸¸ð½ÍÁ…¸ø(€€€€€€€€€€€€ð½‘¥Øø(€€€€€€€€€€¤€è€ (€€€€€€€€€€€€ñÀ±…ÍÍ9…µ”ô‰Ñ•áÐµÍ´™½¹Ðµµ•‘¥Õ´Ñ•áÐµ¹…Ùä´ØÀÀˆø(€€€€€€€€€€€€€€ñÍÁ…¸±…ÍÍ9…µ”ô‰Ñ•áÐµ¹…Ùä´äÀÀˆùíÍ½ÉÑ•‘)½‰Ì¹±•¹Ñ¡ôð½ÍÁ…¸øíÍ½ÉÑ•‘)½‰Ì¹±•¹Ñ €ôôô€Ä€ü€©½ˆœ€è€©½‰Ìô™½Õ¹(€€€€€€€€€€€€€íÍ½ÉÑ•‘)½‰Ì¹±•¹Ñ €ø€À€˜˜€ñÍÁ…¸±…ÍÍ9…µ”ô‰Ñ•áÐµ¹…Ùä´ÐÀÀˆøƒ
-ÜÍ½ÉÑ•‰äí•ÑM½ÉÑ1…‰•° ¥ôð½ÍÁ…¸ùô(€€€€€€€€€€€€ð½Àø(€€€€€€€€€€¥ô(€€€€€€€€ð½‘¥Øø((€€€€€€€ì¼¨)½‰Ì1¥ÍÐ€¨½ô(€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰ÍÁ…”µä´Ìˆø(€€€€€€€€€í±½…‘¥¹œ€ü€ (€€€€€€€€€€€€ðø(€€€€€€€€€€€€€ílÄ°€È°€Ì°€Ð°€Õt¹µ…À ¡¤¤€ôø€ (€€€€€€€€€€€€€€€€ñ)½‰…É‘M­•±•Ñ½¸­•äõí¥ô€¼ø(€€€€€€€€€€€€€€¤¥ô(€€€€€€€€€€€€ð¼ø(€€€€€€€€€€¤€èÍ½ÉÑ•‘)½‰Ì¹±•¹Ñ €ôôô€À€ü€ (€€€€€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰É½Õ¹‘•µá°‰½É‘•È‰½É‘•Èµ¹…Ùä´ÈÀÀ‰œµ¹…Ùä´ÔÀÁà´ØÁä´ÄØÑ•áÐµ•¹Ñ•Èˆø(€€€€€€€€€€€€€€ñÍÙœ±…ÍÍ9…µ”ô‰µàµ…ÕÑ¼ ´ÄÈÜ´ÄÈÑ•áÐµ¹…Ùä´ÌÀÀµˆ´Ðˆ™¥±°ô‰¹½¹”ˆÍÑÉ½­”ô‰ÕÉÉ•¹Ñ½±½ÈˆÙ¥•Ý	½àôˆÀ€À€ÈÐ€ÈÐˆø(€€€€€€€€€€€€€€€€ñÁ…Ñ ÍÑÉ½­•1¥¹•…Àô‰É½Õ¹ˆÍÑÉ½­•1¥¹•©½¥¸ô‰É½Õ¹ˆÍÑÉ½­•]¥‘Ñ õìÄ¸Õôô‰4ÈÄ€ÈÅ°´Ø´Ù´È´Õ„Ü€Ü€À€ÄÄ´ÄÐ€À€Ü€Ü€À€ÀÄÄÐ€Áèˆ€¼ø(€€€€€€€€€€€€€€ð½ÍÙœø(€€€€€€€€€€€€€€ñÀ±…ÍÍ9…µ”ô‰Ñ•áÐµ¹…Ùä´ÜÀÀ™½¹ÐµÍ•µ¥‰½±µˆ´Äˆù9¼©½‰Ìµ…Ñ å½ÕÈÉ¥Ñ•É¥„ð½Àø(€€€€€€€€€€€€€€ñÀ±…ÍÍ9…µ”ô‰Ñ•áÐµÍ´Ñ•áÐµ¹…Ùä´ÔÀÀˆùQÉä‰É½…‘•¹¥¹œå½ÕÈ™¥±Ñ•ÉÌ½ÈÍ•…É Ñ•ÉµÌð½Àø(€€€€€€€€€€€€ð½‘¥Øø(€€€€€€€€€€¤€è€ (€€€€€€€€€€€€ðø(€€€€€€€€€€€€€íÍ½ÉÑ•‘)½‰Ì¹Í±¥” À°Ù¥Í¥‰±•½Õ¹Ð¤¹µ…À ¡©½ˆ¤€ôø€ñ)½‰…É­•äõí©½ˆ¹¥‘ô©½ˆõí©½‰ô€¼ø¥ô(€€€€€€€€€€€€€íÍ½ÉÑ•‘)½‰Ì¹±•¹Ñ €øÙ¥Í¥‰±•½Õ¹Ð€˜˜€ (€€€€€€€€€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰ÁÐ´ÐÑ•áÐµ•¹Ñ•Èˆø(€€€€€€€€€€€€€€€€€€ñ‰ÕÑÑ½¸(€€€€€€€€€€€€€€€€€€€½¹±¥¬õì ¤€ôøÍ•ÑY¥Í¥‰±•½Õ¹Ð¡ÁÉ•Ø€ôøÁÉ•Ø€¬€ÈÀ¥ô(€€€€€€€€€€€€€€€€€€€±…ÍÍ9…µ”ô‰¥¹±¥¹”µ™±•à¥Ñ•µÌµ•¹Ñ•È…À´ÈÉ½Õ¹‘•µ±œ‰½É‘•È‰½É‘•Èµ¹…Ùä´ÈÀÀ‰œµÝ¡¥Ñ”Áà´ØÁä´ÌÑ•áÐµÍ´™½¹ÐµÍ•µ¥‰½±Ñ•áÐµ¹…Ùä´ÜÀÀÑÉ…¹Í¥Ñ¥½¸¡½Ù•Èé‰œµ¹…Ùä´ÔÀ¡½Ù•Èé‰½É‘•Èµ¹…Ùä´ÌÀÀˆ(€€€€€€€€€€€€€€€€€€ø(€€€€€€€€€€€€€€€€€€€M¡½Ü5½É”)½‰Ì(€€€€€€€€€€€€€€€€€€€€ñÍÁ…¸±…ÍÍ9…µ”ô‰Ñ•áÐµáÌÑ•áÐµ¹…Ùä´ÐÀÀˆø(€€€€€€€€€€€€€€€€€€€€€€¡íÍ½ÉÑ•‘)½‰Ì¹±•¹Ñ €´Ù¥Í¥‰±•½Õ¹ÑôÉ•µ…¥¹¥¹œ¤(€€€€€€€€€€€€€€€€€€€€ð½ÍÁ…¸ø(€€€€€€€€€€€€€€€€€€ð½‰ÕÑÑ½¸ø(€€€€€€€€€€€€€€€€ð½‘¥Øø(€€€€€€€€€€€€€€¥ô(€€€€€€€€€€€€ð¼ø(€€€€€€€€€€¥ô(€€€€€€€€ð½‘¥Øø(€€€€€€ð½Í•Ñ¥½¸ø(€€€€ð½‘¥Øø(€€¤)ô(
+      <section className="bg-navy-950 text-white py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl sm:text-5xl font-bold mb-4">
+            Entry-Level Finance Jobs
+          </h1>
+          <p className="text-lg text-navy-200 mb-6">
+            Curated positions from company career pages. Find the right opportunity for your finance career.
+          </p>
+          {!loading && jobs.length > 0 && (
+            <div className="flex items-center justify-center gap-6 text-sm text-navy-100">
+              <span>{jobs.length} active jobs</span>
+              <span>â€¢</span>
+              <span>{uniqueCompanies} companies</span>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Error Banner */}
+        {error && (
+          <div className="mb-8 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
+
+        {/* Search Bar */}
+        <div className="mb-8">
+          <SearchBar onSearch={handleSearch} initialValue={filters.search} />
+        </div>
+
+        {/* Filters */}
+        <div className="mb-8">
+          <Filters
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            sortBy={sortBy}
+            onSortChange={handleSortChange}
+          />
+        </div>
+
+        {/* Results Count */}
+        <div className="mb-6">
+          {loading ? (
+            <div className="flex items-center gap-2">
+              <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-navy-300 border-t-navy-600"></div>
+              <span className="text-sm text-navy-600">Loading jobs...</span>
+            </div>
+          ) : (
+            <p className="text-sm font-medium text-navy-600">
+              <span className="text-navy-900">{sortedJobs.length}</span> {sortedJobs.length === 1 ? 'job' : 'jobs'} found
+              {sortedJobs.length > 0 && <span className="text-navy-400"> Â· sorted by {getSortLabel()}</span>}
+            </p>
+          )}
+        </div>
+
+        {/* Jobs List */}
+        <div className="space-y-3">
+          {loading ? (
+            <>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <JobCardSkeleton key={i} />
+              ))}
+            </>
+          ) : sortedJobs.length === 0 ? (
+            <div className="rounded-xl border border-navy-200 bg-navy-50 px-6 py-16 text-center">
+              <svg className="mx-auto h-12 w-12 text-navy-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <p className="text-navy-700 font-semibold mb-1">No jobs match your criteria</p>
+              <p className="text-sm text-navy-500">Try broadening your filters or search terms</p>
+            </div>
+          ) : (
+            <>
+              {sortedJobs.slice(0, visibleCount).map((job) => <JobCard key={job.id} job={job} />)}
+              {sortedJobs.length > visibleCount && (
+                <div className="pt-4 text-center">
+                  <button
+                    onClick={() => setVisibleCount(prev => prev + 20)}
+                    className="inline-flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-6 py-3 text-sm font-semibold text-navy-700 transition hover:bg-navy-50 hover:border-navy-300"
+                  >
+                    Show More Jobs
+                    <span className="text-xs text-navy-400">
+                      ({sortedJobs.length - visibleCount} remaining)
+                    </span>
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </section>
+    </div>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white">
+        <section className="bg-navy-950 text-white py-16 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-4xl sm:text-5xl font-bold mb-4">Entry-Level Finance Jobs</h1>
+            <p className="text-lg text-navy-200 mb-6">Curated positions from company career pages. Find the right opportunity for your finance career.</p>
+          </div>
+        </section>
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="animate-pulse space-y-4">
+            <div className="h-14 bg-navy-100 rounded-xl" />
+            <div className="h-10 bg-navy-100 rounded-lg w-48" />
+            <div className="grid grid-cols-3 gap-4">
+              <div className="h-10 bg-navy-100 rounded-lg" />
+              <div className="h-10 bg-navy-100 rounded-lg" />
+              <div className="h-10 bg-navy-100 rounded-lg" />
+            </div>
+          </div>
+        </section>
+      </div>
+    }>
+      <HomePageContent />
+    </Suspense>
+  )
+}

@@ -1,3 +1,15 @@
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'For Employers | FinanceJobs',
+  description: 'Reach top entry-level finance and accounting talent. Post your opportunities on FinanceJobs and connect directly with qualified candidates through your career page.',
+  openGraph: {
+    title: 'For Employers | FinanceJobs',
+    description: 'Reach top entry-level finance and accounting talent. Post your opportunities on FinanceJobs.',
+    type: 'website',
+  },
+}
+
 export default function EmployersPage() {
   return (
     <div className="min-h-screen bg-white">
