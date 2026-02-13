@@ -1,8 +1,12 @@
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { timeAgo, formatSalary, formatDate } from '@/lib/formatting'
 import { Job } from '@/types'
+
+// Revalidate every 5 minutes for ISR
+export const revalidate = 300
 
 interface JobDetailPageProps {
   params: Promise<{ id: string }>
@@ -72,27 +76,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const job = await getJobData(id)
 
   if (!job) {
-    return (
-      <div className="min-h-screen bg-white">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <div className="rounded-xl bg-navy-50 p-12">
-            <svg className="mx-auto h-16 w-16 text-navy-300 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h1 className="text-2xl font-bold text-navy-900 mb-2">Job not found</h1>
-            <p className="text-navy-600 mb-8">
-              This listing may have been removed or expired.
-            </p>
-            <Link
-              href="/"
-              className="inline-block rounded-lg bg-navy-900 px-6 py-3 text-sm font-medium text-white hover:bg-navy-800 transition"
-            >
-              Browse All Jobs
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
+    notFound()
   }
 
   const salary = formatSalary(job.salary_min, job.salary_max)

@@ -170,12 +170,41 @@ function HomePageContent() {
             Curated positions from company career pages. Find the right opportunity for your finance career.
           </p>
           {!loading && jobs.length > 0 && (
-            <div className="flex items-center justify-center gap-6 text-sm text-navy-100">
+            <div className="flex items-center justify-center gap-6 text-sm text-navy-100 mb-6">
               <span>{jobs.length} active jobs</span>
               <span>•</span>
               <span>{uniqueCompanies} companies</span>
             </div>
           )}
+          {/* Category Quick Links */}
+          <div className="flex flex-wrap justify-center gap-2 mt-2">
+            {[
+              'Investment Banking',
+              'Accounting',
+              'Sales & Trading',
+              'Corporate Finance',
+              'Consulting',
+              'Private Wealth',
+              'Research',
+              'Risk Management',
+            ].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => {
+                  const newFilters = { ...filters, category: filters.category === cat ? '' : cat } as JobFilters
+                  handleFilterChange(newFilters)
+                  window.scrollTo({ top: 400, behavior: 'smooth' })
+                }}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  filters.category === cat
+                    ? 'bg-white text-navy-950'
+                    : 'bg-navy-800 text-navy-200 hover:bg-navy-700 hover:text-white'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
