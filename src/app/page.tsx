@@ -52,23 +52,7 @@ function HomePageContent() {
   const [showSaved, setShowSaved] = useState(() => searchParams.get('saved') === '1')
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set())
 
-  // Infinite scroll with useEffect observer (re-creates on each batch)
-  const sentinelRef = useRef<HTMLDivElement | null>(null)
 
-  useEffect(() => {
-    const node = sentinelRef.current
-    if (!node) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setVisibleCount(prev => prev + PAGE_SIZE)
-        }
-      },
-      { rootMargin: '200px' }
-    )
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [visibleCount, loading])
 
   // Load saved job IDs from localStorage
   useEffect(() => {
@@ -256,7 +240,7 @@ function HomePageContent() {
           {!loading && jobs.length > 0 && (
             <div className="flex items-center justify-center gap-6 text-sm text-navy-100 mb-6">
               <span>{jobs.length} active jobs</span>
-              <span>ÃÂ¢ÃÂÃÂ¢</span>
+              <span>ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¢</span>
               <span>{uniqueCompanies} companies</span>
             </div>
           )}
@@ -336,7 +320,7 @@ function HomePageContent() {
           ) : (
             <p className="text-sm font-medium text-navy-600">
               <span className="text-navy-900">{sortedJobs.length}</span> {sortedJobs.length === 1 ? 'job' : 'jobs'} found
-              {sortedJobs.length > 0 && <span className="text-navy-400"> ÃÂÃÂ· sorted by {getSortLabel()}</span>}
+              {sortedJobs.length > 0 && <span className="text-navy-400"> ÃÂÃÂÃÂÃÂ· sorted by {getSortLabel()}</span>}
             </p>
           )}
           <button
@@ -381,12 +365,14 @@ function HomePageContent() {
               ))}
               {/* Infinite scroll sentinel */}
               {sortedJobs.length > visibleCount && (
-                <div ref={sentinelRef} className="pt-4 flex flex-col items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-navy-200 border-t-navy-500"></div>
-                    <span className="text-sm text-navy-400">Loading more jobs...</span>
-                  </div>
-                  <span className="text-xs text-navy-300">{sortedJobs.length - visibleCount} remaining</span>
+                <div className="pt-6 flex flex-col items-center gap-2">
+                  <button
+                    onClick={() => setVisibleCount(prev => prev + PAGE_SIZE)}
+                    className="px-6 py-2.5 bg-navy-600 text-white rounded-lg hover:bg-navy-700 transition-colors font-medium text-sm"
+                  >
+                    Show More Jobs
+                  </button>
+                  <span className="text-xs text-navy-300">{sortedJobs.length - visibleCount} more available</span>
                 </div>
               )}
             </>
