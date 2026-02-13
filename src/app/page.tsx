@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react'
 import SearchBar from '@/components/SearchBar'
 import Filters from '@/components/Filters'
 import JobCard from '@/components/JobCard'
+import JobCardSkeleton from '@/components/JobCardSkeleton'
 import { Job, JobFilters } from '@/types'
 import { debounce } from '@/lib/formatting'
 
@@ -24,6 +25,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<SortBy>('newest')
+  const [visibleCount, setVisibleCount] = useState(20)
 
   const fetchJobs = useCallback(async (filterState: JobFilters) => {
     setLoading(true)
@@ -59,6 +61,7 @@ export default function HomePage() {
 
   const handleFilterChange = (newFilters: JobFilters) => {
     setFilters(newFilters)
+    setVisibleCount(20)
     fetchJobs(newFilters)
   }
 
@@ -125,93 +128,5 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-navy-950 text-white py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4">
-            Entry-Level Finance Jobs
-          </h1>
-          <p className="text-lg text-navy-200 mb-6">
-            Curated positions from company career pages. Find the right opportunity for your finance career.
-          </p>
-          {!loading && jobs.length > 0 && (
-            <div className="flex items-center justify-center gap-6 text-sm text-navy-100">
-              <span>{jobs.length} active jobs</span>
-              <span>â€¢</span>
-              <span>{uniqueCompanies} companies</span>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Main Content */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Error Banner */}
-        {error && (
-          <div className="mb-8 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
-            <p className="text-sm text-red-700">{error}</p>
-          </div>
-        )}
-
-        {/* Search Bar */}
-        <div className="mb-8">
-          <SearchBar onSearch={handleSearch} />
-        </div>
-
-        {/* Filters */}
-        <div className="mb-8">
-          <Filters
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            sortBy={sortBy}
-            onSortChange={(val) => setSortBy(val as SortBy)}
-          />
-        </div>
-
-        {/* Results Count */}
-        <div className="mb-6">
-          {loading ? (
-            <div className="flex items-center gap-2">
-              <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-navy-300 border-t-navy-600"></div>
-              <span className="text-sm text-navy-600">Loading jobs...</span>
-            </div>
-          ) : (
-            <p className="text-sm font-medium text-navy-700">
-              {sortedJobs.length} {sortedJobs.length === 1 ? 'job' : 'jobs'} found
-              {sortedJobs.length > 0 && `, sorted by ${getSortLabel()}`}
-            </p>
-          )}
-        </div>
-
-        {/* Jobs List */}
-        <div className="space-y-4">
-          {loading ? (
-            <>
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="rounded-lg border border-navy-200 bg-white p-6 animate-pulse"
-                >
-                  <div className="h-6 w-2/3 rounded bg-navy-100 mb-3"></div>
-                  <div className="h-4 w-1/2 rounded bg-navy-50 mb-4"></div>
-                  <div className="flex gap-2 mb-4">
-                    <div className="h-3 w-20 rounded bg-navy-50"></div>
-                    <div className="h-3 w-20 rounded bg-navy-50"></div>
-                  </div>
-                  <div className="h-4 w-full rounded bg-navy-50"></div>
-                </div>
-              ))}
-            </>
-          ) : sortedJobs.length === 0 ? (
-            <div className="rounded-lg border border-navy-200 bg-navy-50 px-6 py-12 text-center">
-              <div className="mb-3 text-3xl">ðŸ“‹</div>
-              <p className="text-navy-700 font-medium mb-1">No jobs found</p>
-              <p className="text-sm text-navy-600">Try adjusting your filters or search terms</p>
-            </div>
-          ) : (
-            sortedJobs.map((job) => <JobCard key={job.id} job={job} />)
-          )}
-        </div>
-      </section>
-    </div>
-  )
-}
+      <section className="bg-navy$´äÔÀÑ•áÐµÝ¡¥Ñ”Áä´ÄØÁà´ÐÍ´éÁà´Ø±œéÁà´àˆø(€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰µ…àµÜ´Ñá°µàµ…ÕÑ¼Ñ•áÐµ•¹Ñ•Èˆø(€€€€€€€€€€ñ Ä±…ÍÍ9…µ”ô‰Ñ•áÐ´Ñá°Í´éÑ•áÐ´Õá°™½¹Ðµ‰½±µˆ´Ðˆø(€€€€€€€€€€€¹ÑÉäµ1•Ù•°¥¹…¹”)½‰Ì(€€€€€€€€€€ð½ Äø(€€€€€€€€€€ñÀ±…ÍÍ9…µ”ô‰Ñ•áÐµ±œÑ•áÐµ¹…Ùä´ÈÀÀµˆ´Øˆø(€€€€€€€€€€€ÕÉ…Ñ•Á½Í¥Ñ¥½¹Ì™É½´½µÁ…¹ä…É••ÈÁ…•Ì¸¥¹Ñ¡”É¥¡Ð½ÁÁ½ÉÑÕ¹¥Ñä™½Èå½ÕÈ™¥¹…¹”…É••È¸(€€€€€€€€€€ð½Àø(€€€€€€€€€ì…±½…‘¥¹œ€˜˜©½‰Ì¹±•¹Ñ €ø€À€˜˜€ (€€€€€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰™±•à¥Ñ•µÌµ•¹Ñ•È©ÕÍÑ¥™äµ•¹Ñ•È…À´ØÑ•áÐµÍ´Ñ•áÐµ¹…Ùä´ÄÀÀˆø(€€€€€€€€€€€€€€ñÍÁ…¸ùí©½‰Ì¹±•¹Ñ¡ô…Ñ¥Ù”©½‰Ìð½ÍÁ…¸ø(€€€€€€€€€€€€€€ñÍÁ…¸ûŠˆð½ÍÁ…¸ø(€€€€€€€€€€€€€€ñÍÁ…¸ùíÕ¹¥ÅÕ•½µÁ…¹¥•Íô½µÁ…¹¥•Ìð½ÍÁ…¸ø(€€€€€€€€€€€€ð½‘¥Øø(€€€€€€€€€€¥ô(€€€€€€€€ð½‘¥Øø(€€€€€€ð½Í•Ñ¥½¸ø((€€€€€ì¼¨5…¥¸½¹Ñ•¹Ð€¨½ô(€€€€€€ñÍ•Ñ¥½¸±…ÍÍ9…µ”ô‰µ…àµÜ´Ñá°µàµ…ÕÑ¼Áà´ÐÍ´éÁà´Ø±œéÁà´àÁä´ÄÈˆø(€€€€€€€ì¼¨ÉÉ½È	…¹¹•È€¨½ô(€€€€€€€í•ÉÉ½È€˜˜€ (€€€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰µˆ´àÉ½Õ¹‘•µ±œ‰œµÉ•´ÔÀ‰½É‘•È‰½É‘•ÈµÉ•´ÈÀÀÁà´ÐÁä´Ìˆø(€€€€€€€€€€€€ñÀ±…ÍÍ9…µ”ô‰Ñ•áÐµÍ´Ñ•áÐµÉ•´ÜÀÀˆùí•ÉÉ½Éôð½Àø(€€€€€€€€€€ð½‘¥Øø(€€€€€€€€¥ô((€€€€€€€ì¼¨M•…É 	…È€¨½ô(€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰µˆ´àˆø(€€€€€€€€€€ñM•…É¡	…È½¹M•…É õí¡…¹‘±•M•…É¡ô€¼ø(€€€€€€€€ð½‘¥Øø((€€€€€€€ì¼¨¥±Ñ•ÉÌ€¨½ô(€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰µˆ´àˆø(€€€€€€€€€€ñ¥±Ñ•ÉÌ(€€€€€€€€€€€™¥±Ñ•ÉÌõí™¥±Ñ•ÉÍô(€€€€€€€€€€€½¹¥±Ñ•É¡…¹”õí¡…¹‘±•¥±Ñ•É¡…¹•ô(€€€€€€€€€€€Í½ÉÑ	äõíÍ½ÉÑ	åô(€€€€€€€€€€€½¹M½ÉÑ¡…¹”õì¡Ù…°¤€ôøÍ•ÑM½ÉÑ	ä¡Ù…°…ÌM½ÉÑ	ä¥ô(€€€€€€€€€€¼ø(€€€€€€€€ð½‘¥Øø((€€€€€€€ì¼¨I•ÍÕ±ÑÌ½Õ¹Ð€¨½ô(€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰µˆ´Øˆø(€€€€€€€€€í±½…‘¥¹œ€ü€ (€€€€€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰™±•à¥Ñ•µÌµ•¹Ñ•È…À´Èˆø(€€€€€€€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰¥¹±¥¹”µ‰±½¬ ´ÐÜ´Ð…¹¥µ…Ñ”µÍÁ¥¸É½Õ¹‘•µ™Õ±°‰½É‘•È´È‰½É‘•Èµ¹…Ùä´ÌÀÀ‰½É‘•ÈµÐµ¹…Ùä´ØÀÀˆøð½‘¥Øø(€€€€€€€€€€€€€€ñÍÁ…¸±…ÍÍ9…µ”ô‰Ñ•áÐµÍ´Ñ•áÐµ¹…Ùä´ØÀÀˆù1½…‘¥¹œ©½‰Ì¸¸¸ð½ÍÁ…¸ø(€€€€€€€€€€€€ð½‘¥Øø(€€€€€€€€€€¤€è€ (€€€€€€€€€€€€ñÀ±…ÍÍ9…µ”ô‰Ñ•áÐµÍ´™½¹Ðµµ•‘¥Õ´Ñ•áÐµ¹…Ùä´ØÀÀˆø(€€€€€€€€€€€€€€ñÍÁ…¸±…ÍÍ9…µ”ô‰Ñ•áÐµ¹…Ùä´äÀÀˆùíÍ½ÉÑ•‘)½‰Ì¹±•¹Ñ¡ôð½ÍÁ…¸øíÍ½ÉÑ•‘)½‰Ì¹±•¹Ñ €ôôô€Ä€ü€©½ˆœ€è€©½‰Ìô™½Õ¹(€€€€€€€€€€€€€íÍ½ÉÑ•‘)½‰Ì¹±•¹Ñ €ø€À€˜˜€ñÍÁ…¸±…ÍÍ9…µ”ô‰Ñ•áÐµ¹…Ùä´ÐÀÀˆøƒ
+ÜÍ½ÉÑ•‰äí•ÑM½ÉÑ1…‰•° ¥ôð½ÍÁ…¸ùô(€€€€€€€€€€€€ð½Àø(€€€€€€€€€€¥ô(€€€€€€€€ð½‘¥Øø((€€€€€€€ì¼¨)½‰Ì1¥ÍÐ€¨½ô(€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰ÍÁ…”µä´Ìˆø(€€€€€€€€€í±½…‘¥¹œ€ü€ (€€€€€€€€€€€€ðø(€€€€€€€€€€€€€ílÄ°€È°€Ì°€Ð°€Õt¹µ…À ¡¤¤€ôø€ (€€€€€€€€€€€€€€€€ñ)½‰…É‘M­•±•Ñ½¸­•äõí¥ô€¼ø(€€€€€€€€€€€€€€¤¥ô(€€€€€€€€€€€€ð¼ø(€€€€€€€€€€¤€èÍ½ÉÑ•‘)½‰Ì¹±•¹Ñ €ôôô€À€ü€ (€€€€€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰É½Õ¹‘•µá°‰½É‘•È‰½É‘•Èµ¹…Ùä´ÈÀÀ‰œµ¹…Ùä´ÔÀÁà´ØÁä´ÄØÑ•áÐµ•¹Ñ•Èˆø(€€€€€€€€€€€€€€ñÍÙœ±…ÍÍ9…µ”ô‰µàµ…ÕÑ¼ ´ÄÈÜ´ÄÈÑ•áÐµ¹…Ùä´ÌÀÀµˆ´Ðˆ™¥±°ô‰¹½¹”ˆÍÑÉ½­”ô‰ÕÉÉ•¹Ñ½±½ÈˆÙ¥•Ý	½àôˆÀ€À€ÈÐ€ÈÐˆø(€€€€€€€€€€€€€€€€ñÁ…Ñ ÍÑÉ½­•1¥¹•…Àô‰É½Õ¹ˆÍÑÉ½­•1¥¹•©½¥¸ô‰É½Õ¹ˆÍÑÉ½­•]¥‘Ñ õìÄ¸Õôô‰4ÈÄ€ÈÅ°´Ø´Ù´È´Õ„Ü€Ü€À€ÄÄ´ÄÐ€À€Ü€Ü€À€ÀÄÄÐ€Áèˆ€¼ø(€€€€€€€€€€€€€€ð½ÍÙœø(€€€€€€€€€€€€€€ñÀ±…ÍÍ9…µ”ô‰Ñ•áÐµ¹…Ùä´ÜÀÀ™½¹ÐµÍ•µ¥‰½±µˆ´Äˆù9¼©½‰Ìµ…Ñ å½ÕÈÉ¥Ñ•É¥„ð½Àø(€€€€€€€€€€€€€€ñÀ±…ÍÍ9…µ”ô‰Ñ•áÐµÍ´Ñ•áÐµ¹…Ùä´ÔÀÀˆùQÉä‰É½…‘•¹¥¹œå½ÕÈ™¥±Ñ•ÉÌ½ÈÍ•…É Ñ•ÉµÌð½Àø(€€€€€€€€€€€€ð½‘¥Øø(€€€€€€€€€€¤€è€ (€€€€€€€€€€€€ðø(€€€€€€€€€€€€€íÍ½ÉÑ•‘)½‰Ì¹Í±¥” À°Ù¥Í¥‰±•½Õ¹Ð¤¹µ…À ¡©½ˆ¤€ôø€ñ)½‰…É­•äõí©½ˆ¹¥‘ô©½ˆõí©½‰ô€¼ø¥ô(€€€€€€€€€€€€€íÍ½ÉÑ•‘)½‰Ì¹±•¹Ñ €øÙ¥Í¥‰±•½Õ¹Ð€˜˜€ (€€€€€€€€€€€€€€€€ñ‘¥Ø±…ÍÍ9…µ”ô‰ÁÐ´ÐÑ•áÐµ•¹Ñ•Èˆø(€€€€€€€€€€€€€€€€€€ñ‰ÕÑÑ½¸(€€€€€€€€€€€€€€€€€€€½¹±¥¬õì ¤€ôøÍ•ÑY¥Í¥‰±•½Õ¹Ð¡ÁÉ•Ø€ôøÁÉ•Ø€¬€ÈÀ¥ô(€€€€€€€€€€€€€€€€€€€±…ÍÍ9…µ”ô‰¥¹±¥¹”µ™±•à¥Ñ•µÌµ•¹Ñ•È…À´ÈÉ½Õ¹‘•µ±œ‰½É‘•È‰½É‘•Èµ¹…Ùä´ÈÀÀ‰œµÝ¡¥Ñ”Áà´ØÁä´ÌÑ•áÐµÍ´™½¹ÐµÍ•µ¥‰½±Ñ•áÐµ¹…Ùä´ÜÀÀÑÉ…¹Í¥Ñ¥½¸¡½Ù•Èé‰œµ¹…Ùä´ÔÀ¡½Ù•Èé‰½É‘•Èµ¹…Ùä´ÌÀÀˆ(€€€€€€€€€€€€€€€€€€ø(€€€€€€€€€€€€€€€€€€€M¡½Ü5½É”)½‰Ì(€€€€€€€€€€€€€€€€€€€€ñÍÁ…¸±…ÍÍ9…µ”ô‰Ñ•áÐµáÌÑ•áÐµ¹…Ùä´ÐÀÀˆø(€€€€€€€€€€€€€€€€€€€€€€¡íÍ½ÉÑ•‘)½‰Ì¹±•¹Ñ €´Ù¥Í¥‰±•½Õ¹ÑôÉ•µ…¥¹¥¹œ¤(€€€€€€€€€€€€€€€€€€€€ð½ÍÁ…¸ø(€€€€€€€€€€€€€€€€€€ð½‰ÕÑÑ½¸ø(€€€€€€€€€€€€€€€€ð½‘¥Øø(€€€€€€€€€€€€€€¥ô(€€€€€€€€€€€€ð¼ø(€€€€€€€€€€¥ô(€€€€€€€€ð½‘¥Øø(€€€€€€ð½Í•Ñ¥½¸ø(€€€€ð½‘¥Øø(€€¤)ô(
