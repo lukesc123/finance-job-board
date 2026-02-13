@@ -99,8 +99,51 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const badgeColor = getPipelineStageBadgeColor(job.pipeline_stage)
   const hasLicenseInfo = job.licenses_required && job.licenses_required.length > 0 && !job.licenses_required.every(l => l === 'None Required')
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board-luke-schindlers-projects.vercel.app'
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'JobPosting',
+    title: job.title,
+    description: job.description,
+    datePosted: job.posted_date,
+    employmentType: job.job_type === 'Full-time' ? 'FULL_TIME' : job.job_type === 'Part-time' ? 'PART_TIME' : job.job_type === 'Internship' ? 'INTERN' : 'OTHER',
+    hiringOrganization: {
+      '@type': 'Organization',
+      name: job.company?.name || 'Company',
+      ...(job.company?.website && { sameAs: job.company.website }),
+      ...(job.company?.logo_url && { logo: job.company.logo_url }),
+    },
+    jobLocation: {
+      '@type': 'Place',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: job.location,
+      },
+    },
+    ...(job.remote_type === 'Remote' && { jobLocationType: 'TELECOMMUTE' }),
+    ...(job.salary_min && job.salary_max && {
+      baseSalary: {
+        '@type': 'MonetaryAmount',
+        currency: 'USD',
+        value: {
+          '@type': 'QuantitativeValue',
+          minValue: job.salary_min,
+          maxValue: job.salary_max,
+          unitText: 'YEAR',
+        },
+      },
+    }),
+    directApply: false,
+    url: `${siteUrl}/jobs/${job.id}`,
+  }
+
   return (
     <div className="min-h-screen bg-navy-50">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Top bar with back navigation */}
       <div className="bg-white border-b border-navy-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

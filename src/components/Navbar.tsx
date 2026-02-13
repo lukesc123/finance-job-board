@@ -33,9 +33,12 @@ export default function Navbar() {
           >
             Browse Jobs
           </Link>
-          <button className="rounded-lg bg-navy-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-navy-800">
+          <Link
+            href="/employers"
+            className="rounded-lg bg-navy-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-navy-800"
+          >
             For Employers
-          </button>
+          </Link>
         </div>
 
         {/* Mobile Hamburger Menu Button */}
@@ -73,9 +76,12 @@ export default function Navbar() {
             >
               Browse Jobs
             </Link>
-            <button className="rounded-lg bg-navy-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-navy-800 text-left">
+            <Link
+              href="/employers"
+              className="rounded-lg bg-navy-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-navy-800"
+            >
               For Employers
-            </button>
+            </Link>
           </div>
         </div>
       )}
