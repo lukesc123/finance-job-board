@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { timeAgo, formatSalary, formatDate } from '@/lib/formatting'
 import { Job } from '@/types'
+import SimilarJobs from '@/components/SimilarJobs'
 
 // Revalidate every 5 minutes for ISR
 export const revalidate = 300
@@ -329,6 +330,11 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 )}
               </div>
             )}
+          </div>
+
+          {/* Similar Jobs */}
+          <div className="p-6 sm:p-8 border-t border-navy-100">
+            <SimilarJobs jobId={job.id} />
           </div>
 
           {/* Apply Footer */}

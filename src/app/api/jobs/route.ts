@@ -42,17 +42,41 @@ export async function GET(request: NextRequest) {
       query = query.contains('licenses_required', `["${license}"]`)
     }
 
-    // Apply search filter (title or description)
+    // Apply salary range filter
+    const salaryMin = searchParams.get('salary_min')
+    const salaryMax = searchParams.get('salary_max')
+    if (salaryMin) query = query.gte('salary_max', parseInt(salaryMin))
+    if (salaryMax) query = query.lte('salary_min', parseInt(salaryMax))
+
+    // Apply search filter (title, description, location, or company name via post-filter)
+    // We search title, description, and location at the DB level
     if (search) {
-      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
+      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%`)
     }
 
     const { data, error } = await query
 
     if (error) throw error
 
-    // Apply graduation date filter (post-fetch since it requires conditional logic)
+    // Post-fetch: also include company name matches for search
     let filteredData = data ?? []
+    if (search) {
+      const searchLower = search.toLowerCase()
+      const dbMatches = new Set(filteredData.map((j: any) => j.id))
+      // Re-query without search to find company name matches
+      const { data: allData } = await supabaseAdmin
+        .from('jobs')
+        .select('*, company:companies(*)')
+        .eq('is_active', true)
+      if (allData) {
+        const companyMatches = allData.filter(
+          (j: any) => !dbMatches.has(j.id) && j.company?.name?.toLowerCase().includes(searchLower)
+        )
+        filteredData = [...filteredData, ...companyMatches]
+      }
+    }
+
+    // Apply graduation date filter (post-fetch since it requires conditional logic)
     if (gradDate) {
       const gradDateTime = new Date(gradDate).getTime()
       filteredData = filteredData.filter((job) => {

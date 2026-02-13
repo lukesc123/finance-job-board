@@ -61,6 +61,8 @@ export default function Filters({
       license: '',
       search: '',
       grad_date: '',
+      salary_min: '',
+      salary_max: '',
     })
   }
 
@@ -74,7 +76,9 @@ export default function Filters({
     filters.pipeline_stage ||
     filters.remote_type ||
     filters.license ||
-    filters.grad_date
+    filters.grad_date ||
+    filters.salary_min ||
+    filters.salary_max
 
   const getFilterLabel = (key: keyof JobFilters, value: string): string => {
     const labels: Record<string, Record<string, string>> = {
@@ -84,6 +88,8 @@ export default function Filters({
       remote_type: { ...Object.fromEntries(REMOTE_TYPES.map((r) => [r, r])) },
       license: { ...Object.fromEntries(FINANCE_LICENSES.map((l) => [l, l])) },
       grad_date: { [value]: `Graduating: ${value}` },
+      salary_min: { [value]: `Min: $${parseInt(value) >= 1000 ? `${Math.round(parseInt(value) / 1000)}K` : value}` },
+      salary_max: { [value]: `Max: $${parseInt(value) >= 1000 ? `${Math.round(parseInt(value) / 1000)}K` : value}` },
     }
     return labels[key]?.[value] || value
   }
@@ -95,6 +101,8 @@ export default function Filters({
     { key: 'remote_type' as const, value: filters.remote_type },
     { key: 'license' as const, value: filters.license },
     { key: 'grad_date' as const, value: filters.grad_date },
+    { key: 'salary_min' as const, value: filters.salary_min },
+    { key: 'salary_max' as const, value: filters.salary_max },
   ].filter((f) => f.value)
 
   const activeFilterCount = activeFilters.length
@@ -231,9 +239,43 @@ export default function Filters({
             </div>
           </div>
 
-          {/* Graduation Date Input */}
+          {/* Salary Range + Graduation Date */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div>
+              <label className="block text-xs font-medium text-navy-500 mb-1">Min Salary</label>
+              <select
+                value={filters.salary_min}
+                onChange={(e) => handleChange('salary_min', e.target.value)}
+                className={`${selectClassName} w-full`}
+              >
+                <option value="">No minimum</option>
+                <option value="40000">$40K+</option>
+                <option value="50000">$50K+</option>
+                <option value="60000">$60K+</option>
+                <option value="70000">$70K+</option>
+                <option value="80000">$80K+</option>
+                <option value="90000">$90K+</option>
+                <option value="100000">$100K+</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-navy-500 mb-1">Max Salary</label>
+              <select
+                value={filters.salary_max}
+                onChange={(e) => handleChange('salary_max', e.target.value)}
+                className={`${selectClassName} w-full`}
+              >
+                <option value="">No maximum</option>
+                <option value="60000">Up to $60K</option>
+                <option value="80000">Up to $80K</option>
+                <option value="100000">Up to $100K</option>
+                <option value="120000">Up to $120K</option>
+                <option value="150000">Up to $150K</option>
+                <option value="200000">Up to $200K</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-navy-500 mb-1">Graduation Date</label>
               <input
                 id="grad_date"
                 type="month"

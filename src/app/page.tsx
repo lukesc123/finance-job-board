@@ -11,7 +11,7 @@ import { debounce } from '@/lib/formatting'
 
 type SortBy = 'newest' | 'salary_high' | 'salary_low' | 'company_az'
 
-const FILTER_KEYS: (keyof JobFilters)[] = ['category', 'job_type', 'pipeline_stage', 'remote_type', 'license', 'search', 'grad_date']
+const FILTER_KEYS: (keyof JobFilters)[] = ['category', 'job_type', 'pipeline_stage', 'remote_type', 'license', 'search', 'grad_date', 'salary_min', 'salary_max']
 
 function filtersFromParams(params: URLSearchParams): JobFilters {
   return {
@@ -22,6 +22,8 @@ function filtersFromParams(params: URLSearchParams): JobFilters {
     license: (params.get('license') || '') as JobFilters['license'],
     search: params.get('search') || '',
     grad_date: params.get('grad_date') || '',
+    salary_min: params.get('salary_min') || '',
+    salary_max: params.get('salary_max') || '',
   }
 }
 
@@ -65,6 +67,8 @@ function HomePageContent() {
       if (filterState.license) params.append('license', filterState.license)
       if (filterState.search) params.append('search', filterState.search)
       if (filterState.grad_date) params.append('grad_date', filterState.grad_date)
+      if (filterState.salary_min) params.append('salary_min', filterState.salary_min)
+      if (filterState.salary_max) params.append('salary_max', filterState.salary_max)
 
       const response = await fetch(`/api/jobs?${params.toString()}`)
       if (!response.ok) throw new Error('Failed to fetch jobs')
@@ -110,6 +114,11 @@ function HomePageContent() {
 
   const handleSearch = (query: string) => {
     debouncedSearch(query)
+  }
+
+  const handleCategoryFromSearch = (category: string) => {
+    const newFilters = { ...filters, category: category as JobFilters['category'] }
+    handleFilterChange(newFilters)
   }
 
   const sortedJobs = useMemo(() => {
@@ -219,7 +228,7 @@ function HomePageContent() {
 
         {/* Search Bar */}
         <div className="mb-8">
-          <SearchBar onSearch={handleSearch} initialValue={filters.search} />
+          <SearchBar onSearch={handleSearch} onCategorySelect={handleCategoryFromSearch} initialValue={filters.search} />
         </div>
 
         {/* Filters */}
