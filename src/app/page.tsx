@@ -8,7 +8,6 @@ import JobCard from '@/components/JobCard'
 import JobCardSkeleton from '@/components/JobCardSkeleton'
 import { Job, JobFilters } from '@/types'
 import { debounce } from '@/lib/formatting'
-import RecentlyViewed from '@/components/RecentlyViewed'
 
 type SortBy = 'newest' | 'salary_high' | 'salary_low' | 'company_az' | 'relevance'
 
@@ -311,9 +310,7 @@ function HomePageContent() {
           />
         </div>
 
-        <RecentlyViewed />
-
-          {/* Results Count + Saved Toggle */}
+        {/* Results Count + Saved Toggle */}
         <div className="mb-6 flex items-center justify-between">
           {loading ? (
             <div className="flex items-center gap-2">
