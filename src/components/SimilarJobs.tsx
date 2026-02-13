@@ -41,5 +41,5 @@ export default function SimilarJobs({ jobId }: { jobId: string }) {
       </span>
     ))}
   </div>
-)}</div></div></div></div></Link>)})}</div></div>)
+)}</div></div></div></Link>)})}</div></div>)
 }
