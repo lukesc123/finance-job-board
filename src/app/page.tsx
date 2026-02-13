@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import SearchBar from '@/components/SearchBar'
 import Filters from '@/components/Filters'
 import JobCard from '@/components/JobCard'
@@ -44,6 +44,11 @@ export default function HomePage() {
     } finally {
       setLoading(false)
     }
+  }, [])
+
+  useEffect(() => {
+    fetchJobs(filters)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleFilterChange = (newFilters: JobFilters) => {
