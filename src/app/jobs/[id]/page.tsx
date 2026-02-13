@@ -5,7 +5,7 @@ import { timeAgo, formatSalary, formatDate } from '@/lib/formatting'
 import { Job } from '@/types'
 
 interface JobDetailPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 function getPipelineStageBadgeColor(stage: string): string {
@@ -43,7 +43,8 @@ async function getJobData(id: string): Promise<Job | null> {
 }
 
 export async function generateMetadata({ params }: JobDetailPageProps): Promise<Metadata> {
-  const job = await getJobData(params.id)
+  const { id } = await params
+  const job = await getJobData(id)
 
   if (!job) {
     return {
@@ -67,7 +68,8 @@ export async function generateMetadata({ params }: JobDetailPageProps): Promise<
 }
 
 export default async function JobDetailPage({ params }: JobDetailPageProps) {
-  const job = await getJobData(params.id)
+  const { id } = await params
+  const job = await getJobData(id)
 
   if (!job) {
     return (
