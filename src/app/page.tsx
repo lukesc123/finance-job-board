@@ -254,7 +254,7 @@ function HomePageContent() {
           {!loading && jobs.length > 0 && (
             <div className="flex items-center justify-center gap-6 text-sm text-navy-100 mb-6">
               <span>{jobs.length} active jobs</span>
-              <span>•</span>
+              <span>â¢</span>
               <span>{uniqueCompanies} companies</span>
             </div>
           )}
@@ -334,7 +334,7 @@ function HomePageContent() {
           ) : (
             <p className="text-sm font-medium text-navy-600">
               <span className="text-navy-900">{sortedJobs.length}</span> {sortedJobs.length === 1 ? 'job' : 'jobs'} found
-              {sortedJobs.length > 0 && <span className="text-navy-400"> · sorted by {getSortLabel()}</span>}
+              {sortedJobs.length > 0 && <span className="text-navy-400"> Â· sorted by {getSortLabel()}</span>}
             </p>
           )}
           <button
@@ -379,7 +379,7 @@ function HomePageContent() {
               ))}
               {/* Infinite scroll sentinel */}
               {sortedJobs.length > visibleCount && (
-                <div ref={loadMoreRef} className="pt-4 flex flex-col items-center gap-2">
+                <div key={visibleCount} ref={loadMoreRef} className="pt-4 flex flex-col items-center gap-2">
                   <div className="flex items-center gap-2">
                     <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-navy-200 border-t-navy-500"></div>
                     <span className="text-sm text-navy-400">Loading more jobs...</span>
