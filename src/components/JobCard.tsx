@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
 import { timeAgo, formatSalary } from '@/lib/formatting'
@@ -12,11 +13,29 @@ function getPipelineStageBadgeColor(stage: string): string {
   return 'bg-navy-50 text-navy-700 border border-navy-200'
 }
 
-interface JobCardProps {
-  job: Job
+function HighlightText({ text, highlight }: { text: string; highlight: string }) {
+  if (!highlight || highlight.length < 2) return <>{text}</>
+  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
+  const parts = text.split(regex)
+  return (
+    <>
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <mark key={i} className="bg-yellow-100 text-inherit rounded-sm px-0.5">{part}</mark>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  )
 }
 
-export default function JobCard({ job }: JobCardProps) {
+interface JobCardProps {
+  job: Job
+  searchQuery?: string
+}
+
+export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
   const salary = formatSalary(job.salary_min, job.salary_max)
   const companyInitial = job.company?.name?.charAt(0).toUpperCase() || '?'
   const timePosted = timeAgo(job.posted_date)
@@ -25,10 +44,52 @@ export default function JobCard({ job }: JobCardProps) {
     job.licenses_required.length > 0 &&
     !job.licenses_required.every(l => l === 'None Required')
 
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    try {
+      const savedJobs = JSON.parse(localStorage.getItem('savedJobs') || '[]')
+      setSaved(savedJobs.includes(job.id))
+    } catch { /* ignore */ }
+  }, [job.id])
+
+  const toggleSave = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      const savedJobs: string[] = JSON.parse(localStorage.getItem('savedJobs') || '[]')
+      let updated: string[]
+      if (savedJobs.includes(job.id)) {
+        updated = savedJobs.filter(id => id !== job.id)
+        setSaved(false)
+      } else {
+        updated = [...savedJobs, job.id]
+        setSaved(true)
+      }
+      localStorage.setItem('savedJobs', JSON.stringify(updated))
+      window.dispatchEvent(new Event('savedJobsChanged'))
+    } catch { /* ignore */ }
+  }
+
   return (
     <Link href={`/jobs/${job.id}`}>
       <div className="group relative rounded-xl border border-navy-100 bg-white p-5 transition-all duration-200 hover:shadow-lg hover:shadow-navy-100/50 hover:-translate-y-0.5 hover:border-navy-300">
-        <div className="flex flex-col gap-3">
+        {/* Save/Bookmark Button */}
+        <button
+          onClick={toggleSave}
+          className={`absolute top-4 right-4 p-1.5 rounded-lg transition-all ${
+            saved
+              ? 'text-amber-500 hover:text-amber-600'
+              : 'text-navy-300 opacity-0 group-hover:opacity-100 hover:text-navy-500'
+          }`}
+          aria-label={saved ? 'Unsave job' : 'Save job'}
+        >
+          <svg className="h-5 w-5" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+          </svg>
+        </button>
+
+        <div className="flex flex-col gap-3 pr-8">
           {/* Top Row: Badge + Verified */}
           <div className="flex items-center gap-2">
             <span className={`inline-block rounded-lg px-2.5 py-1 text-xs font-semibold ${getPipelineStageBadgeColor(job.pipeline_stage)}`}>
@@ -60,9 +121,11 @@ export default function JobCard({ job }: JobCardProps) {
 
             <div className="min-w-0 flex-1">
               <h3 className="font-bold text-navy-900 group-hover:text-navy-700 transition text-base leading-snug">
-                {job.title}
+                <HighlightText text={job.title} highlight={searchQuery} />
               </h3>
-              <p className="text-sm text-navy-500 mt-0.5">{job.company?.name}</p>
+              <p className="text-sm text-navy-500 mt-0.5">
+                <HighlightText text={job.company?.name || ''} highlight={searchQuery} />
+              </p>
             </div>
           </div>
 
@@ -73,7 +136,7 @@ export default function JobCard({ job }: JobCardProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              {job.location}
+              <HighlightText text={job.location} highlight={searchQuery} />
             </span>
             <span>·</span>
             <span>{job.remote_type}</span>

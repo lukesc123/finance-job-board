@@ -74,6 +74,36 @@ export async function GET(request: NextRequest) {
         )
         filteredData = [...filteredData, ...companyMatches]
       }
+
+      // Compute relevance scores for sorting
+      filteredData = filteredData.map((job: any) => {
+        let relevance = 0
+        const sl = searchLower
+
+        // Title exact match (highest priority)
+        if (job.title.toLowerCase() === sl) relevance += 100
+        // Title starts with search
+        else if (job.title.toLowerCase().startsWith(sl)) relevance += 80
+        // Title contains search
+        else if (job.title.toLowerCase().includes(sl)) relevance += 60
+
+        // Company name match
+        if (job.company?.name?.toLowerCase().includes(sl)) relevance += 40
+
+        // Location match
+        if (job.location.toLowerCase().includes(sl)) relevance += 20
+
+        // Description match (lowest priority)
+        if (job.description.toLowerCase().includes(sl)) relevance += 10
+
+        return { ...job, _relevance: relevance }
+      })
+
+      // Sort by relevance (highest first), then by date for ties
+      filteredData.sort((a: any, b: any) => {
+        if (b._relevance !== a._relevance) return b._relevance - a._relevance
+        return new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime()
+      })
     }
 
     // Apply graduation date filter (post-fetch since it requires conditional logic)

@@ -9,7 +9,7 @@ import JobCardSkeleton from '@/components/JobCardSkeleton'
 import { Job, JobFilters } from '@/types'
 import { debounce } from '@/lib/formatting'
 
-type SortBy = 'newest' | 'salary_high' | 'salary_low' | 'company_az'
+type SortBy = 'newest' | 'salary_high' | 'salary_low' | 'company_az' | 'relevance'
 
 const FILTER_KEYS: (keyof JobFilters)[] = ['category', 'job_type', 'pipeline_stage', 'remote_type', 'license', 'search', 'grad_date', 'salary_min', 'salary_max']
 
@@ -27,12 +27,13 @@ function filtersFromParams(params: URLSearchParams): JobFilters {
   }
 }
 
-function filtersToParams(filters: JobFilters, sortBy: string): string {
+function filtersToParams(filters: JobFilters, sortBy: string, showSaved: boolean): string {
   const params = new URLSearchParams()
   FILTER_KEYS.forEach(key => {
     if (filters[key]) params.set(key, filters[key])
   })
-  if (sortBy !== 'newest') params.set('sort', sortBy)
+  if (sortBy !== 'newest' && sortBy !== 'relevance') params.set('sort', sortBy)
+  if (showSaved) params.set('saved', '1')
   return params.toString()
 }
 
@@ -47,12 +48,31 @@ function HomePageContent() {
   const [error, setError] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<SortBy>(() => (searchParams.get('sort') as SortBy) || 'newest')
   const [visibleCount, setVisibleCount] = useState(20)
+  const [showSaved, setShowSaved] = useState(() => searchParams.get('saved') === '1')
+  const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set())
 
-  const updateURL = useCallback((newFilters: JobFilters, newSort: string) => {
-    const qs = filtersToParams(newFilters, newSort)
+  // Load saved job IDs from localStorage
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('savedJobs') || '[]')
+      setSavedJobIds(new Set(saved))
+    } catch { /* ignore */ }
+
+    const handleChange = () => {
+      try {
+        const saved = JSON.parse(localStorage.getItem('savedJobs') || '[]')
+        setSavedJobIds(new Set(saved))
+      } catch { /* ignore */ }
+    }
+    window.addEventListener('savedJobsChanged', handleChange)
+    return () => window.removeEventListener('savedJobsChanged', handleChange)
+  }, [])
+
+  const updateURL = useCallback((newFilters: JobFilters, newSort: string, newShowSaved?: boolean) => {
+    const qs = filtersToParams(newFilters, newSort, newShowSaved ?? showSaved)
     const url = qs ? `/?${qs}` : '/'
     router.replace(url, { scroll: false })
-  }, [router])
+  }, [router, showSaved])
 
   const fetchJobs = useCallback(async (filterState: JobFilters) => {
     setLoading(true)
@@ -107,7 +127,16 @@ function HomePageContent() {
         const newFilters = { ...filters, search: query }
         setFilters(newFilters)
         fetchJobs(newFilters)
-        updateURL(newFilters, sortBy)
+        // Auto-switch to relevance sort when searching
+        if (query && sortBy === 'newest') {
+          setSortBy('relevance')
+          updateURL(newFilters, 'relevance')
+        } else if (!query && sortBy === 'relevance') {
+          setSortBy('newest')
+          updateURL(newFilters, 'newest')
+        } else {
+          updateURL(newFilters, sortBy)
+        }
       }, 300),
     [filters, fetchJobs, sortBy, updateURL]
   )
@@ -121,8 +150,25 @@ function HomePageContent() {
     handleFilterChange(newFilters)
   }
 
+  const handleToggleSaved = () => {
+    const next = !showSaved
+    setShowSaved(next)
+    setVisibleCount(20)
+    updateURL(filters, sortBy, next)
+  }
+
   const sortedJobs = useMemo(() => {
-    const jobsCopy = [...jobs]
+    let jobsCopy = [...jobs]
+
+    // Filter to saved only if showSaved is on
+    if (showSaved) {
+      jobsCopy = jobsCopy.filter(j => savedJobIds.has(j.id))
+    }
+
+    // When search is active and sort is relevance, keep API order (already relevance-sorted)
+    if (sortBy === 'relevance' && filters.search) {
+      return jobsCopy
+    }
 
     switch (sortBy) {
       case 'newest':
@@ -148,12 +194,14 @@ function HomePageContent() {
       default:
         return jobsCopy
     }
-  }, [jobs, sortBy])
+  }, [jobs, sortBy, filters.search, showSaved, savedJobIds])
 
   const getSortLabel = () => {
     switch (sortBy) {
       case 'newest':
         return 'newest'
+      case 'relevance':
+        return 'relevance'
       case 'salary_high':
         return 'highest salary'
       case 'salary_low':
@@ -241,8 +289,8 @@ function HomePageContent() {
           />
         </div>
 
-        {/* Results Count */}
-        <div className="mb-6">
+        {/* Results Count + Saved Toggle */}
+        <div className="mb-6 flex items-center justify-between">
           {loading ? (
             <div className="flex items-center gap-2">
               <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-navy-300 border-t-navy-600"></div>
@@ -254,6 +302,19 @@ function HomePageContent() {
               {sortedJobs.length > 0 && <span className="text-navy-400"> · sorted by {getSortLabel()}</span>}
             </p>
           )}
+          <button
+            onClick={handleToggleSaved}
+            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+              showSaved
+                ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                : 'bg-white text-navy-500 border border-navy-200 hover:border-navy-300 hover:text-navy-700'
+            }`}
+          >
+            <svg className="h-3.5 w-3.5" fill={showSaved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+            Saved{savedJobIds.size > 0 ? ` (${savedJobIds.size})` : ''}
+          </button>
         </div>
 
         {/* Jobs List */}
@@ -269,12 +330,18 @@ function HomePageContent() {
               <svg className="mx-auto h-12 w-12 text-navy-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              <p className="text-navy-700 font-semibold mb-1">No jobs match your criteria</p>
-              <p className="text-sm text-navy-500">Try broadening your filters or search terms</p>
+              <p className="text-navy-700 font-semibold mb-1">
+                {showSaved ? 'No saved jobs yet' : 'No jobs match your criteria'}
+              </p>
+              <p className="text-sm text-navy-500">
+                {showSaved ? 'Click the bookmark icon on any job to save it' : 'Try broadening your filters or search terms'}
+              </p>
             </div>
           ) : (
             <>
-              {sortedJobs.slice(0, visibleCount).map((job) => <JobCard key={job.id} job={job} />)}
+              {sortedJobs.slice(0, visibleCount).map((job) => (
+                <JobCard key={job.id} job={job} searchQuery={filters.search} />
+              ))}
               {sortedJobs.length > visibleCount && (
                 <div className="pt-4 text-center">
                   <button
