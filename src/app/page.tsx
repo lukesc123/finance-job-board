@@ -68,7 +68,7 @@ function HomePageContent() {
     )
     observer.observe(node)
     return () => observer.disconnect()
-  }, [visibleCount])
+  }, [visibleCount, loading])
 
   // Load saved job IDs from localStorage
   useEffect(() => {
@@ -256,7 +256,7 @@ function HomePageContent() {
           {!loading && jobs.length > 0 && (
             <div className="flex items-center justify-center gap-6 text-sm text-navy-100 mb-6">
               <span>{jobs.length} active jobs</span>
-              <span>Ã¢ÂÂ¢</span>
+              <span>ÃÂ¢ÃÂÃÂ¢</span>
               <span>{uniqueCompanies} companies</span>
             </div>
           )}
@@ -336,7 +336,7 @@ function HomePageContent() {
           ) : (
             <p className="text-sm font-medium text-navy-600">
               <span className="text-navy-900">{sortedJobs.length}</span> {sortedJobs.length === 1 ? 'job' : 'jobs'} found
-              {sortedJobs.length > 0 && <span className="text-navy-400"> ÃÂ· sorted by {getSortLabel()}</span>}
+              {sortedJobs.length > 0 && <span className="text-navy-400"> ÃÂÃÂ· sorted by {getSortLabel()}</span>}
             </p>
           )}
           <button
