@@ -1,65 +1,78 @@
 import Link from 'next/link'
+import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { Job, LicenseInfo } from '@/types'
+import { timeAgo, formatSalary, formatDate } from '@/lib/formatting'
+import { Job } from '@/types'
 
 interface JobDetailPageProps {
   params: { id: string }
 }
 
-function formatSalary(min: number | null, max: number | null): string {
-  if (!min && !max) return ''
-  if (min && max) {
-    return `$${(min / 1000).toFixed(0)}K - $${(max / 1000).toFixed(0)}K`
+function getPipelineStageBadgeColor(stage: string): string {
+  if (stage.includes('Internship')) {
+    return 'bg-green-50 text-green-700 border-green-200'
   }
-  if (min) return `$${(min / 1000).toFixed(0)}K+`
-  return `up to $${(max! / 1000).toFixed(0)}K`
+  if (stage === 'New Grad') {
+    return 'bg-blue-50 text-blue-700 border-blue-200'
+  }
+  if (stage === 'No Experience Required') {
+    return 'bg-purple-50 text-purple-700 border-purple-200'
+  }
+  if (stage === 'Early Career') {
+    return 'bg-orange-50 text-orange-700 border-orange-200'
+  }
+  return 'bg-navy-50 text-navy-700 border-navy-200'
 }
 
-function timeAgo(dateString: string): string {
-  const now = new Date()
-  const date = new Date(dateString)
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+async function getJobData(id: string): Promise<Job | null> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('jobs')
+      .select('*, company:company_id(*)')
+      .eq('id', id)
+      .single()
 
-  if (seconds < 60) return 'just now'
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
-  if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`
-  if (seconds < 2592000) return `${Math.floor(seconds / 604800)}w ago`
-  return `${Math.floor(seconds / 2592000)}mo ago`
+    if (error || !data) {
+      return null
+    }
+
+    return data as Job
+  } catch {
+    return null
+  }
 }
 
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+export async function generateMetadata({ params }: JobDetailPageProps): Promise<Metadata> {
+  const job = await getJobData(params.id)
+
+  if (!job) {
+    return {
+      title: 'Job Not Found | FinanceJobs',
+      description: 'The job listing you are looking for could not be found.',
+    }
+  }
+
+  const description = job.description.substring(0, 160).trim() + '...'
+  const title = `${job.title} at ${job.company?.name || 'Company'} | FinanceJobs`
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+    },
+  }
 }
 
 export default async function JobDetailPage({ params }: JobDetailPageProps) {
-  let job: Job | null = null
-  let error = false
+  const job = await getJobData(params.id)
 
-  try {
-    const { data, error: fetchError } = await supabaseAdmin
-      .from('jobs')
-      .select('*, company:company_id(*)')
-      .eq('id', params.id)
-      .single()
-
-    if (fetchError || !data) {
-      error = true
-    } else {
-      job = data as Job
-    }
-  } catch {
-    error = true
-  }
-
-  if (error || !job) {
+  if (!job) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="max-w-3xl mx-auto px-4 py-20 text-center">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <h1 className="text-2xl font-bold text-navy-900">Job not found</h1>
           <p className="mt-2 text-navy-600">
             This listing may have been removed or expired.
@@ -76,126 +89,127 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   }
 
   const salary = formatSalary(job.salary_min, job.salary_max)
+  const badgeColor = getPipelineStageBadgeColor(job.pipeline_stage)
+  const hasLicenseInfo = job.licenses_required && job.licenses_required.length > 0 && !job.licenses_required.every(l => l === 'None Required')
 
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
-        <div className="mb-8">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1 text-sm text-navy-600 hover:text-navy-800 transition mb-6"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to jobs
-          </Link>
+        {/* Back Link */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1 text-sm text-navy-600 hover:text-navy-800 transition mb-8"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back
+        </Link>
 
-          <div className="flex items-start gap-4">
-            {job.company?.logo_url ? (
-              <img
-                src={job.company.logo_url}
-                alt={job.company.name}
-                className="h-16 w-16 rounded-lg object-contain flex-shrink-0"
-              />
+        {/* Job Title and Company Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-navy-900 mb-3">{job.title}</h1>
+          <div className="flex items-center gap-2 mb-6">
+            {job.company?.website ? (
+              <a
+                href={job.company.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-lg font-semibold text-navy-700 hover:text-navy-900 transition"
+              >
+                {job.company.name}
+              </a>
             ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-navy-100 text-lg font-bold text-navy-700 flex-shrink-0">
-                {job.company?.name?.charAt(0) || '?'}
-              </div>
+              <p className="text-lg font-semibold text-navy-700">{job.company?.name}</p>
             )}
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-navy-900">{job.title}</h1>
-              <p className="mt-2 text-lg text-navy-700">{job.company?.name}</p>
-            </div>
+          </div>
+
+          {/* Pipeline Stage Badge */}
+          <div className="mb-6">
+            <span className={`inline-block rounded-lg border px-3 py-1.5 text-sm font-medium ${badgeColor}`}>
+              {job.pipeline_stage}
+            </span>
           </div>
         </div>
 
-        {/* Meta Badges */}
-        <div className="mb-8 flex flex-wrap gap-3">
-          <span className="inline-flex items-center gap-1.5 rounded-lg bg-navy-50 px-3 py-1.5 text-sm font-medium text-navy-700">
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            {job.location}
-          </span>
+        {/* Key Metadata Grid */}
+        <div className="mb-12 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="rounded-lg bg-navy-50 p-4">
+            <p className="text-xs font-semibold text-navy-600 uppercase tracking-wide">Location</p>
+            <p className="mt-1 text-sm font-medium text-navy-900">{job.location}</p>
+          </div>
 
-          <span className="rounded-lg bg-navy-50 px-3 py-1.5 text-sm font-medium text-navy-700">
-            {job.remote_type}
-          </span>
+          <div className="rounded-lg bg-navy-50 p-4">
+            <p className="text-xs font-semibold text-navy-600 uppercase tracking-wide">Remote Type</p>
+            <p className="mt-1 text-sm font-medium text-navy-900">{job.remote_type}</p>
+          </div>
 
-          <span className="rounded-lg bg-navy-50 px-3 py-1.5 text-sm font-medium text-navy-700">
-            {job.job_type}
-          </span>
-
-          <span className="rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700">
-            {job.pipeline_stage}
-          </span>
-
-          <span className="rounded-lg bg-navy-50 px-3 py-1.5 text-sm font-medium text-navy-700">
-            {job.category}
-          </span>
+          <div className="rounded-lg bg-navy-50 p-4">
+            <p className="text-xs font-semibold text-navy-600 uppercase tracking-wide">Job Type</p>
+            <p className="mt-1 text-sm font-medium text-navy-900">{job.job_type}</p>
+          </div>
 
           {salary && (
-            <span className="rounded-lg bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700">
-              {salary}
-            </span>
+            <div className="rounded-lg bg-emerald-50 p-4">
+              <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wide">Salary</p>
+              <p className="mt-1 text-sm font-semibold text-emerald-700">{salary}</p>
+            </div>
           )}
         </div>
 
         {/* Main Content */}
-        <div className="space-y-8 mb-12">
+        <div className="space-y-12 mb-12">
           {/* Description */}
           <div>
-            <h2 className="text-xl font-semibold text-navy-900 mb-4">About this role</h2>
-            <div className="prose prose-navy max-w-none">
-              <p className="text-navy-700 whitespace-pre-wrap leading-relaxed">
-                {job.description}
-              </p>
+            <h2 className="text-2xl font-bold text-navy-900 mb-4">About this role</h2>
+            <div className="text-navy-700 whitespace-pre-wrap leading-relaxed">
+              {job.description}
             </div>
           </div>
 
           {/* Licenses Required */}
-          {job.licenses_required && job.licenses_required.length > 0 && (
+          {hasLicenseInfo && (
             <div>
-              <h2 className="text-xl font-semibold text-navy-900 mb-4">Licenses Required</h2>
+              <h2 className="text-2xl font-bold text-navy-900 mb-4">Licenses Required</h2>
               <div className="space-y-3">
                 {job.licenses_required.map((license) => (
-                  <div
-                    key={license}
-                    className="rounded-lg border border-orange-200 bg-orange-50 p-4"
-                  >
-                    <p className="font-medium text-orange-900">{license}</p>
-                    {job.licenses_info && (
-                      <div className="mt-3 text-sm text-orange-800 space-y-1">
-                        {job.licenses_info.study_time_days && (
-                          <p>
-                            Study Time: {job.licenses_info.study_time_days} days
-                          </p>
-                        )}
-                        {job.licenses_info.pass_deadline_days && (
-                          <p>
-                            Pass Deadline: {job.licenses_info.pass_deadline_days} days
-                          </p>
-                        )}
-                        {job.licenses_info.max_attempts && (
-                          <p>
-                            Max Attempts: {job.licenses_info.max_attempts}
-                          </p>
-                        )}
-                        {job.licenses_info.prep_materials_paid !== null && (
-                          <p>
-                            Prep Materials Paid:{' '}
-                            {job.licenses_info.prep_materials_paid ? 'Yes' : 'No'}
-                          </p>
-                        )}
-                        {job.licenses_info.notes && (
-                          <p>{job.licenses_info.notes}</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                  license !== 'None Required' && (
+                    <div
+                      key={license}
+                      className="rounded-lg border border-orange-200 bg-orange-50 p-4"
+                    >
+                      <p className="font-semibold text-orange-900 mb-3">{license}</p>
+                      {job.licenses_info && (
+                        <div className="text-sm text-orange-800 space-y-2">
+                          {job.licenses_info.study_time_days !== null && (
+                            <p>
+                              <span className="font-medium">Study Time:</span> {job.licenses_info.study_time_days} days
+                            </p>
+                          )}
+                          {job.licenses_info.pass_deadline_days !== null && (
+                            <p>
+                              <span className="font-medium">Pass Deadline:</span> {job.licenses_info.pass_deadline_days} days
+                            </p>
+                          )}
+                          {job.licenses_info.max_attempts !== null && (
+                            <p>
+                              <span className="font-medium">Max Attempts:</span> {job.licenses_info.max_attempts}
+                            </p>
+                          )}
+                          {job.licenses_info.prep_materials_paid !== null && (
+                            <p>
+                              <span className="font-medium">Prep Materials Paid:</span> {job.licenses_info.prep_materials_paid ? 'Yes' : 'No'}
+                            </p>
+                          )}
+                          {job.licenses_info.notes && (
+                            <p>
+                              <span className="font-medium">Notes:</span> {job.licenses_info.notes}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
                 ))}
               </div>
             </div>
@@ -204,17 +218,17 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           {/* Graduation Date Requirements */}
           {job.grad_date_required && (
             <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-              <h3 className="font-semibold text-yellow-900 mb-2">Graduation Date Requirements</h3>
-              <div className="text-sm text-yellow-800 space-y-1">
+              <h3 className="font-semibold text-yellow-900 mb-3">Graduation Date Requirements</h3>
+              <div className="text-sm text-yellow-800 space-y-2">
                 {job.grad_date_earliest && (
                   <p>
-                    Earliest Graduation Date:{' '}
+                    <span className="font-medium">Earliest Graduation Date:</span>{' '}
                     {formatDate(job.grad_date_earliest)}
                   </p>
                 )}
                 {job.grad_date_latest && (
                   <p>
-                    Latest Graduation Date:{' '}
+                    <span className="font-medium">Latest Graduation Date:</span>{' '}
                     {formatDate(job.grad_date_latest)}
                   </p>
                 )}
@@ -234,7 +248,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           {/* Company Info */}
           {job.company?.description && (
             <div>
-              <h2 className="text-xl font-semibold text-navy-900 mb-4">
+              <h2 className="text-2xl font-bold text-navy-900 mb-4">
                 About {job.company.name}
               </h2>
               <p className="text-navy-700 leading-relaxed">
@@ -242,43 +256,28 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               </p>
             </div>
           )}
-
-          {/* Metadata */}
-          <div className="text-sm text-navy-600 space-y-1 border-t border-navy-200 pt-6">
-            <p>Posted: {formatDate(job.posted_date)}</p>
-            {job.last_verified_at && (
-              <p>Last Verified: {formatDate(job.last_verified_at)}</p>
-            )}
-          </div>
         </div>
 
-        {/* CTA Section */}
-        <div className="rounded-lg border border-navy-200 bg-navy-50 p-8 text-center">
-          <p className="mb-6 text-navy-700">
-            Apply directly on {job.company?.name}&apos;s career page
-          </p>
+        {/* CTA Button */}
+        <div className="mb-12">
           <a
             href={job.apply_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-8 py-3 text-base font-semibold text-white hover:bg-emerald-700 transition"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-8 py-4 text-base font-semibold text-white hover:bg-emerald-700 transition"
           >
             Apply on Company Site
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
           </a>
-          {job.source_url && (
-            <div className="mt-4">
-              <a
-                href={job.source_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-navy-600 hover:text-navy-800 transition underline"
-              >
-                View on career page
-              </a>
-            </div>
+        </div>
+
+        {/* Metadata Footer */}
+        <div className="text-sm text-navy-600 space-y-1 border-t border-navy-200 pt-6">
+          <p>Posted {timeAgo(job.posted_date)}</p>
+          {job.last_verified_at && (
+            <p>Last verified {timeAgo(job.last_verified_at)}</p>
           )}
         </div>
       </div>

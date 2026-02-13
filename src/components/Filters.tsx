@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import {
   JobFilters,
   JOB_CATEGORIES,
@@ -13,9 +12,25 @@ import {
 interface FiltersProps {
   filters: JobFilters
   onFilterChange: (filters: JobFilters) => void
+  sortBy: string
+  onSortChange: (sort: string) => void
 }
 
-export default function Filters({ filters, onFilterChange }: FiltersProps) {
+const selectClassName = "rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900 transition hover:border-navy-300 focus:border-navy-500 focus:outline-none focus:ring-2 focus:ring-navy-500/20"
+
+const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest first' },
+  { value: 'salary_high', label: 'Salary: High to Low' },
+  { value: 'salary_low', label: 'Salary: Low to High' },
+  { value: 'company_az', label: 'Company A-Z' },
+]
+
+export default function Filters({
+  filters,
+  onFilterChange,
+  sortBy,
+  onSortChange,
+}: FiltersProps) {
   const handleChange = (key: keyof JobFilters, value: string) => {
     onFilterChange({
       ...filters,
@@ -35,6 +50,10 @@ export default function Filters({ filters, onFilterChange }: FiltersProps) {
     })
   }
 
+  const handleRemoveFilter = (key: keyof JobFilters) => {
+    handleChange(key, '')
+  }
+
   const isFiltered =
     filters.category ||
     filters.job_type ||
@@ -43,106 +62,183 @@ export default function Filters({ filters, onFilterChange }: FiltersProps) {
     filters.license ||
     filters.grad_date
 
+  const getFilterLabel = (key: keyof JobFilters, value: string): string => {
+    const labels: Record<string, Record<string, string>> = {
+      category: { ...Object.fromEntries(JOB_CATEGORIES.map((c) => [c, c])) },
+      job_type: { ...Object.fromEntries(JOB_TYPES.map((t) => [t, t])) },
+      pipeline_stage: { ...Object.fromEntries(PIPELINE_STAGES.map((s) => [s, s])) },
+      remote_type: { ...Object.fromEntries(REMOTE_TYPES.map((r) => [r, r])) },
+      license: { ...Object.fromEntries(FINANCE_LICENSES.map((l) => [l, l])) },
+      grad_date: { [value]: `Graduating: ${value}` },
+    }
+    return labels[key]?.[value] || value
+  }
+
+  const activeFilters = [
+    { key: 'category' as const, value: filters.category },
+    { key: 'job_type' as const, value: filters.job_type },
+    { key: 'pipeline_stage' as const, value: filters.pipeline_stage },
+    { key: 'remote_type' as const, value: filters.remote_type },
+    { key: 'license' as const, value: filters.license },
+    { key: 'grad_date' as const, value: filters.grad_date },
+  ].filter((f) => f.value)
+
   return (
-    <div className="space-y-4">
-      {/* Main Filters Row */}
-      <div className="flex flex-wrap gap-3">
-        <select
-          value={filters.category}
-          onChange={(e) => handleChange('category', e.target.value)}
-          className="rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900 transition focus:border-navy-500 focus:outline-none focus:ring-2 focus:ring-navy-500/20"
-        >
-          <option value="">Category</option>
-          {JOB_CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={filters.job_type}
-          onChange={(e) => handleChange('job_type', e.target.value)}
-          className="rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900 transition focus:border-navy-500 focus:outline-none focus:ring-2 focus:ring-navy-500/20"
-        >
-          <option value="">Job Type</option>
-          {JOB_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={filters.pipeline_stage}
-          onChange={(e) => handleChange('pipeline_stage', e.target.value)}
-          className="rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900 transition focus:border-navy-500 focus:outline-none focus:ring-2 focus:ring-navy-500/20"
-        >
-          <option value="">Pipeline Stage</option>
-          {PIPELINE_STAGES.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={filters.remote_type}
-          onChange={(e) => handleChange('remote_type', e.target.value)}
-          className="rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900 transition focus:border-navy-500 focus:outline-none focus:ring-2 focus:ring-navy-500/20"
-        >
-          <option value="">Remote Type</option>
-          {REMOTE_TYPES.map((r) => (
-            <option key={r} value={r}>
-              {r}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={filters.license}
-          onChange={(e) => handleChange('license', e.target.value)}
-          className="rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900 transition focus:border-navy-500 focus:outline-none focus:ring-2 focus:ring-navy-500/20"
-        >
-          <option value="">License Required</option>
-          {FINANCE_LICENSES.map((l) => (
-            <option key={l} value={l}>
-              {l}
-            </option>
-          ))}
-        </select>
-
-        {isFiltered && (
-          <button
-            onClick={handleClearAll}
-            className="rounded-lg bg-navy-50 px-3 py-2 text-sm font-medium text-navy-700 transition hover:bg-navy-100"
-          >
-            Clear All
-          </button>
-        )}
-      </div>
-
-      {/* Graduation Date Filter */}
-      <div className="flex items-center gap-3">
-        <label htmlFor="grad_date" className="text-sm font-medium text-navy-700">
-          Your graduation date:
+    <div className="space-y-6">
+      {/* Sort Dropdown */}
+      <div className="flex flex-col gap-2">
+        <label htmlFor="sort" className="text-sm font-semibold text-navy-900">
+          Sort by
         </label>
-        <input
-          id="grad_date"
-          type="month"
-          value={filters.grad_date}
-          onChange={(e) => handleChange('grad_date', e.target.value)}
-          className="rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900 transition focus:border-navy-500 focus:outline-none focus:ring-2 focus:ring-navy-500/20"
-        />
-        {filters.grad_date && (
-          <button
-            onClick={() => handleChange('grad_date', '')}
-            className="text-sm text-navy-600 hover:text-navy-800 transition"
-          >
-            Clear
-          </button>
-        )}
+        <select
+          id="sort"
+          value={sortBy}
+          onChange={(e) => onSortChange(e.target.value)}
+          className={selectClassName}
+        >
+          {SORT_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </div>
+
+      {/* Filter Grid */}
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {/* Category */}
+          <div>
+            <select
+              value={filters.category}
+              onChange={(e) => handleChange('category', e.target.value)}
+              className={selectClassName}
+            >
+              <option value="">Category</option>
+              {JOB_CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Job Type */}
+          <div>
+            <select
+              value={filters.job_type}
+              onChange={(e) => handleChange('job_type', e.target.value)}
+              className={selectClassName}
+            >
+              <option value="">Job Type</option>
+              {JOB_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Pipeline Stage */}
+          <div>
+            <select
+              value={filters.pipeline_stage}
+              onChange={(e) => handleChange('pipeline_stage', e.target.value)}
+              className={selectClassName}
+            >
+              <option value="">Pipeline Stage</option>
+              {PIPELINE_STAGES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Remote Type */}
+          <div>
+            <select
+              value={filters.remote_type}
+              onChange={(e) => handleChange('remote_type', e.target.value)}
+              className={selectClassName}
+            >
+              <option value="">Remote Type</option>
+              {REMOTE_TYPES.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* License Required */}
+          <div>
+            <select
+              value={filters.license}
+              onChange={(e) => handleChange('license', e.target.value)}
+              className={selectClassName}
+            >
+              <option value="">License Required</option>
+              {FINANCE_LICENSES.map((l) => (
+                <option key={l} value={l}>
+                  {l}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Graduation Date Input */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <input
+              id="grad_date"
+              type="month"
+              value={filters.grad_date}
+              onChange={(e) => handleChange('grad_date', e.target.value)}
+              placeholder="Your graduation date"
+              className={`${selectClassName} w-full`}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Active Filters Badges */}
+      {activeFilters.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-navy-900">Active Filters</h3>
+            {isFiltered && (
+              <button
+                onClick={handleClearAll}
+                className="text-xs font-medium text-navy-600 transition hover:text-navy-900 hover:underline"
+              >
+                Clear all
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {activeFilters.map(({ key, value }) => (
+              <div
+                key={`${key}-${value}`}
+                className="inline-flex items-center gap-2 rounded-lg bg-navy-100 px-3 py-2"
+              >
+                <span className="text-sm font-medium text-navy-900">
+                  {getFilterLabel(key, value)}
+                </span>
+                <button
+                  onClick={() => handleRemoveFilter(key)}
+                  className="inline-flex items-center justify-center rounded text-navy-600 transition hover:bg-navy-200 hover:text-navy-900"
+                  aria-label={`Remove ${key} filter`}
+                >
+                  <span className="text-lg leading-none">×</span>
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
