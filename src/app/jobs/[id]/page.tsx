@@ -306,7 +306,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             {/* Graduation Date + Experience in a grid */}
             {(job.grad_date_required || job.years_experience_max !== null) && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {job.grad_date_required && (
+                {job.grad_date_required && (job.grad_date_earliest || job.grad_date_latest) && (
                   <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
                     <h3 className="font-semibold text-yellow-900 mb-2 text-sm">Graduation Date</h3>
                     <div className="text-sm text-yellow-800 space-y-1">
