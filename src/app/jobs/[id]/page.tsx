@@ -69,6 +69,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const applyUrl = job.apply_url
     ? (job.apply_url.startsWith('http') ? job.apply_url : 'https://' + job.apply_url)
     : null
+  const applyDomain = applyUrl ? (() => { try { return new URL(applyUrl).hostname.replace('www.', '') } catch { return '' } })() : ''
   const badgeColor = getPipelineStageBadgeColor(job.pipeline_stage)
   const hasLicenseInfo = job.licenses_required && job.licenses_required.length > 0 && !job.licenses_required.every(l => l === 'None Required')
 
@@ -206,7 +207,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
               {/* Apply Button - Desktop */}
               {applyUrl && (
-                <div className="hidden sm:block shrink-0">
+                <div className="hidden sm:flex flex-col items-end gap-1.5 shrink-0">
                   <a
                     href={applyUrl}
                     target="_blank"
@@ -218,6 +219,14 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
                   </a>
+                  {applyDomain && (
+                    <span className="text-[11px] text-navy-400 flex items-center gap-1">
+                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      {applyDomain}
+                    </span>
+                  )}
                 </div>
               )}
             </div>
@@ -381,17 +390,27 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 {job.last_verified_at && <p>Verified {timeAgo(job.last_verified_at)}</p>}
               </div>
               {applyUrl && (
-                <a
-                  href={applyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-emerald-600 px-8 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
-                >
-                  Apply on {job.company?.name || 'Company'} Careers
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
+                <div className="flex flex-col items-center sm:items-end gap-1">
+                  <a
+                    href={applyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-emerald-600 px-8 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
+                  >
+                    Apply on {job.company?.name || 'Company'} Careers
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                  {applyDomain && (
+                    <span className="text-[11px] text-navy-400 flex items-center gap-1">
+                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      Opens {applyDomain}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           </div>
