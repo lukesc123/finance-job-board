@@ -109,13 +109,26 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
   const salaryJobs = jobs.filter((j) => j.salary_min || j.salary_max)
   const avgMin = salaryJobs.length > 0 ? Math.round(salaryJobs.reduce((s, j) => s + (j.salary_min || j.salary_max || 0), 0) / salaryJobs.length) : null
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: company.name,
-    url: company.website,
-    description: company.description,
-  }
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
+
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: company.name,
+      url: company.website,
+      description: company.description,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+        { '@type': 'ListItem', position: 2, name: 'Companies', item: `${siteUrl}/companies` },
+        { '@type': 'ListItem', position: 3, name: company.name, item: `${siteUrl}/companies/${slug}` },
+      ],
+    },
+  ]
 
   return (
     <div className="min-h-screen bg-navy-50">
