@@ -93,7 +93,7 @@ export default function ComparePage() {
     {
       label: 'Company',
       values: jobs.map(j => (
-        <Link key={j.id} href={`/?company=${encodeURIComponent(j.company?.name || '')}`} className="font-semibold text-navy-700 hover:text-navy-900 transition underline decoration-navy-200">
+        <Link key={j.id} href={`/companies/${(j.company?.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`} className="font-semibold text-navy-700 hover:text-navy-900 transition underline decoration-navy-200">
           {j.company?.name || 'N/A'}
         </Link>
       )),
@@ -101,7 +101,7 @@ export default function ComparePage() {
     {
       label: 'Location',
       values: jobs.map(j => (
-        <Link key={j.id} href={`/?location=${encodeURIComponent(j.location)}`} className="text-navy-700 hover:text-navy-900 transition">
+        <Link key={j.id} href={`/location/${j.location.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`} className="text-navy-700 hover:text-navy-900 transition underline decoration-navy-200">
           {j.location}
         </Link>
       )),
@@ -109,7 +109,14 @@ export default function ComparePage() {
     { label: 'Work Style', values: jobs.map(j => j.remote_type) },
     { label: 'Job Type', values: jobs.map(j => j.job_type) },
     { label: 'Stage', values: jobs.map(j => j.pipeline_stage) },
-    { label: 'Category', values: jobs.map(j => j.category) },
+    {
+      label: 'Category',
+      values: jobs.map(j => (
+        <Link key={j.id} href={`/category/${j.category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`} className="text-navy-700 hover:text-navy-900 transition underline decoration-navy-200">
+          {j.category}
+        </Link>
+      )),
+    },
     {
       label: 'Salary',
       values: jobs.map(j => {

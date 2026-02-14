@@ -74,7 +74,7 @@ export default function SalaryInsights() {
           return (
             <Link
               key={insight.category}
-              href={`/?category=${encodeURIComponent(insight.category)}`}
+              href={`/category/${insight.category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`}
               className="block group"
             >
               <div className="flex items-center justify-between mb-1">
