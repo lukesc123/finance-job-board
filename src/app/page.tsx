@@ -8,6 +8,7 @@ import JobCard from '@/components/JobCard'
 import JobCardSkeleton from '@/components/JobCardSkeleton'
 import JobAlertSignup from '@/components/JobAlertSignup'
 import RecentlyViewed from '@/components/RecentlyViewed'
+import KeyboardNav from '@/components/KeyboardNav'
 import { Job, JobFilters } from '@/types'
 import { debounce } from '@/lib/formatting'
 
@@ -260,6 +261,7 @@ function HomePageContent() {
 
   return (
     <div className="min-h-screen bg-navy-50">
+      <KeyboardNav />
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-navy-950 to-navy-900 text-white py-14 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto text-center">

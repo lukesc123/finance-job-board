@@ -111,7 +111,7 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
 
   return (
     <Link href={`/jobs/${job.id}`}>
-      <div className={`group relative rounded-xl border-l-4 bg-white transition-all duration-200 hover:shadow-md hover:-translate-y-px ${getPipelineStageAccent(job.pipeline_stage)} ${
+      <div data-job-card className={`group relative rounded-xl border-l-4 bg-white transition-all duration-200 hover:shadow-md hover:-translate-y-px ${getPipelineStageAccent(job.pipeline_stage)} ${
         applied
           ? 'border border-l-4 border-emerald-200 bg-emerald-50/20'
           : 'border border-l-4 border-navy-100 hover:border-navy-200'
