@@ -1,10 +1,11 @@
 import { MetadataRoute } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { JOB_CATEGORIES, PIPELINE_STAGES } from '@/types'
 
 export const dynamic = 'force-dynamic'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board-luke-schindlers-projects.vercel.app'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
   // Fetch all active jobs
   const { data: jobs, error } = await supabaseAdmin
@@ -24,6 +25,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }))
 
+  // Category filter pages
+  const categoryEntries: MetadataRoute.Sitemap = JOB_CATEGORIES.map((cat) => ({
+    url: `${baseUrl}/?category=${encodeURIComponent(cat)}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: 0.7,
+  }))
+
+  // Pipeline stage filter pages
+  const stageEntries: MetadataRoute.Sitemap = PIPELINE_STAGES.map((stage) => ({
+    url: `${baseUrl}/?pipeline_stage=${encodeURIComponent(stage)}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: 0.6,
+  }))
+
   return [
     {
       url: baseUrl,
@@ -37,6 +54,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly' as const,
       priority: 0.9,
     },
+    ...categoryEntries,
+    ...stageEntries,
     ...jobEntries,
   ]
 }
