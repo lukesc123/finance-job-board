@@ -10,7 +10,7 @@ export default function Image() {
       <div
         style={{
           fontSize: 60,
-          background: 'linear-gradient(to bottom, #0a1929, #132f4c)',
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
           width: '100%',
           height: '100%',
           display: 'flex',
@@ -21,58 +21,94 @@ export default function Image() {
           fontFamily: 'system-ui, -apple-system, sans-serif',
           padding: '60px',
           textAlign: 'center',
+          position: 'relative',
         }}
       >
-        {/* Logo/Brand */}
+        {/* Subtle grid pattern overlay */}
         <div
           style={{
-            fontSize: 80,
-            fontWeight: 'bold',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(255,255,255,0.02) 0%, transparent 50%)',
+            display: 'flex',
+          }}
+        />
+
+        {/* Logo mark */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '80px',
+            height: '80px',
+            borderRadius: '20px',
+            background: 'white',
             marginBottom: '30px',
-            background: 'linear-gradient(135deg, #60a5fa, #3b82f6)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            letterSpacing: '-2px',
           }}
         >
-          FinanceJobs
+          <span style={{ fontSize: 44, fontWeight: 'bold', color: '#0f172a' }}>F</span>
+        </div>
+
+        {/* Brand name */}
+        <div
+          style={{
+            fontSize: 72,
+            fontWeight: 'bold',
+            marginBottom: '16px',
+            letterSpacing: '-2px',
+            display: 'flex',
+          }}
+        >
+          <span style={{ color: 'white' }}>Finance</span>
+          <span style={{ color: '#94a3b8' }}>Jobs</span>
         </div>
 
         {/* Main headline */}
         <div
           style={{
-            fontSize: 54,
-            fontWeight: '700',
-            marginBottom: '20px',
-            lineHeight: '1.2',
-            letterSpacing: '-1px',
+            fontSize: 36,
+            fontWeight: '600',
+            color: '#cbd5e1',
+            marginBottom: '24px',
+            lineHeight: '1.3',
+            letterSpacing: '-0.5px',
           }}
         >
           Entry-Level Finance & Accounting Positions
         </div>
 
-        {/* Subtitle */}
+        {/* Stats bar */}
         <div
           style={{
-            fontSize: 32,
-            color: '#94a3b8',
-            marginTop: '20px',
-            fontWeight: '400',
-            letterSpacing: '-0.5px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '32px',
+            marginTop: '16px',
+            fontSize: 22,
+            color: '#64748b',
           }}
         >
-          Curated from company career pages
+          <span>Curated from company career pages</span>
+          <span style={{ color: '#334155' }}>|</span>
+          <span>No easy apply</span>
+          <span style={{ color: '#334155' }}>|</span>
+          <span>Real opportunities</span>
         </div>
 
-        {/* Accent line */}
+        {/* Bottom accent */}
         <div
           style={{
-            width: '300px',
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
             height: '4px',
-            background: 'linear-gradient(90deg, #60a5fa, #3b82f6, #2563eb)',
-            marginTop: '40px',
-            borderRadius: '2px',
+            background: 'linear-gradient(90deg, #f59e0b, #eab308, #f59e0b)',
+            display: 'flex',
           }}
         />
       </div>
