@@ -195,30 +195,19 @@ const jobUrls: Record<string, string> = {
 
 export async function POST() {
   try {
-    const { data: jobs, error: fetchError } = await supabaseAdmin
-      .from('jobs')
-      .select('id, title')
-
-    if (fetchError) {
-      return NextResponse.json({ error: fetchError.message }, { status: 500 })
-    }
-
+    const entries = Object.entries(jobUrls)
     let updated = 0
-    let skipped = 0
-
-    for (const job of jobs) {
-      if (jobUrls[job.id]) {
-        const { error } = await supabaseAdmin
-          .from('jobs')
-          .update({ apply_url: jobUrls[job.id] })
-          .eq('id', job.id)
-        if (!error) updated++
-        continue
-      }
-      skipped++
+    // Process in batches of 10 concurrent updates
+    for (let i = 0; i < entries.length; i += 10) {
+      const batch = entries.slice(i, i + 10)
+      const results = await Promise.all(
+        batch.map(([id, url]) =>
+          supabaseAdmin.from('jobs').update({ apply_url: url }).eq('id', id)
+        )
+      )
+      updated += results.filter(r => !r.error).length
     }
-
-    return NextResponse.json({ success: true, updated, skipped, total: jobs.length })
+    return NextResponse.json({ success: true, updated, total: entries.length })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
