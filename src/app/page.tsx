@@ -503,6 +503,58 @@ function HomePageContent() {
             </button>
           </div>
         )}
+
+        {/* Browse More Section */}
+        {!loading && (
+          <div className="mt-10 pt-8 border-t border-navy-200">
+            <h2 className="text-lg font-bold text-navy-900 mb-4">Explore More</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <a
+                href="/categories"
+                className="group rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 transition"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600">
+                    <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-navy-900 text-sm group-hover:text-navy-700 transition">Browse by Category</h3>
+                </div>
+                <p className="text-xs text-navy-500">Investment Banking, Accounting, Private Equity, and more</p>
+              </a>
+              <a
+                href="/locations"
+                className="group rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 transition"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600">
+                    <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-navy-900 text-sm group-hover:text-navy-700 transition">Browse by Location</h3>
+                </div>
+                <p className="text-xs text-navy-500">New York, San Francisco, Chicago, Charlotte, and more</p>
+              </a>
+              <a
+                href="/companies"
+                className="group rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 transition"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-amber-50 text-amber-600">
+                    <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-navy-900 text-sm group-hover:text-navy-700 transition">Companies Hiring</h3>
+                </div>
+                <p className="text-xs text-navy-500">Goldman Sachs, J.P. Morgan, Morgan Stanley, and more</p>
+              </a>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   )

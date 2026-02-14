@@ -88,12 +88,32 @@ export default function Navbar() {
           <Link
             href="/companies"
             className={`rounded-lg px-3.5 py-2 text-sm font-medium transition ${
-              pathname === '/companies'
+              pathname?.startsWith('/companies')
                 ? 'text-navy-900 bg-navy-100'
                 : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50'
             }`}
           >
             Companies
+          </Link>
+          <Link
+            href="/categories"
+            className={`rounded-lg px-3.5 py-2 text-sm font-medium transition ${
+              pathname?.startsWith('/categor')
+                ? 'text-navy-900 bg-navy-100'
+                : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50'
+            }`}
+          >
+            Categories
+          </Link>
+          <Link
+            href="/locations"
+            className={`rounded-lg px-3.5 py-2 text-sm font-medium transition ${
+              pathname?.startsWith('/location')
+                ? 'text-navy-900 bg-navy-100'
+                : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50'
+            }`}
+          >
+            Locations
           </Link>
           <Link
             href="/employers"
@@ -141,6 +161,12 @@ export default function Navbar() {
             </Link>
             <Link href="/companies" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
               Companies
+            </Link>
+            <Link href="/categories" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
+              Categories
+            </Link>
+            <Link href="/locations" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
+              Locations
             </Link>
             <Link href="/employers" className="rounded-lg bg-navy-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-800 text-center">
               For Employers
