@@ -7,6 +7,7 @@ import Filters from '@/components/Filters'
 import JobCard from '@/components/JobCard'
 import JobCardSkeleton from '@/components/JobCardSkeleton'
 import JobAlertSignup from '@/components/JobAlertSignup'
+import RecentlyViewed from '@/components/RecentlyViewed'
 import { Job, JobFilters } from '@/types'
 import { debounce } from '@/lib/formatting'
 
@@ -322,6 +323,9 @@ function HomePageContent() {
         <div className="mb-5">
           <JobAlertSignup />
         </div>
+
+        {/* Recently Viewed */}
+        <RecentlyViewed />
 
         {/* Filters */}
         <div className="mb-5">
