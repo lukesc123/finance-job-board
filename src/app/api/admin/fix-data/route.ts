@@ -38,6 +38,19 @@ const jobSpecificUrls: Record<string, string> = {
   '27f5941f-3d70-4615-9d7c-85584b7a9a6c': 'https://careers.statestreet.com/global/en/job/STSTGLOBALR779160EXTERNALENGLOBAL/Compliance-Analyst-State-Street-Investment-Management-Officer',
   'f6cbb362-1e81-4302-b75c-2e473bc661b3': 'https://careers.statestreet.com/global/en/job/STSTGLOBALR761399EXTERNALENGLOBAL/Compliance-Risk-Testing-Analyst-Officer-Hybrid',
   'ba201b61-fa94-4fd0-a7c7-38f299f109ec': 'https://morganstanley.tal.net/vx/mobile-0/brand-0/candidate/so/pm/1/pl/1/opp/19163-2026-Wealth-Management-Summer-Analyst-Program-New-York/en-GB',
+  'b1c2d3e4-0013-4000-8000-000000000012': 'https://www.jpmorganchase.com/careers/explore-opportunities/students-and-graduates',
+  'b1c2d3e4-0003-4000-8000-000000000002': 'https://www.jpmorganchase.com/careers/explore-opportunities/students-and-graduates',
+  'b70e4452-1797-4ac5-9ed5-6058b7b94370': 'https://www.jpmorganchase.com/careers/explore-opportunities/students-and-graduates',
+  'da67e2ea-8fdd-4674-8568-1dc07853f6f4': 'https://campus.bankofamerica.com/careers/Global-Banking-Markets-Analyst-Program-Full-Time.html',
+  '9cee017c-e4a6-4376-a9f5-4128db3280f5': 'https://campus.bankofamerica.com/careers/Global-Banking-Markets-Analyst-Program-Full-Time.html',
+  'f17d8473-4737-4060-be55-b2cb851fbce6': 'https://campus.bankofamerica.com/careers/',
+  '090760c2-11e2-492b-953e-d80df0d2fed0': 'https://campus.bankofamerica.com/careers/',
+  '40c43676-dde3-49db-b155-0c76ff669855': 'https://www.citadel.com/careers/open-opportunities/',
+  'a47e9bb8-5dda-4ef1-81f8-2e7d2c016fb6': 'https://www.citadel.com/careers/open-opportunities/',
+  '304d6789-f817-40b2-9ae8-94485bfdb0e7': 'https://www.grantthornton.com/careers',
+  'f05c2864-7054-4c81-bc09-3f8faec7a53a': 'https://www.jefferies.com/careers',
+  '9fcc856b-ff77-4de5-a59e-f747af6a9a78': 'https://www.bridgewater.com/careers',
+  'b21e5f6a-cd23-4f18-88b0-7e1dd2a89c45': 'https://careers.sig.com/',
 }
 
 export async function POST() {
