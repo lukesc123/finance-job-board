@@ -481,10 +481,11 @@ export async function POST() {
       }))
 
     let jobsAdded = 0
+    const errors: string[] = []
     for (const job of jobsToInsert) {
       const { error } = await supabaseAdmin.from('jobs').insert(job)
       if (!error) jobsAdded++
-      else console.error('Error inserting job:', job.title, error.message)
+      else errors.push(`${job.title}: ${error.message}`)
     }
 
     const { count } = await supabaseAdmin
@@ -497,6 +498,8 @@ export async function POST() {
       companiesAdded: Object.keys(companyMap).length,
       jobsAdded,
       totalActiveJobs: count,
+      totalJobsAttempted: jobsToInsert.length,
+      errors: errors.slice(0, 5),
     })
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
