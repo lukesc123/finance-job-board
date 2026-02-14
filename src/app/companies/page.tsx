@@ -14,9 +14,14 @@ export const metadata: Metadata = {
   },
 }
 
+function slugify(name: string) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+
 interface CompanyWithCount {
   id: string
   name: string
+  slug: string
   website: string
   careers_url: string
   logo_url: string | null
@@ -54,6 +59,7 @@ async function getCompaniesWithJobs(): Promise<CompanyWithCount[]> {
     .map((c: any) => ({
       id: c.id,
       name: c.name,
+      slug: slugify(c.name),
       website: c.website,
       careers_url: c.careers_url,
       logo_url: c.logo_url,
@@ -98,7 +104,7 @@ export default async function CompaniesPage() {
                 )}
                 <div className="min-w-0">
                   <Link
-                    href={`/?company=${encodeURIComponent(company.name)}`}
+                    href={`/companies/${company.slug}`}
                     className="font-bold text-navy-900 group-hover:text-navy-700 transition block truncate"
                   >
                     {company.name}
@@ -120,7 +126,7 @@ export default async function CompaniesPage() {
                 {company.categories.slice(0, 3).map((cat) => (
                   <Link
                     key={cat}
-                    href={`/?company=${encodeURIComponent(company.name)}&category=${encodeURIComponent(cat)}`}
+                    href={`/companies/${company.slug}`}
                     className="rounded-full bg-navy-50 px-2 py-0.5 text-[10px] font-medium text-navy-600 hover:bg-navy-100 transition"
                   >
                     {cat}
@@ -147,7 +153,7 @@ export default async function CompaniesPage() {
               {/* Links */}
               <div className="flex items-center gap-3 pt-2 border-t border-navy-100">
                 <Link
-                  href={`/?company=${encodeURIComponent(company.name)}`}
+                  href={`/companies/${company.slug}`}
                   className="inline-flex items-center gap-1 text-xs font-semibold text-navy-600 hover:text-navy-900 transition"
                 >
                   View Jobs

@@ -7,6 +7,22 @@ export const dynamic = 'force-dynamic'
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
+  // Fetch all companies
+  const { data: companies } = await supabaseAdmin
+    .from('companies')
+    .select('name')
+
+  function slugify(name: string) {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+  }
+
+  const companyEntries: MetadataRoute.Sitemap = (companies || []).map((c: any) => ({
+    url: `${baseUrl}/companies/${slugify(c.name)}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: 0.8,
+  }))
+
   // Fetch all active jobs
   const { data: jobs, error } = await supabaseAdmin
     .from('jobs')
@@ -72,6 +88,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly' as const,
       priority: 0.5,
     },
+    ...companyEntries,
     ...categoryEntries,
     ...stageEntries,
     ...jobEntries,

@@ -11,6 +11,10 @@ import JobDescription from '@/components/JobDescription'
 
 export const revalidate = 300
 
+function slugify(name: string) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+
 interface JobDetailPageProps {
   params: Promise<{ id: string }>
 }
@@ -187,7 +191,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                     <img src={job.company.logo_url} alt="" className="h-5 w-5 rounded object-contain" />
                   )}
                   <Link
-                    href={`/?company=${encodeURIComponent(job.company?.name || '')}`}
+                    href={`/companies/${slugify(job.company?.name || '')}`}
                     className="text-base font-semibold text-navy-700 hover:text-navy-900 transition underline decoration-navy-200 hover:decoration-navy-400"
                   >
                     {job.company?.name}
@@ -354,7 +358,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 <p className="text-navy-700 leading-relaxed text-sm">{job.company.description}</p>
                 <div className="flex items-center gap-4 mt-3">
                   <Link
-                    href={`/?company=${encodeURIComponent(job.company.name)}`}
+                    href={`/companies/${slugify(job.company.name)}`}
                     className="inline-flex items-center gap-1 text-sm font-medium text-navy-600 hover:text-navy-900 transition"
                   >
                     View all {job.company.name} jobs on FinanceJobs

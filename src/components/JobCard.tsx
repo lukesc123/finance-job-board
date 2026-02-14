@@ -221,7 +221,7 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
                       e.preventDefault()
                       e.stopPropagation()
                       if (job.company?.name) {
-                        window.location.href = `/?company=${encodeURIComponent(job.company.name)}`
+                        window.location.href = `/companies/${job.company.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`
                       }
                     }}
                     className="hover:text-navy-700 hover:underline cursor-pointer transition"
