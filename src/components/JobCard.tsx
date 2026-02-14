@@ -21,6 +21,14 @@ function getPipelineStageAccent(stage: string): string {
   return 'border-l-navy-300'
 }
 
+function isNewJob(postedDate: string): boolean {
+  const posted = new Date(postedDate)
+  const now = new Date()
+  const diffMs = now.getTime() - posted.getTime()
+  const diffHours = diffMs / (1000 * 60 * 60)
+  return diffHours <= 48
+}
+
 function HighlightText({ text, highlight }: { text: string; highlight: string }) {
   if (!highlight || highlight.length < 2) return <>{text}</>
   const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
@@ -47,6 +55,7 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
   const salary = formatSalary(job.salary_min, job.salary_max)
   const companyInitial = job.company?.name?.charAt(0).toUpperCase() || '?'
   const timePosted = timeAgo(job.posted_date)
+  const isNew = isNewJob(job.posted_date)
 
   const hasNonRequiredLicenses = job.licenses_required &&
     job.licenses_required.length > 0 &&
@@ -110,6 +119,15 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
         <div className="p-4 sm:p-5">
           {/* Action Buttons - top right */}
           <div className="absolute top-3 right-3 flex items-center gap-0.5">
+            {isNew && (
+              <span className="mr-1 inline-flex items-center gap-1 rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wide">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-300 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+                </span>
+                New
+              </span>
+            )}
             <button
               onClick={toggleApplied}
               className={`p-1.5 rounded-lg transition-all text-xs font-medium ${
