@@ -180,13 +180,31 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
                   <HighlightText text={job.title} highlight={searchQuery} />
                 </h3>
                 <p className="text-sm text-navy-500 mt-0.5">
-                  <HighlightText text={job.company?.name || ''} highlight={searchQuery} />
+                  <span
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      if (job.company?.name) {
+                        window.location.href = `/?company=${encodeURIComponent(job.company.name)}`
+                      }
+                    }}
+                    className="hover:text-navy-700 hover:underline cursor-pointer transition"
+                  >
+                    <HighlightText text={job.company?.name || ''} highlight={searchQuery} />
+                  </span>
                 </p>
               </div>
 
               {/* Metadata Row */}
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-navy-500">
-                <span className="inline-flex items-center gap-1">
+                <span
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    window.location.href = `/?location=${encodeURIComponent(job.location)}`
+                  }}
+                  className="inline-flex items-center gap-1 hover:text-navy-700 hover:underline cursor-pointer transition"
+                >
                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -235,6 +253,22 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
 
                 {/* Posted time */}
                 <span className="text-[11px] text-navy-400 hidden sm:inline">{timePosted}</span>
+
+                {/* Quick Apply */}
+                {job.apply_url && (
+                  <a
+                    href={job.apply_url.startsWith('http') ? job.apply_url : `https://${job.apply_url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="hidden sm:inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-emerald-700"
+                  >
+                    Apply
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                )}
               </div>
             </div>
           </div>
