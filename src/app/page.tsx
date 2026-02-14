@@ -164,6 +164,24 @@ function HomePageContent() {
     isInitialMount.current = false
   }, [])
 
+  const isFiltered =
+    filters.category || filters.job_type || filters.pipeline_stage ||
+    filters.remote_type || filters.license || filters.grad_date ||
+    filters.salary_min || filters.salary_max || filters.company || filters.location || filters.search
+
+  const handleClearAll = () => {
+    const cleared: JobFilters = {
+      category: '', job_type: '', pipeline_stage: '', remote_type: '',
+      license: '', search: '', grad_date: '', salary_min: '', salary_max: '',
+      company: '', location: '',
+    }
+    setFilters(cleared)
+    setVisibleCount(20)
+    fetchJobs(cleared)
+    updateURL(cleared, 'newest')
+    setSortBy('newest')
+  }
+
   const handleFilterChange = (newFilters: JobFilters) => {
     setFilters(newFilters)
     setVisibleCount(20)
@@ -352,6 +370,26 @@ function HomePageContent() {
           />
         </div>
 
+        {/* Quick Stage Filters */}
+        <div className="mb-4 flex flex-wrap gap-1.5">
+          {(['Sophomore Internship', 'Junior Internship', 'Senior Internship', 'New Grad', 'Early Career', 'No Experience Required'] as const).map((stage) => (
+            <button
+              key={stage}
+              onClick={() => {
+                const newFilters = { ...filters, pipeline_stage: filters.pipeline_stage === stage ? '' : stage } as JobFilters
+                handleFilterChange(newFilters)
+              }}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+                filters.pipeline_stage === stage
+                  ? 'bg-navy-900 text-white shadow-sm'
+                  : 'bg-white text-navy-600 border border-navy-200 hover:border-navy-300 hover:text-navy-800'
+              }`}
+            >
+              {stage.replace('Internship', 'Intern')}
+            </button>
+          ))}
+        </div>
+
         {/* Results Count + Saved Toggle */}
         <div className="mb-4 flex items-center justify-between">
           {loading ? (
@@ -398,9 +436,20 @@ function HomePageContent() {
               <p className="text-navy-700 font-semibold mb-1">
                 {showSaved ? 'No saved jobs yet' : 'No jobs match your criteria'}
               </p>
-              <p className="text-sm text-navy-500">
+              <p className="text-sm text-navy-500 mb-4">
                 {showSaved ? 'Click the bookmark icon on any job to save it' : 'Try broadening your filters or search terms'}
               </p>
+              {!showSaved && isFiltered && (
+                <button
+                  onClick={handleClearAll}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white hover:bg-navy-800 transition"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Clear all filters
+                </button>
+              )}
             </div>
           ) : (
             <>
