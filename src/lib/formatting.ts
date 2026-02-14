@@ -31,6 +31,43 @@ export function formatDate(date: string): string {
   })
 }
 
+/**
+ * Returns a clearer label for pipeline stages with class-year context.
+ * In finance recruiting:
+ * - "Sophomore Internship" = programs for rising sophomores (current freshmen)
+ * - "Junior Internship" = programs for rising juniors (current sophomores)
+ * - "Senior Internship" = summer analyst for rising seniors (current juniors)
+ */
+export function getPipelineStageDisplay(stage: string): { label: string; subtitle: string } {
+  switch (stage) {
+    case 'Sophomore Internship':
+      return { label: 'Sophomore Intern', subtitle: 'For rising sophomores (freshmen)' }
+    case 'Junior Internship':
+      return { label: 'Junior Intern', subtitle: 'For rising juniors (sophomores)' }
+    case 'Senior Internship':
+      return { label: 'Senior Intern', subtitle: 'For rising seniors (juniors)' }
+    case 'New Grad':
+      return { label: 'New Grad', subtitle: 'Recent graduates' }
+    case 'Early Career':
+      return { label: 'Early Career', subtitle: '1-3 years experience' }
+    case 'No Experience Required':
+      return { label: 'No Exp. Required', subtitle: 'Open to all levels' }
+    default:
+      return { label: stage, subtitle: '' }
+  }
+}
+
+/**
+ * Returns target graduation year text based on grad date fields
+ */
+export function getGradYearText(earliest: string | null, latest: string | null): string | null {
+  if (!earliest && !latest) return null
+  const date = latest || earliest
+  if (!date) return null
+  const year = new Date(date).getFullYear()
+  return `Class of ${year}`
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function debounce<T extends (...args: any[]) => void>(
   fn: T,

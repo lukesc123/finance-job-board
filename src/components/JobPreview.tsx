@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
-import { formatSalary, timeAgo } from '@/lib/formatting'
+import { formatSalary, timeAgo, getPipelineStageDisplay, getGradYearText } from '@/lib/formatting'
 
 function slugify(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -136,14 +136,30 @@ export default function JobPreview({ job, onClose }: JobPreviewProps) {
 
         {/* Meta pills */}
         <div className="flex flex-wrap items-center gap-2 mt-3">
-          <span className={`inline-block rounded-md border px-2 py-0.5 text-[11px] font-semibold ${getPipelineStageBadgeColor(job.pipeline_stage)}`}>
-            {job.pipeline_stage}
+          <span
+            className={`inline-block rounded-md border px-2 py-0.5 text-[11px] font-semibold ${getPipelineStageBadgeColor(job.pipeline_stage)}`}
+            title={getPipelineStageDisplay(job.pipeline_stage).subtitle}
+          >
+            {getPipelineStageDisplay(job.pipeline_stage).label}
           </span>
+          {getGradYearText(job.grad_date_earliest, job.grad_date_latest) && (
+            <span className="text-[10px] text-navy-400 font-medium">
+              {getGradYearText(job.grad_date_earliest, job.grad_date_latest)}
+            </span>
+          )}
           <span className="text-xs text-navy-500">{job.remote_type}</span>
           <span className="text-xs text-navy-500">{job.job_type}</span>
           {salary && <span className="text-sm font-bold text-emerald-600">{salary}</span>}
           <span className="text-xs text-navy-400">{timeAgo(job.posted_date)}</span>
         </div>
+        {/* Class year clarification for internships */}
+        {job.pipeline_stage.includes('Internship') && (
+          <p className="text-[11px] text-navy-400 mt-1.5">
+            {getPipelineStageDisplay(job.pipeline_stage).subtitle}
+            {getGradYearText(job.grad_date_earliest, job.grad_date_latest) &&
+              ` · Target: ${getGradYearText(job.grad_date_earliest, job.grad_date_latest)}`}
+          </p>
+        )}
 
         {/* Apply + Save buttons */}
         <div className="flex items-center gap-2 mt-4">

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
-import { timeAgo, formatSalary } from '@/lib/formatting'
+import { timeAgo, formatSalary, getPipelineStageDisplay, getGradYearText } from '@/lib/formatting'
 
 function getPipelineStageBadgeColor(stage: string): string {
   if (stage.includes('Internship')) return 'bg-emerald-50 text-emerald-700 border-emerald-200'
@@ -290,9 +290,18 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
 
               {/* Bottom row: badges + salary + time */}
               <div className="flex flex-wrap items-center gap-2">
-                <span className={`inline-block rounded-md border px-2 py-0.5 text-[11px] font-semibold ${getPipelineStageBadgeColor(job.pipeline_stage)}`}>
-                  {job.pipeline_stage}
+                <span
+                  className={`inline-block rounded-md border px-2 py-0.5 text-[11px] font-semibold ${getPipelineStageBadgeColor(job.pipeline_stage)}`}
+                  title={getPipelineStageDisplay(job.pipeline_stage).subtitle}
+                >
+                  {getPipelineStageDisplay(job.pipeline_stage).label}
                 </span>
+
+                {getGradYearText(job.grad_date_earliest, job.grad_date_latest) && (
+                  <span className="text-[10px] text-navy-400 font-medium">
+                    {getGradYearText(job.grad_date_earliest, job.grad_date_latest)}
+                  </span>
+                )}
 
                 {applied && (
                   <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-md px-2 py-0.5">

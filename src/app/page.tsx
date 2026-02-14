@@ -13,6 +13,7 @@ import CompareBar from '@/components/CompareBar'
 import SalaryInsights from '@/components/SalaryInsights'
 import JobPreview from '@/components/JobPreview'
 import { Job, JobFilters } from '@/types'
+import { getPipelineStageDisplay } from '@/lib/formatting'
 import { debounce } from '@/lib/formatting'
 
 type SortBy = 'newest' | 'salary_high' | 'salary_low' | 'company_az' | 'relevance'
@@ -418,7 +419,7 @@ function HomePageContent() {
                   : 'bg-white text-navy-600 border border-navy-200 hover:border-navy-300 hover:text-navy-800'
               }`}
             >
-              {stage.replace('Internship', 'Intern')}
+              {getPipelineStageDisplay(stage).label}
             </button>
           ))}
         </div>
