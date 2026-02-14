@@ -73,7 +73,6 @@ const jobUrls: Record<string, string> = {
   '442eae7f-8559-4a31-b5c6-0fa17c0a149a': 'https://higher.gs.com/results?q=FP%26A+analyst',
   '2d97e381-f3a6-4c0c-b7c2-3a0c2b91c0e2': 'https://www.goldmansachs.com/careers/students/programs-and-internships/americas/new-analyst-program',
   '82c5a73e-078d-44ac-9581-5aa5caf0b588': 'https://higher.gs.com/results?q=operations+analyst',
-  'b1c2d3e4-0002-4000-8000-000000000001': 'https://higher.gs.com/results?q=investment+banking+summer+analyst',
   // === Lazard ===
   'b1c2d3e4-0012-4000-8000-000000000011': 'https://lazard-careers.tal.net/vx/lang-en-GB/mobile-0/appcentre-1/brand-4/candidate/jobboard/vacancy/2/adv/',
   'eaa2feb3-ea00-4f31-91c9-b38e424aa999': 'https://lazard-careers.tal.net/vx/lang-en-GB/mobile-1/appcentre-1/brand-4/candidate/so/pm/1/pl/2/opp/2842-2026-Financial-Advisory-Summer-Analyst-Program-New-York-M-A-Restructuring-Generalist/en-GB',
@@ -88,7 +87,6 @@ const jobUrls: Record<string, string> = {
   'e9fe3baf-398a-4a64-b202-f7fd3b27bbfb': 'https://www.kkr.com/careers/student-careers',
   // === Evercore ===
   'b1c2d3e4-0018-4000-8000-000000000017': 'https://www.evercore.com/careers/students-graduates/',
-  'b1c2d3e4-0004-4000-8000-000000000003': 'https://www.evercore.com/careers/students-graduates/',
   '4f7e1ab5-8f08-4702-a6c4-8c868c9adf48': 'https://www.evercore.com/careers/students-graduates/',
   '49774dd5-1883-4be4-86ec-89fe31b1eeb0': 'https://www.evercore.com/careers/students-graduates/',
   // === PwC ===
@@ -97,7 +95,6 @@ const jobUrls: Record<string, string> = {
   // === Deloitte ===
   'b1c2d3e4-0019-4000-8000-000000000018': 'https://apply.deloitte.com/en_US/careers/SearchJobs/?altJe=Undergraduate&altJo=Consulting',
   'b1c2d3e4-0006-4000-8000-000000000005': 'https://apply.deloitte.com/en_US/careers/JobDetail/Audit-Assurance-Analyst-Technology-Controls-Advisory-Summer-Fall-2026-Winter-2027/308095',
-  'b1c2d3e4-0008-4000-8000-000000000007': 'https://apply.deloitte.com/en_US/careers/SearchJobs/?altJe=Undergraduate&altJo=Consulting',
   '0987c9a1-4f53-4d3b-9a5c-f17755d17361': 'https://apply.deloitte.com/en_US/careers/SearchJobs/?altJe=Undergraduate&altJo=Advisory',
   'f3c13737-89df-4357-a22b-43e0e8690062': 'https://apply.deloitte.com/en_US/careers/SearchJobs/?altJe=Undergraduate&altJo=Advisory',
   // === Wells Fargo ===
