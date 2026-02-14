@@ -2,30 +2,36 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
 // Patterns that indicate a generic career page (not a specific job posting)
-const GENERIC_PATTERNS = [
-  '/search-jobs',
-  '/job-search',
-  '/careers/$',
-  '/careers$',
-  '/early-careers',
-  '/early-career',
-  '/entry-level',
-  '/students-and-graduates',
-  '/students',
-  '/SearchJobs',
-  '/Campus$',
-  '/job-search-results',
-  '/career-opportunities$',
+// Uses regex for precise matching - generic only when it's the terminal path segment
+const GENERIC_REGEXES = [
+  /\/search-jobs\/?$/i,                    // bare /search-jobs with nothing after
+  /\/job-search\/?$/i,
+  /\/careers\/?$/i,                        // bare /careers
+  /\/early-careers?\/?$/i,                 // /early-careers or /early-career
+  /\/entry-level\/?$/i,
+  /\/students-and-graduates\/?$/i,
+  /\/students\/?$/i,                       // bare /students (not /students/assurance)
+  /\/SearchJobs\/?$/i,
+  /\/Campus\/?$/i,
+  /\/job-search-results\/?$/i,
+  /\/career-opportunities\/?$/i,
+  /\/open-positions\/?$/i,
+  /\/current-openings\/?$/i,
+  /\/job-openings\/?$/i,
 ]
 
 function isGenericUrl(url: string): boolean {
-  const normalized = url.replace(/\/$/, '') // remove trailing slash
-  return GENERIC_PATTERNS.some(pattern => {
-    if (pattern.endsWith('$')) {
-      return normalized.endsWith(pattern.replace('$', ''))
+  try {
+    const parsed = new URL(url)
+    const path = parsed.pathname
+    // If URL has search params with keywords/query, it's targeted (not generic)
+    if (parsed.search && /[?&](q|query|keyword|keywords|search)=/i.test(parsed.search)) {
+      return false
     }
-    return normalized.includes(pattern)
-  })
+    return GENERIC_REGEXES.some(regex => regex.test(path))
+  } catch {
+    return !url || url.length === 0
+  }
 }
 
 export async function GET() {
