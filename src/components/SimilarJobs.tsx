@@ -39,9 +39,9 @@ export default function SimilarJobs({ jobId }: { jobId: string }) {
                             <div key={i} className="animate-pulse rounded-lg border border-navy-100 p-4">
                                         <div className="h-4 bg-navy-100 rounded w-3/4 mb-2" />
                                         <div className="h-3 bg-navy-100 rounded w-1/2" />
-                            </div>div>
+                            </div>
                           ))}
-                </div>div>
+                </div>
               )
   }
   
@@ -49,7 +49,7 @@ export default function SimilarJobs({ jobId }: { jobId: string }) {
       
         return (
               <div>
-                    <h2 className="text-lg font-bold text-navy-900 mb-4">Similar Jobs</h2>h2>
+                    <h2 className="text-lg font-bold text-navy-900 mb-4">Similar Jobs</h2>
                     <div className="space-y-3">
                       {jobs.map((job) => {
                           const salary = formatSalary(job.salary_min, job.salary_max)
@@ -66,24 +66,24 @@ export default function SimilarJobs({ jobId }: { jobId: string }) {
                                                                         ) : (
                                                                           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900 text-xs font-bold text-white flex-shrink-0">
                                                                             {job.company?.name?.charAt(0) || '?'}
-                                                                          </div>div>
+                                                                          </div>
                                                                                                     )}
                                                                                                     <div className="min-w-0 flex-1">
                                                                                                                         <h3 className="font-semibold text-navy-900 group-hover:text-navy-700 text-sm leading-snug truncate">
                                                                                                                           {job.title}
-                                                                                                                          </h3>h3>
-                                                                                                                        <p className="text-xs text-navy-500 mt-0.5">{job.company?.name}</p>p>
+                                                                                                                          </h3>
+                                                                                                                        <p className="text-xs text-navy-500 mt-0.5">{job.company?.name}</p>
                                                                                                                         <div className="flex flex-wrap items-center gap-2 mt-2">
                                                                                                                                               <span
                                                                                                                                                                         className={`inline-block rounded px-2 py-0.5 text-[10px] font-semibold ${getPipelineStageBadgeColor(job.pipeline_stage)}`}
                                                                                                                                                                       >
                                                                                                                                                 {job.pipeline_stage}
-                                                                                                                                                </span>span>
-                                                                                                                                              <span className="text-xs text-navy-400">{job.location}</span>span>
+                                                                                                                                                </span>
+                                                                                                                                              <span className="text-xs text-navy-400">{job.location}</span>
                                                                                                                           {salary && (
-                                                                              <span className="text-xs font-semibold text-emerald-600">{salary}</span>span>
+                                                                              <span className="text-xs font-semibold text-emerald-600">{salary}</span>
                                                                                                                                               )}
-                                                                                                                          </div>div>
+                                                                                                                          </div>
                                                                                                       {job.licenses_required &&
                                                                                                                               job.licenses_required.length > 0 &&
                                                                                                                               !job.licenses_required.every((l: string) => l === 'None Required') && (
@@ -96,17 +96,17 @@ export default function SimilarJobs({ jobId }: { jobId: string }) {
                                                                                                                                                                                                                                                           className="inline-flex items-center rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700"
                                                                                                                                                                                                                                                         >
                                                                                                                                                                                                                                                         {license}
-                                                                                                                                                                                                                                                      </span>span>
+                                                                                                                                                                                                                                                      </span>
                                                                                                                                                                                                                       ))}
-                                                                                                                                                          </div>div>
+                                                                                                                                                          </div>
                                                                                                                           )}
-                                                                                                      </div>div>
-                                                                                  </div>div>
-                                                                  </div>div>
-                                                    </Link>Link>
+                                                                                                      </div>
+                                                                                  </div>
+                                                                  </div>
+                                                    </Link>
                                                   )
                       })}
-                    </div>div>
-              </div>div>
+                    </div>
+              </div>
             )
-}</div>
+}
