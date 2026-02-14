@@ -52,6 +52,20 @@ export const metadata: Metadata = {
   },
 }
 
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'FinanceJobs',
+  url: siteUrl,
+  logo: `${siteUrl}/icon.png`,
+  description: 'Curated entry-level finance and accounting jobs sourced directly from company career pages.',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    email: 'luke.schindler@me.com',
+    contactType: 'customer service',
+  },
+}
+
 const websiteJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
@@ -83,6 +97,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
       </head>
       <body className="bg-navy-50 text-navy-900 antialiased">

@@ -99,7 +99,10 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         addressLocality: job.location,
       },
     },
-    ...(job.remote_type === 'Remote' && { jobLocationType: 'TELECOMMUTE' }),
+    ...(job.remote_type === 'Remote' && {
+      jobLocationType: 'TELECOMMUTE',
+      applicantLocationRequirements: { '@type': 'Country', name: 'US' },
+    }),
     ...(job.salary_min && job.salary_max && {
       baseSalary: {
         '@type': 'MonetaryAmount',
@@ -114,6 +117,8 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
     }),
     directApply: false,
     url: `${siteUrl}/jobs/${job.id}`,
+    validThrough: new Date(new Date(job.posted_date).getTime() + 90 * 86400000).toISOString(),
+    industry: 'Financial Services',
   }
 
   const breadcrumbLd = {
