@@ -478,6 +478,7 @@ export async function POST() {
         ...j,
         is_active: true,
         last_verified_at: new Date().toISOString(),
+        source_url: j.apply_url,
       }))
 
     let jobsAdded = 0
