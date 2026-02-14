@@ -37,7 +37,7 @@ export default function Footer() {
           {/* Browse by Category */}
           <div>
             <h3 className="text-xs font-semibold text-navy-300 uppercase tracking-wider mb-3">
-              Categories
+              <Link href="/categories" className="hover:text-white transition">Categories</Link>
             </h3>
             <ul className="space-y-2">
               {JOB_CATEGORIES.map((cat) => (
@@ -50,6 +50,7 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              <li><Link href="/categories" className="text-sm text-navy-300 hover:text-white transition font-medium">View all categories &rarr;</Link></li>
             </ul>
           </div>
 
