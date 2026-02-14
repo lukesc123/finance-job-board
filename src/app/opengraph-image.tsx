@@ -115,7 +115,7 @@ export default async function Image() {
                   display: 'flex',
                 }}
               >
-                {i === 0 ? '165+' : i === 1 ? '40+' : '15'}
+                {i === 0 ? '195+' : i === 1 ? '45+' : '15'}
               </div>
               <div
                 style={{
