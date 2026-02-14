@@ -95,17 +95,18 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Experience Level */}
+          {/* Top Companies */}
           <div>
             <h3 className="text-xs font-semibold text-navy-300 uppercase tracking-wider mb-3">
-              Experience Level
+              Top Companies
             </h3>
             <ul className="space-y-2">
-              <li><Link href="/?pipeline_stage=Sophomore+Internship" className="text-sm text-navy-400 hover:text-white transition">Sophomore Internships</Link></li>
-              <li><Link href="/?pipeline_stage=Junior+Internship" className="text-sm text-navy-400 hover:text-white transition">Junior Internships</Link></li>
-              <li><Link href="/?pipeline_stage=Senior+Internship" className="text-sm text-navy-400 hover:text-white transition">Senior Internships</Link></li>
-              <li><Link href="/?pipeline_stage=New+Grad" className="text-sm text-navy-400 hover:text-white transition">New Grad Roles</Link></li>
-              <li><Link href="/?pipeline_stage=Early+Career" className="text-sm text-navy-400 hover:text-white transition">Early Career</Link></li>
+              <li><Link href="/companies/goldman-sachs" className="text-sm text-navy-400 hover:text-white transition">Goldman Sachs</Link></li>
+              <li><Link href="/companies/j-p-morgan" className="text-sm text-navy-400 hover:text-white transition">J.P. Morgan</Link></li>
+              <li><Link href="/companies/morgan-stanley" className="text-sm text-navy-400 hover:text-white transition">Morgan Stanley</Link></li>
+              <li><Link href="/companies/bank-of-america" className="text-sm text-navy-400 hover:text-white transition">Bank of America</Link></li>
+              <li><Link href="/companies/citi" className="text-sm text-navy-400 hover:text-white transition">Citi</Link></li>
+              <li><Link href="/companies" className="text-sm text-navy-300 hover:text-white transition font-medium">View all companies &rarr;</Link></li>
             </ul>
           </div>
         </div>
@@ -116,9 +117,10 @@ export default function Footer() {
             <p className="text-xs text-navy-500">
               &copy; {new Date().getFullYear()} FinanceJobs. All rights reserved.
             </p>
-            <p className="text-xs text-navy-600">
-              Job listings sourced from company career pages. We do not accept payments for placement.
-            </p>
+            <div className="flex items-center gap-4 text-xs text-navy-500">
+              <span>Job listings sourced from company career pages.</span>
+              <a href="mailto:luke.schindler@me.com" className="hover:text-navy-300 transition">Contact</a>
+            </div>
           </div>
         </div>
       </div>
