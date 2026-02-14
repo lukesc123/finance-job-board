@@ -6,11 +6,19 @@ import { Job } from '@/types'
 import { timeAgo, formatSalary } from '@/lib/formatting'
 
 function getPipelineStageBadgeColor(stage: string): string {
-  if (stage.includes('Internship')) return 'bg-green-50 text-green-700 border border-green-200'
-  if (stage === 'New Grad') return 'bg-blue-50 text-blue-700 border border-blue-200'
-  if (stage === 'Early Career') return 'bg-orange-50 text-orange-700 border border-orange-200'
-  if (stage === 'No Experience Required') return 'bg-purple-50 text-purple-700 border border-purple-200'
-  return 'bg-navy-50 text-navy-700 border border-navy-200'
+  if (stage.includes('Internship')) return 'bg-emerald-50 text-emerald-700 border-emerald-200'
+  if (stage === 'New Grad') return 'bg-blue-50 text-blue-700 border-blue-200'
+  if (stage === 'Early Career') return 'bg-amber-50 text-amber-700 border-amber-200'
+  if (stage === 'No Experience Required') return 'bg-violet-50 text-violet-700 border-violet-200'
+  return 'bg-navy-50 text-navy-700 border-navy-200'
+}
+
+function getPipelineStageAccent(stage: string): string {
+  if (stage.includes('Internship')) return 'border-l-emerald-400'
+  if (stage === 'New Grad') return 'border-l-blue-400'
+  if (stage === 'Early Career') return 'border-l-amber-400'
+  if (stage === 'No Experience Required') return 'border-l-violet-400'
+  return 'border-l-navy-300'
 }
 
 function HighlightText({ text, highlight }: { text: string; highlight: string }) {
@@ -94,120 +102,124 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
 
   return (
     <Link href={`/jobs/${job.id}`}>
-      <div className={`group relative rounded-xl border bg-white p-5 transition-all duration-200 hover:shadow-lg hover:shadow-navy-100/50 hover:-translate-y-0.5 ${
+      <div className={`group relative rounded-xl border-l-4 bg-white transition-all duration-200 hover:shadow-md hover:-translate-y-px ${getPipelineStageAccent(job.pipeline_stage)} ${
         applied
-          ? 'border-emerald-200 bg-emerald-50/30'
-          : 'border-navy-100 hover:border-navy-300'
+          ? 'border border-l-4 border-emerald-200 bg-emerald-50/20'
+          : 'border border-l-4 border-navy-100 hover:border-navy-200'
       }`}>
-        {/* Action Buttons */}
-        <div className="absolute top-4 right-4 flex items-center gap-1">
-          {/* Applied Button */}
-          <button
-            onClick={toggleApplied}
-            className={`p-1.5 rounded-lg transition-all text-xs font-medium ${
-              applied
-                ? 'text-emerald-600 bg-emerald-100'
-                : 'text-navy-300 opacity-0 group-hover:opacity-100 hover:text-emerald-600 hover:bg-emerald-50'
-            }`}
-            aria-label={applied ? 'Mark as not applied' : 'Mark as applied'}
-          >
-            <svg className="h-4.5 w-4.5" fill={applied ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </button>
-          {/* Save/Bookmark Button */}
-          <button
-            onClick={toggleSave}
-            className={`p-1.5 rounded-lg transition-all ${
-              saved
-                ? 'text-amber-500 hover:text-amber-600'
-                : 'text-navy-300 opacity-0 group-hover:opacity-100 hover:text-navy-500'
-            }`}
-            aria-label={saved ? 'Unsave job' : 'Save job'}
-          >
-            <svg className="h-5 w-5" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="flex flex-col gap-3 pr-16">
-          {/* Top Row: Badge + Verified + Applied Tag */}
-          <div className="flex items-center gap-2">
-            <span className={`inline-block rounded-lg px-2.5 py-1 text-xs font-semibold ${getPipelineStageBadgeColor(job.pipeline_stage)}`}>
-              {job.pipeline_stage}
-            </span>
-            {applied && (
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
-                Applied
-              </span>
-            )}
-          </div>
-
-          {/* Company Logo + Title + Company Name */}
-          <div className="flex items-start gap-3">
-            {job.company?.logo_url ? (
-              <img
-                src={job.company.logo_url}
-                alt={job.company.name}
-                className="h-10 w-10 rounded-lg object-contain flex-shrink-0 border border-navy-100"
-              />
-            ) : (
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy-900 text-sm font-bold text-white flex-shrink-0">
-                {companyInitial}
-              </div>
-            )}
-
-            <div className="min-w-0 flex-1">
-              <h3 className="font-bold text-navy-900 group-hover:text-navy-700 transition text-base leading-snug">
-                <HighlightText text={job.title} highlight={searchQuery} />
-              </h3>
-              <p className="text-sm text-navy-500 mt-0.5">
-                <HighlightText text={job.company?.name || ''} highlight={searchQuery} />
-              </p>
-            </div>
-          </div>
-
-          {/* Metadata Row */}
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-navy-500">
-            <span className="inline-flex items-center gap-1">
-              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        <div className="p-4 sm:p-5">
+          {/* Action Buttons - top right */}
+          <div className="absolute top-3 right-3 flex items-center gap-0.5">
+            <button
+              onClick={toggleApplied}
+              className={`p-1.5 rounded-lg transition-all text-xs font-medium ${
+                applied
+                  ? 'text-emerald-600 bg-emerald-100'
+                  : 'text-navy-300 opacity-0 group-hover:opacity-100 hover:text-emerald-600 hover:bg-emerald-50'
+              }`}
+              aria-label={applied ? 'Mark as not applied' : 'Mark as applied'}
+            >
+              <svg className="h-4 w-4" fill={applied ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <HighlightText text={job.location} highlight={searchQuery} />
-            </span>
-            <span>·</span>
-            <span>{job.remote_type}</span>
-            <span>·</span>
-            <span>{job.job_type}</span>
+            </button>
+            <button
+              onClick={toggleSave}
+              className={`p-1.5 rounded-lg transition-all ${
+                saved
+                  ? 'text-amber-500 hover:text-amber-600'
+                  : 'text-navy-300 opacity-0 group-hover:opacity-100 hover:text-navy-600'
+              }`}
+              aria-label={saved ? 'Unsave job' : 'Save job'}
+            >
+              <svg className="h-4.5 w-4.5" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+              </svg>
+            </button>
           </div>
 
-          {/* Salary */}
-          {salary && (
-            <p className="text-sm font-bold text-emerald-600">{salary}</p>
-          )}
-
-          {/* License & Grad Date Badges */}
-          {(hasNonRequiredLicenses || job.grad_date_required) && (
-            <div className="flex flex-wrap items-center gap-1.5">
-              {hasNonRequiredLicenses && job.licenses_required!.map((license) => (
-                license !== 'None Required' && (
-                  <span key={license} className="inline-flex items-center rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
-                    {license}
-                  </span>
-                )
-              ))}
-              {job.grad_date_required && (
-                <span className="inline-flex items-center rounded-md border border-yellow-200 bg-yellow-50 px-2 py-0.5 text-xs font-medium text-yellow-700">
-                  Grad Date Required
-                </span>
+          <div className="flex gap-3.5 pr-16 sm:pr-20">
+            {/* Company Logo */}
+            <div className="flex-shrink-0 mt-0.5">
+              {job.company?.logo_url ? (
+                <img
+                  src={job.company.logo_url}
+                  alt={job.company.name}
+                  className="h-11 w-11 rounded-lg object-contain border border-navy-100 bg-white"
+                />
+              ) : (
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-navy-900 text-sm font-bold text-white">
+                  {companyInitial}
+                </div>
               )}
             </div>
-          )}
 
-          {/* Posted Time */}
-          <span className="text-xs text-navy-400">Posted {timePosted}</span>
+            {/* Content */}
+            <div className="min-w-0 flex-1 space-y-2">
+              {/* Title + Company */}
+              <div>
+                <h3 className="font-semibold text-navy-900 group-hover:text-navy-700 transition text-[15px] leading-snug">
+                  <HighlightText text={job.title} highlight={searchQuery} />
+                </h3>
+                <p className="text-sm text-navy-500 mt-0.5">
+                  <HighlightText text={job.company?.name || ''} highlight={searchQuery} />
+                </p>
+              </div>
+
+              {/* Metadata Row */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-navy-500">
+                <span className="inline-flex items-center gap-1">
+                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <HighlightText text={job.location} highlight={searchQuery} />
+                </span>
+                <span className="text-navy-200">|</span>
+                <span>{job.remote_type}</span>
+                <span className="text-navy-200">|</span>
+                <span>{job.job_type}</span>
+              </div>
+
+              {/* Bottom row: badges + salary + time */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`inline-block rounded-md border px-2 py-0.5 text-[11px] font-semibold ${getPipelineStageBadgeColor(job.pipeline_stage)}`}>
+                  {job.pipeline_stage}
+                </span>
+
+                {applied && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-md px-2 py-0.5">
+                    Applied
+                  </span>
+                )}
+
+                {hasNonRequiredLicenses && job.licenses_required!.map((license) => (
+                  license !== 'None Required' && (
+                    <span key={license} className="inline-flex items-center rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                      {license}
+                    </span>
+                  )
+                ))}
+
+                {job.grad_date_required && (
+                  <span className="inline-flex items-center rounded-md border border-yellow-200 bg-yellow-50 px-2 py-0.5 text-[11px] font-medium text-yellow-700">
+                    Grad Date Req.
+                  </span>
+                )}
+
+                {/* Spacer */}
+                <div className="flex-1" />
+
+                {/* Salary */}
+                {salary && (
+                  <span className="text-sm font-bold text-emerald-600">{salary}</span>
+                )}
+
+                {/* Posted time */}
+                <span className="text-[11px] text-navy-400 hidden sm:inline">{timePosted}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Link>
