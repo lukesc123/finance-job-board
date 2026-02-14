@@ -71,7 +71,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const badgeColor = getPipelineStageBadgeColor(job.pipeline_stage)
   const hasLicenseInfo = job.licenses_required && job.licenses_required.length > 0 && !job.licenses_required.every(l => l === 'None Required')
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board-luke-schindlers-projects.vercel.app'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -161,17 +161,24 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                   {job.company?.logo_url && (
                     <img src={job.company.logo_url} alt="" className="h-5 w-5 rounded object-contain" />
                   )}
-                  {job.company?.website ? (
+                  <Link
+                    href={`/?company=${encodeURIComponent(job.company?.name || '')}`}
+                    className="text-base font-semibold text-navy-700 hover:text-navy-900 transition underline decoration-navy-200 hover:decoration-navy-400"
+                  >
+                    {job.company?.name}
+                  </Link>
+                  {job.company?.website && (
                     <a
                       href={job.company.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-base font-semibold text-navy-700 hover:text-navy-900 transition underline decoration-navy-200 hover:decoration-navy-400"
+                      className="text-navy-400 hover:text-navy-600 transition"
+                      title={`Visit ${job.company.name} website`}
                     >
-                      {job.company.name}
+                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
                     </a>
-                  ) : (
-                    <p className="text-base font-semibold text-navy-700">{job.company?.name}</p>
                   )}
                 </div>
               </div>
@@ -185,7 +192,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
                   >
-                    Apply Now
+                    Apply at {job.company?.name || 'Company'}
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
@@ -209,7 +216,9 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-navy-100 border-b border-navy-100">
             <div className="p-3.5 sm:p-4 text-center">
               <p className="text-[10px] font-semibold text-navy-400 uppercase tracking-wider mb-0.5">Location</p>
-              <p className="text-sm font-semibold text-navy-900">{job.location}</p>
+              <Link href={`/?location=${encodeURIComponent(job.location)}`} className="text-sm font-semibold text-navy-900 hover:text-navy-700 hover:underline transition">
+                {job.location}
+              </Link>
             </div>
             <div className="p-3.5 sm:p-4 text-center">
               <p className="text-[10px] font-semibold text-navy-400 uppercase tracking-wider mb-0.5">Work Style</p>
@@ -227,7 +236,9 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             ) : (
               <div className="p-3.5 sm:p-4 text-center">
                 <p className="text-[10px] font-semibold text-navy-400 uppercase tracking-wider mb-0.5">Category</p>
-                <p className="text-sm font-semibold text-navy-900">{job.category}</p>
+                <Link href={`/?category=${encodeURIComponent(job.category)}`} className="text-sm font-semibold text-navy-900 hover:text-navy-700 hover:underline transition">
+                  {job.category}
+                </Link>
               </div>
             )}
           </div>
@@ -310,19 +321,30 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               <div className="rounded-lg border border-navy-200 bg-navy-50/50 p-5">
                 <h2 className="text-lg font-bold text-navy-900 mb-2">About {job.company.name}</h2>
                 <p className="text-navy-700 leading-relaxed text-sm">{job.company.description}</p>
-                {job.company.careers_url && (
-                  <a
-                    href={job.company.careers_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 mt-3 text-sm font-medium text-navy-600 hover:text-navy-900 transition"
+                <div className="flex items-center gap-4 mt-3">
+                  <Link
+                    href={`/?company=${encodeURIComponent(job.company.name)}`}
+                    className="inline-flex items-center gap-1 text-sm font-medium text-navy-600 hover:text-navy-900 transition"
                   >
-                    View all jobs at {job.company.name}
+                    View all {job.company.name} jobs on FinanceJobs
                     <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
-                  </a>
-                )}
+                  </Link>
+                  {job.company.careers_url && (
+                    <a
+                      href={job.company.careers_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-sm font-medium text-navy-400 hover:text-navy-600 transition"
+                    >
+                      {job.company.name} Careers
+                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -346,7 +368,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                   rel="noopener noreferrer"
                   className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-emerald-600 px-8 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
                 >
-                  Apply on Company Site
+                  Apply on {job.company?.name || 'Company'} Careers
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
