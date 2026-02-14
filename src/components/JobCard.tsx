@@ -49,9 +49,11 @@ function HighlightText({ text, highlight }: { text: string; highlight: string })
 interface JobCardProps {
   job: Job
   searchQuery?: string
+  onPreview?: (job: Job) => void
+  isActive?: boolean
 }
 
-export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
+export default function JobCard({ job, searchQuery = '', onPreview, isActive = false }: JobCardProps) {
   const salary = formatSalary(job.salary_min, job.salary_max)
   const companyInitial = job.company?.name?.charAt(0).toUpperCase() || '?'
   const timePosted = timeAgo(job.posted_date)
@@ -131,12 +133,21 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
     } catch { /* ignore */ }
   }
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (onPreview) {
+      e.preventDefault()
+      onPreview(job)
+    }
+  }
+
   return (
-    <Link href={`/jobs/${job.id}`}>
+    <Link href={`/jobs/${job.id}`} onClick={handleClick}>
       <div data-job-card className={`group relative rounded-xl border-l-4 bg-white transition-all duration-200 hover:shadow-md hover:-translate-y-px ${getPipelineStageAccent(job.pipeline_stage)} ${
-        applied
-          ? 'border border-l-4 border-emerald-200 bg-emerald-50/20'
-          : 'border border-l-4 border-navy-100 hover:border-navy-200'
+        isActive
+          ? 'border border-l-4 border-navy-400 bg-navy-50/50 shadow-md ring-1 ring-navy-200'
+          : applied
+            ? 'border border-l-4 border-emerald-200 bg-emerald-50/20'
+            : 'border border-l-4 border-navy-100 hover:border-navy-200'
       }`}>
         <div className="p-4 sm:p-5">
           {/* Action Buttons - top right */}
@@ -300,7 +311,7 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
                     onClick={(e) => e.stopPropagation()}
                     className="hidden sm:inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-emerald-700"
                   >
-                    Apply
+                    Apply at {job.company?.name || 'Company'}
                     <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>

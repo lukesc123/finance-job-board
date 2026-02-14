@@ -11,6 +11,7 @@ import RecentlyViewed from '@/components/RecentlyViewed'
 import KeyboardNav from '@/components/KeyboardNav'
 import CompareBar from '@/components/CompareBar'
 import SalaryInsights from '@/components/SalaryInsights'
+import JobPreview from '@/components/JobPreview'
 import { Job, JobFilters } from '@/types'
 import { debounce } from '@/lib/formatting'
 
@@ -72,7 +73,17 @@ function HomePageContent() {
   const [visibleCount, setVisibleCount] = useState(20)
   const [showSaved, setShowSaved] = useState(() => searchParams.get('saved') === '1')
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set())
+  const [previewJob, setPreviewJob] = useState<Job | null>(null)
+  const [isDesktop, setIsDesktop] = useState(false)
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
+
+  // Desktop detection for split-pane
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 1024)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   // Infinite scroll observer
   useEffect(() => {
@@ -349,7 +360,7 @@ function HomePageContent() {
       </section>
 
       {/* Main Content */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <section className={`mx-auto px-4 sm:px-6 lg:px-8 py-8 ${previewJob && isDesktop ? 'max-w-[1400px]' : 'max-w-5xl'}`}>
         {/* Error Banner */}
         {error && (
           <div className="mb-6 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
@@ -442,8 +453,9 @@ function HomePageContent() {
           </button>
         </div>
 
-        {/* Jobs List */}
-        <div className="space-y-2.5">
+        {/* Jobs List + Preview Split Pane */}
+        <div className={`${previewJob && isDesktop ? 'flex gap-6' : ''}`}>
+        <div className={`space-y-2.5 ${previewJob && isDesktop ? 'flex-1 min-w-0' : ''}`}>
           {loading ? (
             <>
               {[1, 2, 3, 4, 5].map((i) => (
@@ -476,7 +488,13 @@ function HomePageContent() {
           ) : (
             <>
               {sortedJobs.slice(0, visibleCount).map((job) => (
-                <JobCard key={job.id} job={job} searchQuery={filters.search} />
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  searchQuery={filters.search}
+                  onPreview={isDesktop ? setPreviewJob : undefined}
+                  isActive={previewJob?.id === job.id}
+                />
               ))}
 
               {sortedJobs.length > visibleCount && (
@@ -487,6 +505,14 @@ function HomePageContent() {
               )}
             </>
           )}
+        </div>
+
+        {/* Preview Panel (Desktop only) */}
+        {previewJob && isDesktop && (
+          <div className="w-[480px] flex-shrink-0 sticky top-16 h-[calc(100vh-5rem)] rounded-xl border border-navy-200 overflow-hidden shadow-sm">
+            <JobPreview job={previewJob} onClose={() => setPreviewJob(null)} />
+          </div>
+        )}
         </div>
 
         {/* Back to top */}
