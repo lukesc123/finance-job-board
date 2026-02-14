@@ -6,7 +6,7 @@ import { timeAgo, formatSalary, formatDate } from '@/lib/formatting'
 import { Job } from '@/types'
 import SimilarJobs from '@/components/SimilarJobs'
 import JobDetailActions from '@/components/JobDetailActions'
-import TrackView from '@/components/TrackVew'
+import TrackView from '@/components/TrackView'
 
 // Revalidate every 5 minutes for ISR
 export const revalidate = 300
