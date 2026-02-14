@@ -11,7 +11,8 @@ import { debounce } from '@/lib/formatting'
 
 type SortBy = 'newest' | 'salary_high' | 'salary_low' | 'company_az' | 'relevance'
 
-const FILTER_KEYS: (keyof JobFilters)[] = ['category', 'job_type', 'pipeline_stage', 'remote_type', 'license', 'search', 'grad_date', 'salary_min', 'salary_max']
+const FILTER_KEYS: (keyof JobFilters)[] = ['category', 'job_type', 'pipeline_stage', 'remote_type', 'license', 'search', 'grad_date', 'salary_min', 'salary_max', 'company', 'location']
+
 const PAGE_SIZE = 20
 
 function filtersFromParams(params: URLSearchParams): JobFilters {
@@ -25,6 +26,8 @@ function filtersFromParams(params: URLSearchParams): JobFilters {
     grad_date: params.get('grad_date') || '',
     salary_min: params.get('salary_min') || '',
     salary_max: params.get('salary_max') || '',
+    company: params.get('company') || '',
+    location: params.get('location') || '',
   }
 }
 
@@ -44,6 +47,7 @@ function HomePageContent() {
   const isInitialMount = useRef(true)
 
   const [filters, setFilters] = useState<JobFilters>(() => filtersFromParams(searchParams))
+  const [allJobs, setAllJobs] = useState<Job[]>([])
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -51,8 +55,6 @@ function HomePageContent() {
   const [visibleCount, setVisibleCount] = useState(20)
   const [showSaved, setShowSaved] = useState(() => searchParams.get('saved') === '1')
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set())
-
-
 
   // Load saved job IDs from localStorage
   useEffect(() => {
@@ -71,6 +73,23 @@ function HomePageContent() {
     return () => window.removeEventListener('savedJobsChanged', handleChange)
   }, [])
 
+  // Derive unique company names and locations from ALL jobs (unfiltered)
+  const companyNames = useMemo(() => {
+    const names = new Set<string>()
+    allJobs.forEach(job => {
+      if (job.company?.name) names.add(job.company.name)
+    })
+    return Array.from(names).sort((a, b) => a.localeCompare(b))
+  }, [allJobs])
+
+  const locationNames = useMemo(() => {
+    const locs = new Set<string>()
+    allJobs.forEach(job => {
+      if (job.location) locs.add(job.location)
+    })
+    return Array.from(locs).sort((a, b) => a.localeCompare(b))
+  }, [allJobs])
+
   const updateURL = useCallback((newFilters: JobFilters, newSort: string, newShowSaved?: boolean) => {
     const qs = filtersToParams(newFilters, newSort, newShowSaved ?? showSaved)
     const url = qs ? `/?${qs}` : '/'
@@ -82,7 +101,6 @@ function HomePageContent() {
     setError(null)
     try {
       const params = new URLSearchParams()
-
       if (filterState.category) params.append('category', filterState.category)
       if (filterState.job_type) params.append('job_type', filterState.job_type)
       if (filterState.pipeline_stage) params.append('pipeline_stage', filterState.pipeline_stage)
@@ -92,10 +110,11 @@ function HomePageContent() {
       if (filterState.grad_date) params.append('grad_date', filterState.grad_date)
       if (filterState.salary_min) params.append('salary_min', filterState.salary_min)
       if (filterState.salary_max) params.append('salary_max', filterState.salary_max)
+      if (filterState.company) params.append('company', filterState.company)
+      if (filterState.location) params.append('location', filterState.location)
 
       const response = await fetch(`/api/jobs?${params.toString()}`)
       if (!response.ok) throw new Error('Failed to fetch jobs')
-
       const data = await response.json()
       setJobs(data)
     } catch (err) {
@@ -105,6 +124,19 @@ function HomePageContent() {
     } finally {
       setLoading(false)
     }
+  }, [])
+
+  // Fetch ALL jobs once on mount to populate dropdown options
+  useEffect(() => {
+    async function fetchAllJobs() {
+      try {
+        const response = await fetch('/api/jobs')
+        if (!response.ok) return
+        const data = await response.json()
+        setAllJobs(data)
+      } catch { /* ignore */ }
+    }
+    fetchAllJobs()
   }, [])
 
   useEffect(() => {
@@ -130,7 +162,7 @@ function HomePageContent() {
         const newFilters = { ...filters, search: query }
         setFilters(newFilters)
         fetchJobs(newFilters)
-        // Auto-switch to relevance sort when searching
+
         if (query && sortBy === 'newest') {
           setSortBy('relevance')
           updateURL(newFilters, 'relevance')
@@ -162,17 +194,12 @@ function HomePageContent() {
 
   const sortedJobs = useMemo(() => {
     let jobsCopy = [...jobs]
-
-    // Filter to saved only if showSaved is on
     if (showSaved) {
       jobsCopy = jobsCopy.filter(j => savedJobIds.has(j.id))
     }
-
-    // When search is active and sort is relevance, keep API order (already relevance-sorted)
     if (sortBy === 'relevance' && filters.search) {
       return jobsCopy
     }
-
     switch (sortBy) {
       case 'newest':
         return jobsCopy.sort(
@@ -201,18 +228,12 @@ function HomePageContent() {
 
   const getSortLabel = () => {
     switch (sortBy) {
-      case 'newest':
-        return 'newest'
-      case 'relevance':
-        return 'relevance'
-      case 'salary_high':
-        return 'highest salary'
-      case 'salary_low':
-        return 'lowest salary'
-      case 'company_az':
-        return 'company name'
-      default:
-        return 'newest'
+      case 'newest': return 'newest'
+      case 'relevance': return 'relevance'
+      case 'salary_high': return 'highest salary'
+      case 'salary_low': return 'lowest salary'
+      case 'company_az': return 'company name'
+      default: return 'newest'
     }
   }
 
@@ -244,6 +265,7 @@ function HomePageContent() {
               <span>{uniqueCompanies} companies</span>
             </div>
           )}
+
           {/* Category Quick Links */}
           <div className="flex flex-wrap justify-center gap-2 mt-2">
             {[
@@ -296,7 +318,11 @@ function HomePageContent() {
 
         {/* Search Bar */}
         <div className="mb-8">
-          <SearchBar onSearch={handleSearch} onCategorySelect={handleCategoryFromSearch} initialValue={filters.search} />
+          <SearchBar
+            onSearch={handleSearch}
+            onCategorySelect={handleCategoryFromSearch}
+            initialValue={filters.search}
+          />
         </div>
 
         {/* Filters */}
@@ -307,6 +333,8 @@ function HomePageContent() {
             sortBy={sortBy}
             onSortChange={handleSortChange}
             hasSearch={!!filters.search}
+            companies={companyNames}
+            locations={locationNames}
           />
         </div>
 
@@ -319,10 +347,12 @@ function HomePageContent() {
             </div>
           ) : (
             <p className="text-sm font-medium text-navy-600">
-              <span className="text-navy-900">{sortedJobs.length}</span> {sortedJobs.length === 1 ? 'job' : 'jobs'} found
+              <span className="text-navy-900">{sortedJobs.length}</span>{' '}
+              {sortedJobs.length === 1 ? 'job' : 'jobs'} found
               {sortedJobs.length > 0 && <span className="text-navy-400"> | sorted by {getSortLabel()}</span>}
             </p>
           )}
+
           <button
             onClick={handleToggleSaved}
             className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
@@ -363,7 +393,7 @@ function HomePageContent() {
               {sortedJobs.slice(0, visibleCount).map((job) => (
                 <JobCard key={job.id} job={job} searchQuery={filters.search} />
               ))}
-              {/* Infinite scroll sentinel */}
+
               {sortedJobs.length > visibleCount && (
                 <div className="pt-6 flex flex-col items-center gap-2">
                   <button
