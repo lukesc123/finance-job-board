@@ -110,11 +110,25 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
     url: `${siteUrl}/jobs/${job.id}`,
   }
 
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Jobs', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: job.category, item: `${siteUrl}/?category=${encodeURIComponent(job.category)}` },
+      { '@type': 'ListItem', position: 3, name: job.title },
+    ],
+  }
+
   return (
-    <div className="min-h-screen bg-navy-50">
+    <div className="min-h-screen bg-navy-50 pb-16 sm:pb-0">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
       <TrackView
         jobId={job.id}
@@ -125,18 +139,24 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         pipelineStage={job.pipeline_stage}
       />
 
-      {/* Back navigation */}
+      {/* Breadcrumb navigation */}
       <div className="bg-white border-b border-navy-200/60">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-navy-500 hover:text-navy-800 transition"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <nav className="flex items-center gap-1.5 text-sm" aria-label="Breadcrumb">
+            <Link href="/" className="font-medium text-navy-500 hover:text-navy-800 transition">
+              Jobs
+            </Link>
+            <svg className="h-3.5 w-3.5 text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-            All Jobs
-          </Link>
+            <Link href={`/?category=${encodeURIComponent(job.category)}`} className="font-medium text-navy-500 hover:text-navy-800 transition">
+              {job.category}
+            </Link>
+            <svg className="h-3.5 w-3.5 text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+            <span className="text-navy-400 truncate max-w-[200px] sm:max-w-none">{job.title}</span>
+          </nav>
         </div>
       </div>
 
@@ -378,6 +398,23 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           </div>
         </div>
       </div>
+
+      {/* Sticky Mobile Apply Bar */}
+      {applyUrl && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden bg-white border-t border-navy-200 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+          <a
+            href={applyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
+          >
+            Apply at {job.company?.name || 'Company'}
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        </div>
+      )}
     </div>
   )
 }
