@@ -63,6 +63,7 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
 
   const [saved, setSaved] = useState(false)
   const [applied, setApplied] = useState(false)
+  const [comparing, setComparing] = useState(false)
 
   useEffect(() => {
     try {
@@ -70,6 +71,8 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
       setSaved(savedJobs.includes(job.id))
       const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
       setApplied(appliedJobs.includes(job.id))
+      const compareJobs = JSON.parse(localStorage.getItem('compareJobs') || '[]')
+      setComparing(compareJobs.includes(job.id))
     } catch { /* ignore */ }
   }, [job.id])
 
@@ -109,6 +112,25 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
     } catch { /* ignore */ }
   }
 
+  const toggleCompare = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      const compareJobs: string[] = JSON.parse(localStorage.getItem('compareJobs') || '[]')
+      let updated: string[]
+      if (compareJobs.includes(job.id)) {
+        updated = compareJobs.filter(id => id !== job.id)
+        setComparing(false)
+      } else {
+        if (compareJobs.length >= 4) return // max 4 comparisons
+        updated = [...compareJobs, job.id]
+        setComparing(true)
+      }
+      localStorage.setItem('compareJobs', JSON.stringify(updated))
+      window.dispatchEvent(new Event('compareJobsChanged'))
+    } catch { /* ignore */ }
+  }
+
   return (
     <Link href={`/jobs/${job.id}`}>
       <div data-job-card className={`group relative rounded-xl border-l-4 bg-white transition-all duration-200 hover:shadow-md hover:-translate-y-px ${getPipelineStageAccent(job.pipeline_stage)} ${
@@ -128,6 +150,20 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
                 New
               </span>
             )}
+            <button
+              onClick={toggleCompare}
+              className={`p-1.5 rounded-lg transition-all text-xs font-medium ${
+                comparing
+                  ? 'text-blue-600 bg-blue-100'
+                  : 'text-navy-300 opacity-0 group-hover:opacity-100 hover:text-blue-600 hover:bg-blue-50'
+              }`}
+              aria-label={comparing ? 'Remove from compare' : 'Add to compare'}
+              title={comparing ? 'Remove from compare' : 'Compare'}
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7" />
+              </svg>
+            </button>
             <button
               onClick={toggleApplied}
               className={`p-1.5 rounded-lg transition-all text-xs font-medium ${
