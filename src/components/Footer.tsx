@@ -63,6 +63,12 @@ export default function Footer() {
                 <Link href="/" className="text-sm text-navy-400 hover:text-white transition">Browse All Jobs</Link>
               </li>
               <li>
+                <Link href="/companies" className="text-sm text-navy-400 hover:text-white transition">Companies Hiring</Link>
+              </li>
+              <li>
+                <Link href="/tracker" className="text-sm text-navy-400 hover:text-white transition">Application Tracker</Link>
+              </li>
+              <li>
                 <Link href="/employers" className="text-sm text-navy-400 hover:text-white transition">For Employers</Link>
               </li>
               <li>

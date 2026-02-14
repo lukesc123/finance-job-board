@@ -1,4 +1,7 @@
 import { Metadata } from 'next'
+import { supabaseAdmin } from '@/lib/supabaseAdmin'
+
+export const revalidate = 300
 
 export const metadata: Metadata = {
   title: 'For Employers | FinanceJobs',
@@ -38,15 +41,67 @@ const VALUE_PROPS = [
       </svg>
     ),
   },
+  {
+    title: 'SEO Optimized',
+    description: 'Each listing gets its own dedicated page with structured data, helping your job appear in Google Jobs search results.',
+    icon: (
+      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+    ),
+  },
 ]
 
-const STATS = [
-  { value: '66+', label: 'Active Listings' },
-  { value: '30+', label: 'Companies' },
-  { value: '15', label: 'Categories' },
+const FAQ = [
+  {
+    q: 'How much does it cost to post a job?',
+    a: 'We are currently free while building out our platform. Get in early and start reaching qualified candidates at no cost.',
+  },
+  {
+    q: 'What types of jobs can I post?',
+    a: 'We specialize in entry-level finance and accounting roles: internships (sophomore through senior year), new grad positions, and early career roles requiring 0-3 years of experience.',
+  },
+  {
+    q: 'How do candidates apply?',
+    a: 'We link directly to your career page or ATS. There is no "easy apply" button. Candidates who click through are genuinely interested and willing to complete your application process.',
+  },
+  {
+    q: 'Can I edit or remove a listing?',
+    a: 'Yes. Email us and we will update or remove your listing within 24 hours. We also run automated checks to detect when positions are filled.',
+  },
+  {
+    q: 'Do you verify listings?',
+    a: 'Every listing is verified against the source career page before publication. We re-check periodically to ensure links remain active and information stays accurate.',
+  },
 ]
 
-export default function EmployersPage() {
+async function getStats() {
+  const { count: jobCount } = await supabaseAdmin
+    .from('jobs')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_active', true)
+
+  const { data: companies } = await supabaseAdmin
+    .from('companies')
+    .select('id')
+
+  const { data: categories } = await supabaseAdmin
+    .from('jobs')
+    .select('category')
+    .eq('is_active', true)
+
+  const uniqueCategories = new Set((categories || []).map((j: any) => j.category))
+
+  return {
+    jobs: jobCount || 0,
+    companies: companies?.length || 0,
+    categories: uniqueCategories.size,
+  }
+}
+
+export default async function EmployersPage() {
+  const stats = await getStats()
+
   return (
     <div className="min-h-screen bg-navy-50">
       {/* Hero */}
@@ -59,7 +114,7 @@ export default function EmployersPage() {
             Connect directly with candidates actively seeking finance and accounting careers. Every listing links to your career page.
           </p>
           <a
-            href="mailto:luke.schindler@me.com"
+            href="mailto:luke.schindler@me.com?subject=Employer%20Inquiry%20-%20FinanceJobs"
             className="inline-flex items-center gap-2 rounded-lg bg-white text-navy-900 px-6 py-3 text-sm font-semibold hover:bg-navy-100 transition shadow-sm"
           >
             Get Started
@@ -74,7 +129,11 @@ export default function EmployersPage() {
       <section className="bg-white border-b border-navy-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-3 divide-x divide-navy-100">
-            {STATS.map((stat) => (
+            {[
+              { value: `${stats.jobs}+`, label: 'Active Listings' },
+              { value: `${stats.companies}+`, label: 'Companies' },
+              { value: `${stats.categories}`, label: 'Categories' },
+            ].map((stat) => (
               <div key={stat.label} className="py-6 sm:py-8 text-center">
                 <p className="text-2xl sm:text-3xl font-extrabold text-navy-900">{stat.value}</p>
                 <p className="text-xs sm:text-sm text-navy-500 mt-1">{stat.label}</p>
@@ -86,7 +145,7 @@ export default function EmployersPage() {
 
       {/* Value Props */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid gap-6 sm:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {VALUE_PROPS.map((prop) => (
             <div key={prop.title} className="rounded-xl border border-navy-200 bg-white p-6 text-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-navy-50 text-navy-700 mx-auto mb-4">
@@ -123,15 +182,28 @@ export default function EmployersPage() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <h2 className="text-2xl font-bold text-navy-900 text-center mb-10">Frequently Asked Questions</h2>
+        <div className="space-y-4">
+          {FAQ.map((item, i) => (
+            <div key={i} className="rounded-xl border border-navy-200 bg-white p-5">
+              <h3 className="font-semibold text-navy-900 mb-2">{item.q}</h3>
+              <p className="text-sm text-navy-600 leading-relaxed">{item.a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* CTA Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
+      <section className="bg-white border-t border-navy-200 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl font-bold text-navy-900 mb-3">Ready to recruit?</h2>
           <p className="text-navy-600 mb-8">
             Get in touch to post your opportunities and connect with talented entry-level finance professionals.
           </p>
           <a
-            href="mailto:luke.schindler@me.com"
+            href="mailto:luke.schindler@me.com?subject=Employer%20Inquiry%20-%20FinanceJobs"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-navy-900 px-8 py-3 text-sm font-semibold text-white hover:bg-navy-800 transition shadow-sm"
           >
             Contact Us

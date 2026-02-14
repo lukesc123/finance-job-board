@@ -86,6 +86,16 @@ export default function Navbar() {
             </Link>
           )}
           <Link
+            href="/companies"
+            className={`rounded-lg px-3.5 py-2 text-sm font-medium transition ${
+              pathname === '/companies'
+                ? 'text-navy-900 bg-navy-100'
+                : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50'
+            }`}
+          >
+            Companies
+          </Link>
+          <Link
             href="/employers"
             className="rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-navy-800 ml-2"
           >
@@ -129,6 +139,9 @@ export default function Navbar() {
                 </span>
               </Link>
             )}
+            <Link href="/companies" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
+              Companies
+            </Link>
             <Link href="/employers" className="rounded-lg bg-navy-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-800 text-center">
               For Employers
             </Link>
