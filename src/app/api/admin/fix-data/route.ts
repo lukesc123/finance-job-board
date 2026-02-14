@@ -51,6 +51,7 @@ const jobSpecificUrls: Record<string, string> = {
   'f05c2864-7054-4c81-bc09-3f8faec7a53a': 'https://www.jefferies.com/careers',
   '9fcc856b-ff77-4de5-a59e-f747af6a9a78': 'https://www.bridgewater.com/careers',
   'b21e5f6a-cd23-4f18-88b0-7e1dd2a89c45': 'https://careers.sig.com/',
+  '08e69b81-a9d1-4503-b764-97827112243e': 'https://www.bridgewater.com/careers',
 }
 
 export async function POST() {
