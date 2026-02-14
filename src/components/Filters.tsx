@@ -18,6 +18,8 @@ interface FiltersProps {
   hasSearch?: boolean
   companies?: string[]
   locations?: string[]
+  companyCounts?: Record<string, number>
+  locationCounts?: Record<string, number>
 }
 
 const selectClassName =
@@ -39,6 +41,8 @@ export default function Filters({
   hasSearch = false,
   companies = [],
   locations = [],
+  companyCounts = {},
+  locationCounts = {},
 }: FiltersProps) {
   const [filtersOpen, setFiltersOpen] = useState(true)
 
@@ -183,7 +187,7 @@ export default function Filters({
             >
               <option value="">All Companies</option>
               {companies.map((c) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>{c}{companyCounts[c] ? ` (${companyCounts[c]})` : ''}</option>
               ))}
             </select>
 
@@ -194,7 +198,7 @@ export default function Filters({
             >
               <option value="">All Locations</option>
               {locations.map((l) => (
-                <option key={l} value={l}>{l}</option>
+                <option key={l} value={l}>{l}{locationCounts[l] ? ` (${locationCounts[l]})` : ''}</option>
               ))}
             </select>
 

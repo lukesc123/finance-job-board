@@ -86,21 +86,29 @@ function HomePageContent() {
     return () => window.removeEventListener('savedJobsChanged', handleChange)
   }, [])
 
-  const companyNames = useMemo(() => {
-    const names = new Set<string>()
+  const companyCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
     allJobs.forEach(job => {
-      if (job.company?.name) names.add(job.company.name)
+      if (job.company?.name) counts[job.company.name] = (counts[job.company.name] || 0) + 1
     })
-    return Array.from(names).sort((a, b) => a.localeCompare(b))
+    return counts
   }, [allJobs])
 
-  const locationNames = useMemo(() => {
-    const locs = new Set<string>()
+  const locationCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
     allJobs.forEach(job => {
-      if (job.location) locs.add(job.location)
+      if (job.location) counts[job.location] = (counts[job.location] || 0) + 1
     })
-    return Array.from(locs).sort((a, b) => a.localeCompare(b))
+    return counts
   }, [allJobs])
+
+  const companyNames = useMemo(() => {
+    return Object.keys(companyCounts).sort((a, b) => a.localeCompare(b))
+  }, [companyCounts])
+
+  const locationNames = useMemo(() => {
+    return Object.keys(locationCounts).sort((a, b) => a.localeCompare(b))
+  }, [locationCounts])
 
   const updateURL = useCallback((newFilters: JobFilters, newSort: string, newShowSaved?: boolean) => {
     const qs = filtersToParams(newFilters, newSort, newShowSaved ?? showSaved)
@@ -337,6 +345,8 @@ function HomePageContent() {
             hasSearch={!!filters.search}
             companies={companyNames}
             locations={locationNames}
+            companyCounts={companyCounts}
+            locationCounts={locationCounts}
           />
         </div>
 

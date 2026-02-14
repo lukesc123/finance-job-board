@@ -7,6 +7,7 @@ import { Job } from '@/types'
 import SimilarJobs from '@/components/SimilarJobs'
 import JobDetailActions from '@/components/JobDetailActions'
 import TrackView from '@/components/TrackView'
+import JobDescription from '@/components/JobDescription'
 
 export const revalidate = 300
 
@@ -268,9 +269,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             {/* Description */}
             <div>
               <h2 className="text-lg font-bold text-navy-900 mb-3">About this role</h2>
-              <div className="text-navy-700 whitespace-pre-wrap leading-relaxed text-[15px]">
-                {job.description}
-              </div>
+              <JobDescription text={job.description} />
             </div>
 
             {/* Licenses Required */}
