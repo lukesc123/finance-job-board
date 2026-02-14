@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import CompaniesGrid from '@/components/CompaniesGrid'
 
 export const revalidate = 300
 
@@ -18,7 +19,7 @@ function slugify(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 }
 
-interface CompanyWithCount {
+export interface CompanyWithCount {
   id: string
   name: string
   slug: string
@@ -75,8 +76,31 @@ export default async function CompaniesPage() {
   const companies = await getCompaniesWithJobs()
   const totalJobs = companies.reduce((sum, c) => sum + c.job_count, 0)
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
+
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Companies Hiring',
+      description: `Browse ${companies.length} companies with ${totalJobs} open entry-level finance positions.`,
+      url: `${siteUrl}/companies`,
+      isPartOf: { '@type': 'WebSite', name: 'FinanceJobs', url: siteUrl },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+        { '@type': 'ListItem', position: 2, name: 'Companies', item: `${siteUrl}/companies` },
+      ],
+    },
+  ]
+
   return (
     <div className="min-h-screen bg-navy-50">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
       {/* Hero */}
       <section className="bg-gradient-to-b from-navy-950 to-navy-900 text-white py-14 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto text-center">
@@ -89,109 +113,8 @@ export default async function CompaniesPage() {
         </div>
       </section>
 
-      {/* Company Grid */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {companies.map((company) => (
-            <div key={company.id} className="rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md transition-shadow group">
-              <div className="flex items-start gap-3 mb-3">
-                {company.logo_url ? (
-                  <img src={company.logo_url} alt="" className="h-10 w-10 rounded-lg object-contain border border-navy-100 bg-white flex-shrink-0" />
-                ) : (
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy-100 text-navy-600 font-bold text-sm flex-shrink-0">
-                    {company.name.charAt(0)}
-                  </div>
-                )}
-                <div className="min-w-0">
-                  <Link
-                    href={`/companies/${company.slug}`}
-                    className="font-bold text-navy-900 group-hover:text-navy-700 transition block truncate"
-                  >
-                    {company.name}
-                  </Link>
-                  <p className="text-xs text-navy-500">
-                    <span className="font-semibold text-navy-700">{company.job_count}</span> open {company.job_count === 1 ? 'position' : 'positions'}
-                  </p>
-                </div>
-              </div>
-
-              {company.description && (
-                <p className="text-xs text-navy-600 leading-relaxed mb-3 line-clamp-2">
-                  {company.description}
-                </p>
-              )}
-
-              {/* Categories */}
-              <div className="flex flex-wrap gap-1 mb-3">
-                {company.categories.slice(0, 3).map((cat) => (
-                  <Link
-                    key={cat}
-                    href={`/companies/${company.slug}`}
-                    className="rounded-full bg-navy-50 px-2 py-0.5 text-[10px] font-medium text-navy-600 hover:bg-navy-100 transition"
-                  >
-                    {cat}
-                  </Link>
-                ))}
-                {company.categories.length > 3 && (
-                  <span className="rounded-full bg-navy-50 px-2 py-0.5 text-[10px] font-medium text-navy-400">
-                    +{company.categories.length - 3} more
-                  </span>
-                )}
-              </div>
-
-              {/* Locations */}
-              {company.locations.length > 0 && (
-                <div className="flex items-center gap-1 text-[10px] text-navy-400 mb-3">
-                  <svg className="h-3 w-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span className="truncate">{company.locations.join(', ')}</span>
-                </div>
-              )}
-
-              {/* Links */}
-              <div className="flex items-center gap-3 pt-2 border-t border-navy-100">
-                <Link
-                  href={`/companies/${company.slug}`}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-navy-600 hover:text-navy-900 transition"
-                >
-                  View Jobs
-                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
-                {company.careers_url && (
-                  <a
-                    href={company.careers_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-medium text-navy-400 hover:text-navy-600 transition"
-                  >
-                    Careers Page
-                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
-                )}
-                {company.website && (
-                  <a
-                    href={company.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-medium text-navy-400 hover:text-navy-600 transition ml-auto"
-                  >
-                    Website
-                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Company Grid with Client Search */}
+      <CompaniesGrid companies={companies} />
     </div>
   )
 }
