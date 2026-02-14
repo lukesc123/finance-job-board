@@ -21,7 +21,7 @@ interface FiltersProps {
 }
 
 const selectClassName =
-  "rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900 transition hover:border-navy-300 focus:border-navy-500 focus:outline-none focus:ring-2 focus:ring-navy-500/20"
+  "rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-800 transition-all hover:border-navy-300 focus:border-navy-500 focus:outline-none focus:ring-2 focus:ring-navy-500/20 cursor-pointer"
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest first' },
@@ -76,16 +76,9 @@ export default function Filters({
   }
 
   const isFiltered =
-    filters.category ||
-    filters.job_type ||
-    filters.pipeline_stage ||
-    filters.remote_type ||
-    filters.license ||
-    filters.grad_date ||
-    filters.salary_min ||
-    filters.salary_max ||
-    filters.company ||
-    filters.location
+    filters.category || filters.job_type || filters.pipeline_stage ||
+    filters.remote_type || filters.license || filters.grad_date ||
+    filters.salary_min || filters.salary_max || filters.company || filters.location
 
   const getFilterLabel = (key: keyof JobFilters, value: string): string => {
     const labels: Record<string, Record<string, string>> = {
@@ -96,12 +89,12 @@ export default function Filters({
       license: { ...Object.fromEntries(FINANCE_LICENSES.map((l) => [l, l])) },
       company: { [value]: value },
       location: { [value]: value },
-      grad_date: { [value]: `Graduating: ${value}` },
+      grad_date: { [value]: `Grad: ${value}` },
       salary_min: {
-        [value]: `Min: $${parseInt(value) >= 1000 ? `${Math.round(parseInt(value) / 1000)}K` : value}`,
+        [value]: `Min $${parseInt(value) >= 1000 ? `${Math.round(parseInt(value) / 1000)}K` : value}`,
       },
       salary_max: {
-        [value]: `Max: $${parseInt(value) >= 1000 ? `${Math.round(parseInt(value) / 1000)}K` : value}`,
+        [value]: `Max $${parseInt(value) >= 1000 ? `${Math.round(parseInt(value) / 1000)}K` : value}`,
       },
     }
     return labels[key]?.[value] || value
@@ -127,17 +120,15 @@ export default function Filters({
   )
 
   return (
-    <div className="space-y-6">
-      {/* Sort Dropdown */}
-      <div className="flex flex-col gap-2">
-        <label htmlFor="sort" className="text-sm font-semibold text-navy-900">
-          Sort by
-        </label>
+    <div className="space-y-4">
+      {/* Top row: Sort + Mobile Toggle */}
+      <div className="flex items-center gap-3">
         <select
           id="sort"
           value={sortBy}
           onChange={(e) => onSortChange(e.target.value)}
-          className={`${selectClassName} w-full`}
+          className={`${selectClassName} flex-shrink-0`}
+          aria-label="Sort by"
         >
           {visibleSortOptions.map((option) => (
             <option key={option.value} value={option.value}>
@@ -145,227 +136,184 @@ export default function Filters({
             </option>
           ))}
         </select>
-      </div>
 
-      {/* Mobile Filters Toggle */}
-      <button
-        onClick={() => setFiltersOpen(!filtersOpen)}
-        className="sm:hidden flex items-center justify-between w-full bg-navy-50 border border-navy-200 rounded-lg px-4 py-3 hover:bg-navy-100 transition"
-        aria-expanded={filtersOpen}
-      >
-        <span className="flex items-center gap-2 font-semibold text-navy-900">
-          Filters
-          {activeFilterCount > 0 && (
-            <span className="inline-flex items-center justify-center min-w-5 h-5 bg-navy-900 text-white text-xs font-bold rounded-full">
-              {activeFilterCount}
-            </span>
-          )}
-        </span>
-        <svg
-          className={`w-5 h-5 text-navy-900 transition-transform duration-300 ${
-            filtersOpen ? 'rotate-180' : ''
-          }`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+        {/* Mobile Filters Toggle */}
+        <button
+          onClick={() => setFiltersOpen(!filtersOpen)}
+          className="sm:hidden flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm font-medium text-navy-700 hover:bg-navy-50 transition flex-1 justify-between"
+          aria-expanded={filtersOpen}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 14l-7 7m0 0l-7-7m7 7V3"
-          />
-        </svg>
-      </button>
+          <span className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-navy-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            Filters
+            {activeFilterCount > 0 && (
+              <span className="inline-flex items-center justify-center min-w-5 h-5 bg-navy-900 text-white text-xs font-bold rounded-full px-1.5">
+                {activeFilterCount}
+              </span>
+            )}
+          </span>
+          <svg className={`w-4 h-4 text-navy-400 transition-transform duration-200 ${filtersOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
 
       {/* Filter Grid */}
       {filtersOpen && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {/* Category */}
-            <div>
-              <select
-                value={filters.category}
-                onChange={(e) => handleChange('category', e.target.value)}
-                className={`${selectClassName} w-full`}
-              >
-                <option value="">Category</option>
-                {JOB_CATEGORIES.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-            </div>
+        <div className="rounded-xl border border-navy-200 bg-white p-4 space-y-4">
+          {/* Primary filters row */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            <select
+              value={filters.category}
+              onChange={(e) => handleChange('category', e.target.value)}
+              className={`${selectClassName} w-full`}
+            >
+              <option value="">All Categories</option>
+              {JOB_CATEGORIES.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
 
-            {/* Company */}
-            <div>
-              <select
-                value={filters.company}
-                onChange={(e) => handleChange('company', e.target.value)}
-                className={`${selectClassName} w-full`}
-              >
-                <option value="">Company</option>
-                {companies.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={filters.company}
+              onChange={(e) => handleChange('company', e.target.value)}
+              className={`${selectClassName} w-full`}
+            >
+              <option value="">All Companies</option>
+              {companies.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
 
-            {/* Location */}
-            <div>
-              <select
-                value={filters.location}
-                onChange={(e) => handleChange('location', e.target.value)}
-                className={`${selectClassName} w-full`}
-              >
-                <option value="">Location</option>
-                {locations.map((l) => (
-                  <option key={l} value={l}>{l}</option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={filters.location}
+              onChange={(e) => handleChange('location', e.target.value)}
+              className={`${selectClassName} w-full`}
+            >
+              <option value="">All Locations</option>
+              {locations.map((l) => (
+                <option key={l} value={l}>{l}</option>
+              ))}
+            </select>
 
-            {/* Job Type */}
-            <div>
-              <select
-                value={filters.job_type}
-                onChange={(e) => handleChange('job_type', e.target.value)}
-                className={`${selectClassName} w-full`}
-              >
-                <option value="">Job Type</option>
-                {JOB_TYPES.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Pipeline Stage */}
-            <div>
-              <select
-                value={filters.pipeline_stage}
-                onChange={(e) => handleChange('pipeline_stage', e.target.value)}
-                className={`${selectClassName} w-full`}
-              >
-                <option value="">Pipeline Stage</option>
-                {PIPELINE_STAGES.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Remote Type */}
-            <div>
-              <select
-                value={filters.remote_type}
-                onChange={(e) => handleChange('remote_type', e.target.value)}
-                className={`${selectClassName} w-full`}
-              >
-                <option value="">Remote Type</option>
-                {REMOTE_TYPES.map((r) => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* License Required */}
-            <div>
-              <select
-                value={filters.license}
-                onChange={(e) => handleChange('license', e.target.value)}
-                className={`${selectClassName} w-full`}
-              >
-                <option value="">License Required</option>
-                {FINANCE_LICENSES.map((l) => (
-                  <option key={l} value={l}>{l}</option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={filters.job_type}
+              onChange={(e) => handleChange('job_type', e.target.value)}
+              className={`${selectClassName} w-full`}
+            >
+              <option value="">All Job Types</option>
+              {JOB_TYPES.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
           </div>
 
-          {/* Salary Range + Graduation Date */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div>
-              <label className="block text-xs font-medium text-navy-500 mb-1">Min Salary</label>
-              <select
-                value={filters.salary_min}
-                onChange={(e) => handleChange('salary_min', e.target.value)}
-                className={`${selectClassName} w-full`}
-              >
-                <option value="">No minimum</option>
-                <option value="40000">$40K+</option>
-                <option value="50000">$50K+</option>
-                <option value="60000">$60K+</option>
-                <option value="70000">$70K+</option>
-                <option value="80000">$80K+</option>
-                <option value="90000">$90K+</option>
-                <option value="100000">$100K+</option>
-              </select>
-            </div>
+          {/* Secondary filters row */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            <select
+              value={filters.pipeline_stage}
+              onChange={(e) => handleChange('pipeline_stage', e.target.value)}
+              className={`${selectClassName} w-full`}
+            >
+              <option value="">All Stages</option>
+              {PIPELINE_STAGES.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+
+            <select
+              value={filters.remote_type}
+              onChange={(e) => handleChange('remote_type', e.target.value)}
+              className={`${selectClassName} w-full`}
+            >
+              <option value="">All Work Styles</option>
+              {REMOTE_TYPES.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+
+            <select
+              value={filters.license}
+              onChange={(e) => handleChange('license', e.target.value)}
+              className={`${selectClassName} w-full`}
+            >
+              <option value="">Any License</option>
+              {FINANCE_LICENSES.map((l) => (
+                <option key={l} value={l}>{l}</option>
+              ))}
+            </select>
 
             <div>
-              <label className="block text-xs font-medium text-navy-500 mb-1">Max Salary</label>
-              <select
-                value={filters.salary_max}
-                onChange={(e) => handleChange('salary_max', e.target.value)}
-                className={`${selectClassName} w-full`}
-              >
-                <option value="">No maximum</option>
-                <option value="60000">Up to $60K</option>
-                <option value="80000">Up to $80K</option>
-                <option value="100000">Up to $100K</option>
-                <option value="120000">Up to $120K</option>
-                <option value="150000">Up to $150K</option>
-                <option value="200000">Up to $200K</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-navy-500 mb-1">Graduation Date</label>
               <input
-                id="grad_date"
                 type="month"
                 value={filters.grad_date}
                 onChange={(e) => handleChange('grad_date', e.target.value)}
-                placeholder="Your graduation date"
+                placeholder="Graduation date"
                 className={`${selectClassName} w-full`}
+                aria-label="Graduation date"
               />
             </div>
+          </div>
+
+          {/* Salary range row */}
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-xs font-medium text-navy-500 uppercase tracking-wide">Salary</span>
+            <select
+              value={filters.salary_min}
+              onChange={(e) => handleChange('salary_min', e.target.value)}
+              className={`${selectClassName}`}
+            >
+              <option value="">No min</option>
+              <option value="40000">$40K+</option>
+              <option value="50000">$50K+</option>
+              <option value="60000">$60K+</option>
+              <option value="70000">$70K+</option>
+              <option value="80000">$80K+</option>
+              <option value="100000">$100K+</option>
+            </select>
+            <span className="text-navy-300">to</span>
+            <select
+              value={filters.salary_max}
+              onChange={(e) => handleChange('salary_max', e.target.value)}
+              className={`${selectClassName}`}
+            >
+              <option value="">No max</option>
+              <option value="60000">$60K</option>
+              <option value="80000">$80K</option>
+              <option value="100000">$100K</option>
+              <option value="120000">$120K</option>
+              <option value="150000">$150K</option>
+              <option value="200000">$200K</option>
+            </select>
           </div>
         </div>
       )}
 
       {/* Active Filters Badges */}
       {activeFilters.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-navy-900">Active Filters</h3>
-            {isFiltered && (
-              <button
-                onClick={handleClearAll}
-                className="text-xs font-medium text-navy-600 transition hover:text-navy-900 hover:underline"
-              >
-                Clear all
-              </button>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {activeFilters.map(({ key, value }) => (
-              <div
-                key={`${key}-${value}`}
-                className="inline-flex items-center gap-2 rounded-lg bg-navy-100 px-3 py-2"
-              >
-                <span className="text-sm font-medium text-navy-900">
-                  {getFilterLabel(key, value)}
-                </span>
-                <button
-                  onClick={() => handleRemoveFilter(key)}
-                  className="inline-flex items-center justify-center rounded text-navy-600 transition hover:bg-navy-200 hover:text-navy-900"
-                  aria-label={`Remove ${key} filter`}
-                >
-                  <span className="text-lg leading-none">&times;</span>
-                </button>
-              </div>
-            ))}
-          </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {activeFilters.map(({ key, value }) => (
+            <button
+              key={`${key}-${value}`}
+              onClick={() => handleRemoveFilter(key)}
+              className="inline-flex items-center gap-1.5 rounded-full bg-navy-900 text-white pl-3 pr-2 py-1 text-xs font-medium transition hover:bg-navy-700 group"
+            >
+              {getFilterLabel(key, value)}
+              <svg className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          ))}
+          {isFiltered && (
+            <button
+              onClick={handleClearAll}
+              className="text-xs font-medium text-navy-500 transition hover:text-navy-800 underline underline-offset-2"
+            >
+              Clear all
+            </button>
+          )}
         </div>
       )}
     </div>
