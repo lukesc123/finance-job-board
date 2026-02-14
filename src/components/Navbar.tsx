@@ -8,21 +8,28 @@ export default function Navbar() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [savedCount, setSavedCount] = useState(0)
+  const [appliedCount, setAppliedCount] = useState(0)
 
   useEffect(() => {
     setMobileMenuOpen(false)
   }, [pathname])
 
   useEffect(() => {
-    const updateCount = () => {
+    const updateCounts = () => {
       try {
         const saved = JSON.parse(localStorage.getItem('savedJobs') || '[]')
         setSavedCount(saved.length)
+        const applied = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
+        setAppliedCount(applied.length)
       } catch { /* ignore */ }
     }
-    updateCount()
-    window.addEventListener('savedJobsChanged', updateCount)
-    return () => window.removeEventListener('savedJobsChanged', updateCount)
+    updateCounts()
+    window.addEventListener('savedJobsChanged', updateCounts)
+    window.addEventListener('appliedJobsChanged', updateCounts)
+    return () => {
+      window.removeEventListener('savedJobsChanged', updateCounts)
+      window.removeEventListener('appliedJobsChanged', updateCounts)
+    }
   }, [])
 
   if (pathname?.startsWith('/admin')) return null
@@ -63,6 +70,21 @@ export default function Navbar() {
               </span>
             </Link>
           )}
+          {appliedCount > 0 && (
+            <Link
+              href="/tracker"
+              className={`relative rounded-lg px-3.5 py-2 text-sm font-medium transition ${
+                pathname === '/tracker'
+                  ? 'text-navy-900 bg-navy-100'
+                  : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50'
+              }`}
+            >
+              Tracker
+              <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[10px] font-bold text-white">
+                {appliedCount}
+              </span>
+            </Link>
+          )}
           <Link
             href="/employers"
             className="rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-navy-800 ml-2"
@@ -96,6 +118,14 @@ export default function Navbar() {
                 Saved Jobs
                 <span className="inline-flex items-center justify-center h-5 min-w-5 rounded-full bg-amber-500 px-1.5 text-[11px] font-bold text-white">
                   {savedCount}
+                </span>
+              </Link>
+            )}
+            {appliedCount > 0 && (
+              <Link href="/tracker" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50 flex items-center justify-between">
+                Application Tracker
+                <span className="inline-flex items-center justify-center h-5 min-w-5 rounded-full bg-emerald-500 px-1.5 text-[11px] font-bold text-white">
+                  {appliedCount}
                 </span>
               </Link>
             )}
