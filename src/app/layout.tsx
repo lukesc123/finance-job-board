@@ -13,6 +13,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
+    metadataBase: new URL(siteUrl),
   title: 'FinanceJobs | Entry-Level Finance & Accounting Positions',
   description:
     'Curated entry-level finance and accounting jobs sourced directly from company career pages. No easy apply. Real opportunities.',
