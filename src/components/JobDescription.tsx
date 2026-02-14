@@ -1,5 +1,7 @@
 'use client'
 
+import React from 'react'
+
 /**
  * Renders job descriptions with basic formatting:
  * - Detects bullet points (-, *, •) and renders as lists
@@ -9,7 +11,7 @@
  * - Linkifies URLs
  */
 
-function linkify(text: string): (string | JSX.Element)[] {
+function linkify(text: string): (string | React.ReactElement)[] {
   const urlRegex = /(https?:\/\/[^\s<]+)/g
   const parts = text.split(urlRegex)
   return parts.map((part, i) => {
@@ -31,10 +33,10 @@ function linkify(text: string): (string | JSX.Element)[] {
   })
 }
 
-function formatLine(line: string): (string | JSX.Element)[] {
+function formatLine(line: string): (string | React.ReactElement)[] {
   // Bold **text**
   const boldRegex = /\*\*(.+?)\*\*/g
-  const parts: (string | JSX.Element)[] = []
+  const parts: (string | React.ReactElement)[] = []
   let lastIndex = 0
   let match
 
@@ -86,7 +88,7 @@ export default function JobDescription({ text }: JobDescriptionProps) {
   if (!text) return null
 
   const lines = text.split('\n')
-  const elements: JSX.Element[] = []
+  const elements: React.ReactElement[] = []
   let currentBullets: string[] = []
   let currentNumbered: string[] = []
   let currentParagraph: string[] = []
