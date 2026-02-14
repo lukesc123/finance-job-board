@@ -13,7 +13,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-    metadataBase: new URL(siteUrl),
+  metadataBase: new URL(siteUrl),
   title: 'FinanceJobs | Entry-Level Finance & Accounting Positions',
   description:
     'Curated entry-level finance and accounting jobs sourced directly from company career pages. No easy apply. Real opportunities.',
@@ -74,12 +74,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
       </head>
-      <body className="bg-white text-gray-900 antialiased">
+      <body className="bg-navy-50 text-navy-900 antialiased">
         <Navbar />
         <main className="min-h-screen">{children}</main>
         <Footer />
