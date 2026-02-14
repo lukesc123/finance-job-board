@@ -13,7 +13,8 @@ export async function GET() {
     .limit(50)
 
   const items = (jobs || []).map((job: any) => {
-    const companyName = job.company?.name || 'Company'
+    const company = Array.isArray(job.company) ? job.company[0] : job.company
+    const companyName = company?.name || 'Company'
     const desc = (job.description || '').substring(0, 300).replace(/[<>&'"]/g, (c: string) => {
       const map: Record<string, string> = { '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }
       return map[c] || c
