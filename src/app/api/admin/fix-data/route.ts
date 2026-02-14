@@ -193,21 +193,24 @@ const jobUrls: Record<string, string> = {
   '6e2f3fa9-9f70-46c3-86d1-59ee86bafb68': 'https://www.guggenheimpartners.com/firm/careers/open-positions',
 }
 
-export async function POST() {
+// GET: process a batch of 20 at a time via ?offset=0
+export async function GET(req: Request) {
   try {
+    const url = new URL(req.url)
+    const offset = parseInt(url.searchParams.get('offset') || '0')
     const entries = Object.entries(jobUrls)
-    let updated = 0
-    // Process in batches of 10 concurrent updates
-    for (let i = 0; i < entries.length; i += 10) {
-      const batch = entries.slice(i, i + 10)
-      const results = await Promise.all(
-        batch.map(([id, url]) =>
-          supabaseAdmin.from('jobs').update({ apply_url: url }).eq('id', id)
-        )
-      )
-      updated += results.filter(r => !r.error).length
+    const batch = entries.slice(offset, offset + 20)
+    if (batch.length === 0) {
+      return NextResponse.json({ done: true, total: entries.length })
     }
-    return NextResponse.json({ success: true, updated, total: entries.length })
+    const results = await Promise.all(
+      batch.map(([id, applyUrl]) =>
+        supabaseAdmin.from('jobs').update({ apply_url: applyUrl }).eq('id', id)
+      )
+    )
+    const updated = results.filter(r => !r.error).length
+    const errors = results.filter(r => r.error).map(r => r.error?.message)
+    return NextResponse.json({ updated, offset, nextOffset: offset + 20, remaining: entries.length - offset - 20, errors: errors.length ? errors : undefined })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
