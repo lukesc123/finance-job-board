@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 
+export const dynamic = 'force-dynamic'
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board-luke-schindlers-projects.vercel.app'
 
