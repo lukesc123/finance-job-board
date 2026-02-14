@@ -237,7 +237,8 @@ export default function JobCard({ job, searchQuery = '' }: JobCardProps) {
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    window.location.href = `/?location=${encodeURIComponent(job.location)}`
+                    const locSlug = job.location.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+                    window.location.href = `/location/${locSlug}`
                   }}
                   className="inline-flex items-center gap-1 hover:text-navy-700 hover:underline cursor-pointer transition"
                 >

@@ -95,17 +95,25 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Top Companies */}
+          {/* Locations & Companies */}
           <div>
             <h3 className="text-xs font-semibold text-navy-300 uppercase tracking-wider mb-3">
+              Top Locations
+            </h3>
+            <ul className="space-y-2">
+              <li><Link href="/location/new-york-ny" className="text-sm text-navy-400 hover:text-white transition">New York, NY</Link></li>
+              <li><Link href="/location/san-francisco-ca" className="text-sm text-navy-400 hover:text-white transition">San Francisco, CA</Link></li>
+              <li><Link href="/location/chicago-il" className="text-sm text-navy-400 hover:text-white transition">Chicago, IL</Link></li>
+              <li><Link href="/location/charlotte-nc" className="text-sm text-navy-400 hover:text-white transition">Charlotte, NC</Link></li>
+              <li><Link href="/location/boston-ma" className="text-sm text-navy-400 hover:text-white transition">Boston, MA</Link></li>
+            </ul>
+            <h3 className="text-xs font-semibold text-navy-300 uppercase tracking-wider mb-3 mt-5">
               Top Companies
             </h3>
             <ul className="space-y-2">
               <li><Link href="/companies/goldman-sachs" className="text-sm text-navy-400 hover:text-white transition">Goldman Sachs</Link></li>
               <li><Link href="/companies/j-p-morgan" className="text-sm text-navy-400 hover:text-white transition">J.P. Morgan</Link></li>
               <li><Link href="/companies/morgan-stanley" className="text-sm text-navy-400 hover:text-white transition">Morgan Stanley</Link></li>
-              <li><Link href="/companies/bank-of-america" className="text-sm text-navy-400 hover:text-white transition">Bank of America</Link></li>
-              <li><Link href="/companies/citi" className="text-sm text-navy-400 hover:text-white transition">Citi</Link></li>
               <li><Link href="/companies" className="text-sm text-navy-300 hover:text-white transition font-medium">View all companies &rarr;</Link></li>
             </ul>
           </div>

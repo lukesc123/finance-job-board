@@ -49,6 +49,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }))
 
+  // Location landing pages
+  const { data: locationJobs } = await supabaseAdmin
+    .from('jobs')
+    .select('location')
+    .eq('is_active', true)
+
+  const uniqueLocations = [...new Set((locationJobs || []).map((j: any) => j.location as string))].filter(Boolean)
+  const locationEntries: MetadataRoute.Sitemap = uniqueLocations.map((loc) => ({
+    url: `${baseUrl}/location/${slugify(loc)}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: 0.8,
+  }))
+
   // Pipeline stage filter pages
   const stageEntries: MetadataRoute.Sitemap = PIPELINE_STAGES.map((stage) => ({
     url: `${baseUrl}/?pipeline_stage=${encodeURIComponent(stage)}`,
@@ -90,6 +104,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...companyEntries,
     ...categoryEntries,
+    ...locationEntries,
     ...stageEntries,
     ...jobEntries,
   ]

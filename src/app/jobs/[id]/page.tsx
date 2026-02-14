@@ -253,7 +253,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-navy-100 border-b border-navy-100">
             <div className="p-3.5 sm:p-4 text-center">
               <p className="text-[10px] font-semibold text-navy-400 uppercase tracking-wider mb-0.5">Location</p>
-              <Link href={`/?location=${encodeURIComponent(job.location)}`} className="text-sm font-semibold text-navy-900 hover:text-navy-700 hover:underline transition">
+              <Link href={`/location/${slugify(job.location)}`} className="text-sm font-semibold text-navy-900 hover:text-navy-700 hover:underline transition">
                 {job.location}
               </Link>
             </div>
