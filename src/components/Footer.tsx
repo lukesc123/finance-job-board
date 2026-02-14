@@ -98,7 +98,7 @@ export default function Footer() {
           {/* Locations & Companies */}
           <div>
             <h3 className="text-xs font-semibold text-navy-300 uppercase tracking-wider mb-3">
-              Top Locations
+              <Link href="/locations" className="hover:text-white transition">Top Locations</Link>
             </h3>
             <ul className="space-y-2">
               <li><Link href="/location/new-york-ny" className="text-sm text-navy-400 hover:text-white transition">New York, NY</Link></li>
@@ -106,6 +106,7 @@ export default function Footer() {
               <li><Link href="/location/chicago-il" className="text-sm text-navy-400 hover:text-white transition">Chicago, IL</Link></li>
               <li><Link href="/location/charlotte-nc" className="text-sm text-navy-400 hover:text-white transition">Charlotte, NC</Link></li>
               <li><Link href="/location/boston-ma" className="text-sm text-navy-400 hover:text-white transition">Boston, MA</Link></li>
+              <li><Link href="/locations" className="text-sm text-navy-300 hover:text-white transition font-medium">View all locations &rarr;</Link></li>
             </ul>
             <h3 className="text-xs font-semibold text-navy-300 uppercase tracking-wider mb-3 mt-5">
               Top Companies
