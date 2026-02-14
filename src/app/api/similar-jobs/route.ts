@@ -5,17 +5,61 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const jobId = searchParams.get('id')
-    if (!jobId) return NextResponse.json({ error: 'Job ID required' }, { status: 400 })
-    const { data: src, error: je } = await supabaseAdmin.from('jobs').select('*, company:companies(*)').eq('id', jobId).single()
-    if (je || !src) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    const { data: cands, error } = await supabaseAdmin.from('jobs').select('*, company:companies(*)').eq('is_active', true).neq('id', jobId).limit(100)
+
+    if (!jobId) {
+      return NextResponse.json({ error: 'Job ID required' }, { status: 400 })
+    }
+
+    // Fetch the source job
+    const { data: sourceJob, error: jobError } = await supabaseAdmin
+      .from('jobs')
+      .select('*, company:companies(*)')
+      .eq('id', jobId)
+      .single()
+
+    if (jobError || !sourceJob) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+
+    // Fetch candidate jobs (active, excluding current)
+    const { data: candidates, error } = await supabaseAdmin
+      .from('jobs')
+      .select('*, company:companies(*)')
+      .eq('is_active', true)
+      .neq('id', jobId)
+      .limit(100)
+
     if (error) throw error
-    const scored = (cands||[]).map(j => {
-      let s = 0; if (j.category===src.category) s+=3; if (j.pipeline_stage===src.pipeline_stage) s+=5; if (j.company_id===src.company_id) s+=2; if (j.remote_type===src.remote_type) s+=1; if (j.job_type===src.job_type) s+=1;
-      const sc=src.location?.split(',')[0]?.trim().toLowerCase(), jc=j.location?.split(',')[0]?.trim().toLowerCase();
-      if (sc&&jc&&sc===jc) s+=2; return {...j, _s: s}
+
+    // Score candidates by similarity
+    const scored = (candidates || []).map((job) => {
+      let score = 0
+
+      if (job.pipeline_stage === sourceJob.pipeline_stage) score += 5
+      if (job.category === sourceJob.category) score += 3
+      if (job.company_id === sourceJob.company_id) score += 2
+      if (job.remote_type === sourceJob.remote_type) score += 1
+      if (job.job_type === sourceJob.job_type) score += 1
+
+      // City-level location match
+      const sourceCity = sourceJob.location?.split(',')[0]?.trim().toLowerCase()
+      const jobCity = job.location?.split(',')[0]?.trim().toLowerCase()
+      if (sourceCity && jobCity && sourceCity === jobCity) score += 2
+
+      return { ...job, _score: score }
     })
-    scored.sort((a,b)=>b._s-a._s)
-    return NextResponse.json(scored.slice(0,4).filter(j=>j._s>=2).map(({_s,...r})=>r))
-  } catch (e) { return NextResponse.json({ error: 'Failed' }, { status: 500 }) }
+
+    // Sort by score descending, return top 4 with minimum relevance
+    scored.sort((a, b) => b._score - a._score)
+
+    const results = scored
+      .slice(0, 4)
+      .filter((job) => job._score >= 2)
+      .map(({ _score, ...rest }) => rest)
+
+    return NextResponse.json(results)
+  } catch (error) {
+    console.error('Error fetching similar jobs:', error)
+    return NextResponse.json({ error: 'Failed to fetch similar jobs' }, { status: 500 })
+  }
 }
