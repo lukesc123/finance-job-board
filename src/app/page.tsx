@@ -6,6 +6,7 @@ import SearchBar from '@/components/SearchBar'
 import Filters from '@/components/Filters'
 import JobCard from '@/components/JobCard'
 import JobCardSkeleton from '@/components/JobCardSkeleton'
+import JobAlertSignup from '@/components/JobAlertSignup'
 import { Job, JobFilters } from '@/types'
 import { debounce } from '@/lib/formatting'
 
@@ -315,6 +316,11 @@ function HomePageContent() {
             onCategorySelect={handleCategoryFromSearch}
             initialValue={filters.search}
           />
+        </div>
+
+        {/* Job Alert Signup */}
+        <div className="mb-5">
+          <JobAlertSignup />
         </div>
 
         {/* Filters */}
