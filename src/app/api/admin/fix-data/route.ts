@@ -199,7 +199,7 @@ export async function GET(req: Request) {
     const url = new URL(req.url)
     const offset = parseInt(url.searchParams.get('offset') || '0')
     const entries = Object.entries(jobUrls)
-    const batch = entries.slice(offset, offset + 20)
+    const batch = entries.slice(offset, offset + 5)
     if (batch.length === 0) {
       return NextResponse.json({ done: true, total: entries.length })
     }
@@ -210,7 +210,7 @@ export async function GET(req: Request) {
     )
     const updated = results.filter(r => !r.error).length
     const errors = results.filter(r => r.error).map(r => r.error?.message)
-    return NextResponse.json({ updated, offset, nextOffset: offset + 20, remaining: entries.length - offset - 20, errors: errors.length ? errors : undefined })
+    return NextResponse.json({ updated, offset, nextOffset: offset + 5, remaining: entries.length - offset - 5, errors: errors.length ? errors : undefined })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
