@@ -54,13 +54,24 @@ export async function GET() {
   const results: string[] = []
   const errors: string[] = []
 
-  // Upsert companies
+  // Insert companies (check for existing first)
   for (const company of NEW_COMPANIES) {
+    const { data: existing } = await supabaseAdmin
+      .from('companies')
+      .select('id')
+      .eq('name', company.name)
+      .limit(1)
+
+    if (existing && existing.length > 0) {
+      results.push(`Company exists: ${company.name}`)
+      continue
+    }
+
     const { error } = await supabaseAdmin
       .from('companies')
-      .upsert(company, { onConflict: 'name' })
+      .insert(company)
     if (error) errors.push(`Company ${company.name}: ${error.message}`)
-    else results.push(`Company: ${company.name}`)
+    else results.push(`Company added: ${company.name}`)
   }
 
   // Get company name->id map
