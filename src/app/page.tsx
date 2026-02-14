@@ -41,6 +41,18 @@ function filtersToParams(filters: JobFilters, sortBy: string, showSaved: boolean
   return params.toString()
 }
 
+const HERO_CATEGORIES = [
+  'Investment Banking',
+  'Accounting',
+  'Sales & Trading',
+  'Corporate Finance',
+  'Consulting',
+  'Private Wealth',
+  'Research',
+  'Risk Management',
+  'Private Equity',
+]
+
 function HomePageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -56,7 +68,6 @@ function HomePageContent() {
   const [showSaved, setShowSaved] = useState(() => searchParams.get('saved') === '1')
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set())
 
-  // Load saved job IDs from localStorage
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem('savedJobs') || '[]')
@@ -73,7 +84,6 @@ function HomePageContent() {
     return () => window.removeEventListener('savedJobsChanged', handleChange)
   }, [])
 
-  // Derive unique company names and locations from ALL jobs (unfiltered)
   const companyNames = useMemo(() => {
     const names = new Set<string>()
     allJobs.forEach(job => {
@@ -126,7 +136,6 @@ function HomePageContent() {
     }
   }, [])
 
-  // Fetch ALL jobs once on mount to populate dropdown options
   useEffect(() => {
     async function fetchAllJobs() {
       try {
@@ -206,17 +215,9 @@ function HomePageContent() {
           (a, b) => new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime()
         )
       case 'salary_high':
-        return jobsCopy.sort((a, b) => {
-          const aMax = a.salary_max || 0
-          const bMax = b.salary_max || 0
-          return bMax - aMax
-        })
+        return jobsCopy.sort((a, b) => (b.salary_max || 0) - (a.salary_max || 0))
       case 'salary_low':
-        return jobsCopy.sort((a, b) => {
-          const aMin = a.salary_min || 0
-          const bMin = b.salary_min || 0
-          return aMin - bMin
-        })
+        return jobsCopy.sort((a, b) => (a.salary_min || 0) - (b.salary_min || 0))
       case 'company_az':
         return jobsCopy.sort((a, b) =>
           (a.company?.name || '').localeCompare(b.company?.name || '')
@@ -248,36 +249,27 @@ function HomePageContent() {
   }, [jobs])
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-navy-50">
       {/* Hero Section */}
-      <section className="bg-navy-950 text-white py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4">
+      <section className="bg-gradient-to-b from-navy-950 to-navy-900 text-white py-14 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto text-center">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-3">
             Entry-Level Finance Jobs
           </h1>
-          <p className="text-lg text-navy-200 mb-6">
-            Curated positions from company career pages. Find the right opportunity for your finance career.
+          <p className="text-base sm:text-lg text-navy-300 mb-6 max-w-2xl mx-auto">
+            Curated positions from company career pages. No easy apply. Real opportunities.
           </p>
           {!loading && jobs.length > 0 && (
-            <div className="flex items-center justify-center gap-6 text-sm text-navy-100 mb-6">
-              <span>{jobs.length} active jobs</span>
-              <span className="text-navy-400">|</span>
-              <span>{uniqueCompanies} companies</span>
+            <div className="flex items-center justify-center gap-4 text-sm text-navy-300 mb-6">
+              <span className="font-semibold text-white">{jobs.length}</span> active jobs
+              <span className="text-navy-600">|</span>
+              <span className="font-semibold text-white">{uniqueCompanies}</span> companies
             </div>
           )}
 
           {/* Category Quick Links */}
           <div className="flex flex-wrap justify-center gap-2 mt-2">
-            {[
-              'Investment Banking',
-              'Accounting',
-              'Sales & Trading',
-              'Corporate Finance',
-              'Consulting',
-              'Private Wealth',
-              'Research',
-              'Risk Management',
-            ].map((cat) => (
+            {HERO_CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 onClick={() => {
@@ -285,18 +277,18 @@ function HomePageContent() {
                   handleFilterChange(newFilters)
                   window.scrollTo({ top: 400, behavior: 'smooth' })
                 }}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors inline-flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all inline-flex items-center gap-1.5 ${
                   filters.category === cat
-                    ? 'bg-white text-navy-950'
-                    : 'bg-navy-800 text-navy-200 hover:bg-navy-700 hover:text-white'
+                    ? 'bg-white text-navy-950 shadow-sm'
+                    : 'bg-navy-800/60 text-navy-200 hover:bg-navy-700 hover:text-white'
                 }`}
               >
                 {cat}
                 {categoryCounts[cat] > 0 && (
                   <span className={`text-[10px] font-bold rounded-full min-w-[18px] h-[18px] inline-flex items-center justify-center ${
                     filters.category === cat
-                      ? 'bg-navy-950 text-white'
-                      : 'bg-navy-700 text-navy-300'
+                      ? 'bg-navy-900 text-white'
+                      : 'bg-navy-700/80 text-navy-300'
                   }`}>
                     {categoryCounts[cat]}
                   </span>
@@ -308,16 +300,16 @@ function HomePageContent() {
       </section>
 
       {/* Main Content */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Error Banner */}
         {error && (
-          <div className="mb-8 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
+          <div className="mb-6 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
             <p className="text-sm text-red-700">{error}</p>
           </div>
         )}
 
         {/* Search Bar */}
-        <div className="mb-8">
+        <div className="mb-5">
           <SearchBar
             onSearch={handleSearch}
             onCategorySelect={handleCategoryFromSearch}
@@ -326,7 +318,7 @@ function HomePageContent() {
         </div>
 
         {/* Filters */}
-        <div className="mb-8">
+        <div className="mb-5">
           <Filters
             filters={filters}
             onFilterChange={handleFilterChange}
@@ -339,17 +331,17 @@ function HomePageContent() {
         </div>
 
         {/* Results Count + Saved Toggle */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between">
           {loading ? (
             <div className="flex items-center gap-2">
               <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-navy-300 border-t-navy-600"></div>
-              <span className="text-sm text-navy-600">Loading jobs...</span>
+              <span className="text-sm text-navy-500">Loading...</span>
             </div>
           ) : (
-            <p className="text-sm font-medium text-navy-600">
-              <span className="text-navy-900">{sortedJobs.length}</span>{' '}
-              {sortedJobs.length === 1 ? 'job' : 'jobs'} found
-              {sortedJobs.length > 0 && <span className="text-navy-400"> | sorted by {getSortLabel()}</span>}
+            <p className="text-sm text-navy-600">
+              <span className="font-semibold text-navy-900">{sortedJobs.length}</span>{' '}
+              {sortedJobs.length === 1 ? 'job' : 'jobs'}
+              {sortedJobs.length > 0 && <span className="text-navy-400"> sorted by {getSortLabel()}</span>}
             </p>
           )}
 
@@ -369,7 +361,7 @@ function HomePageContent() {
         </div>
 
         {/* Jobs List */}
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {loading ? (
             <>
               {[1, 2, 3, 4, 5].map((i) => (
@@ -377,8 +369,8 @@ function HomePageContent() {
               ))}
             </>
           ) : sortedJobs.length === 0 ? (
-            <div className="rounded-xl border border-navy-200 bg-navy-50 px-6 py-16 text-center">
-              <svg className="mx-auto h-12 w-12 text-navy-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="rounded-xl border border-navy-200 bg-white px-6 py-16 text-center">
+              <svg className="mx-auto h-10 w-10 text-navy-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <p className="text-navy-700 font-semibold mb-1">
@@ -398,11 +390,11 @@ function HomePageContent() {
                 <div className="pt-6 flex flex-col items-center gap-2">
                   <button
                     onClick={() => setVisibleCount(prev => prev + PAGE_SIZE)}
-                    className="px-6 py-2.5 bg-navy-600 text-white rounded-lg hover:bg-navy-700 transition-colors font-medium text-sm"
+                    className="px-8 py-2.5 bg-navy-900 text-white rounded-lg hover:bg-navy-800 transition-colors font-semibold text-sm shadow-sm"
                   >
                     Show More Jobs
                   </button>
-                  <span className="text-xs text-navy-300">{sortedJobs.length - visibleCount} more available</span>
+                  <span className="text-xs text-navy-400">{sortedJobs.length - visibleCount} more available</span>
                 </div>
               )}
             </>
@@ -431,21 +423,19 @@ function HomePageContent() {
 export default function HomePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-white">
-        <section className="bg-navy-950 text-white py-16 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl sm:text-5xl font-bold mb-4">Entry-Level Finance Jobs</h1>
-            <p className="text-lg text-navy-200 mb-6">Curated positions from company career pages. Find the right opportunity for your finance career.</p>
+      <div className="min-h-screen bg-navy-50">
+        <section className="bg-gradient-to-b from-navy-950 to-navy-900 text-white py-14 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto text-center">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-3">Entry-Level Finance Jobs</h1>
+            <p className="text-base sm:text-lg text-navy-300 mb-6">Curated positions from company career pages. No easy apply. Real opportunities.</p>
           </div>
         </section>
-        <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse space-y-4">
-            <div className="h-14 bg-navy-100 rounded-xl" />
-            <div className="h-10 bg-navy-100 rounded-lg w-48" />
-            <div className="grid grid-cols-3 gap-4">
-              <div className="h-10 bg-navy-100 rounded-lg" />
-              <div className="h-10 bg-navy-100 rounded-lg" />
-              <div className="h-10 bg-navy-100 rounded-lg" />
+            <div className="h-12 bg-white rounded-xl border border-navy-200" />
+            <div className="h-10 bg-white rounded-lg border border-navy-200 w-48" />
+            <div className="space-y-2.5">
+              {[1,2,3].map(i => <div key={i} className="h-24 bg-white rounded-xl border border-navy-200" />)}
             </div>
           </div>
         </section>
