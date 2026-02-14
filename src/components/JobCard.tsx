@@ -133,6 +133,29 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
     } catch { /* ignore */ }
   }
 
+  const trackApplyClick = (j: Job) => {
+    try {
+      // Mark as applied
+      const appliedJobs: string[] = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
+      if (!appliedJobs.includes(j.id)) {
+        localStorage.setItem('appliedJobs', JSON.stringify([...appliedJobs, j.id]))
+        setApplied(true)
+        window.dispatchEvent(new Event('appliedJobsChanged'))
+      }
+      // Track click with timestamp
+      const clicks: Array<{ jobId: string; company: string; title: string; url: string; at: string }> =
+        JSON.parse(localStorage.getItem('applyClicks') || '[]')
+      clicks.unshift({
+        jobId: j.id,
+        company: j.company?.name || '',
+        title: j.title,
+        url: j.apply_url || '',
+        at: new Date().toISOString(),
+      })
+      localStorage.setItem('applyClicks', JSON.stringify(clicks.slice(0, 100)))
+    } catch { /* ignore */ }
+  }
+
   const handleClick = (e: React.MouseEvent) => {
     if (onPreview) {
       e.preventDefault()
@@ -308,10 +331,14 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
                     href={job.apply_url.startsWith('http') ? job.apply_url : `https://${job.apply_url}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="hidden sm:inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-emerald-700"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      trackApplyClick(job)
+                    }}
+                    className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white sm:opacity-0 sm:group-hover:opacity-100 transition-all hover:bg-emerald-700"
                   >
-                    Apply at {job.company?.name || 'Company'}
+                    <span className="hidden sm:inline">Apply at {job.company?.name || 'Company'}</span>
+                    <span className="sm:hidden">Apply</span>
                     <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>

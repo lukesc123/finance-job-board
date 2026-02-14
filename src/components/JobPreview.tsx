@@ -63,8 +63,9 @@ export default function JobPreview({ job, onClose }: JobPreviewProps) {
     } catch { /* ignore */ }
   }
 
-  const markApplied = () => {
+  const trackApplyClick = () => {
     try {
+      // Mark as applied
       const appliedJobs: string[] = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
       if (!appliedJobs.includes(job.id)) {
         const updated = [...appliedJobs, job.id]
@@ -72,6 +73,17 @@ export default function JobPreview({ job, onClose }: JobPreviewProps) {
         setApplied(true)
         window.dispatchEvent(new Event('appliedJobsChanged'))
       }
+      // Track click with timestamp
+      const clicks: Array<{ jobId: string; company: string; title: string; url: string; at: string }> =
+        JSON.parse(localStorage.getItem('applyClicks') || '[]')
+      clicks.unshift({
+        jobId: job.id,
+        company: companyName,
+        title: job.title,
+        url: job.apply_url || '',
+        at: new Date().toISOString(),
+      })
+      localStorage.setItem('applyClicks', JSON.stringify(clicks.slice(0, 100)))
     } catch { /* ignore */ }
   }
 
@@ -140,13 +152,18 @@ export default function JobPreview({ job, onClose }: JobPreviewProps) {
               href={applyUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={markApplied}
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 transition flex-1 justify-center"
+              onClick={trackApplyClick}
+              className="inline-flex flex-col items-center rounded-lg bg-emerald-600 px-5 py-2.5 text-white hover:bg-emerald-700 transition flex-1 group/apply"
             >
-              Apply at {companyName}
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
+              <span className="flex items-center gap-2 font-bold text-sm">
+                Apply at {companyName}
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </span>
+              <span className="text-[10px] text-emerald-200 group-hover/apply:text-emerald-100 mt-0.5">
+                {(() => { try { return new URL(applyUrl).hostname.replace('www.', '') } catch { return '' } })()}
+              </span>
             </a>
           ) : (
             <span className="text-sm text-navy-400 flex-1 text-center">No apply link available</span>
