@@ -73,14 +73,14 @@ export default function JobDetailActions({ jobId, jobTitle, companyName, postedD
     } catch { /* ignore */ }
   }
 
+  const btnBase = "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-all"
+
   return (
-    <div className="flex flex-col gap-4">
-      {/* Action buttons row */}
-      <div className="flex items-center gap-2">
-        {/* Save Button */}
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-2 flex-wrap">
         <button
           onClick={toggleSave}
-          className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
+          className={`${btnBase} ${
             saved
               ? 'border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100'
               : 'border-navy-200 bg-white text-navy-600 hover:bg-navy-50 hover:border-navy-300'
@@ -93,10 +93,9 @@ export default function JobDetailActions({ jobId, jobTitle, companyName, postedD
           {saved ? 'Saved' : 'Save'}
         </button>
 
-        {/* Applied Button */}
         <button
           onClick={toggleApplied}
-          className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
+          className={`${btnBase} ${
             applied
               ? 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
               : 'border-navy-200 bg-white text-navy-600 hover:bg-navy-50 hover:border-navy-300'
@@ -109,22 +108,20 @@ export default function JobDetailActions({ jobId, jobTitle, companyName, postedD
           {applied ? 'Applied' : 'Mark Applied'}
         </button>
 
-        {/* Share Button */}
         <button
           onClick={shareJob}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm font-medium text-navy-600 hover:bg-navy-50 hover:border-navy-300 transition-all"
+          className={`${btnBase} border-navy-200 bg-white text-navy-600 hover:bg-navy-50 hover:border-navy-300`}
           aria-label="Share job"
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
           </svg>
-          {copied ? 'Link Copied!' : 'Share'}
+          {copied ? 'Copied!' : 'Share'}
         </button>
       </div>
 
-      {/* Applied banner */}
       {applied && (
-        <div className="flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-2.5">
+        <div className="flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">
           <svg className="h-4 w-4 text-emerald-600 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
