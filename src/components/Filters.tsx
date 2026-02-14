@@ -16,9 +16,12 @@ interface FiltersProps {
   sortBy: string
   onSortChange: (sort: string) => void
   hasSearch?: boolean
+  companies?: string[]
+  locations?: string[]
 }
 
-const selectClassName = "rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900 transition hover:border-navy-300 focus:border-navy-500 focus:outline-none focus:ring-2 focus:ring-navy-500/20"
+const selectClassName =
+  "rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900 transition hover:border-navy-300 focus:border-navy-500 focus:outline-none focus:ring-2 focus:ring-navy-500/20"
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest first' },
@@ -34,10 +37,11 @@ export default function Filters({
   sortBy,
   onSortChange,
   hasSearch = false,
+  companies = [],
+  locations = [],
 }: FiltersProps) {
   const [filtersOpen, setFiltersOpen] = useState(true)
 
-  // Open filters by default on desktop, closed on mobile
   useEffect(() => {
     const handleResize = () => {
       setFiltersOpen(window.innerWidth >= 640)
@@ -48,10 +52,7 @@ export default function Filters({
   }, [])
 
   const handleChange = (key: keyof JobFilters, value: string) => {
-    onFilterChange({
-      ...filters,
-      [key]: value,
-    })
+    onFilterChange({ ...filters, [key]: value })
   }
 
   const handleClearAll = () => {
@@ -65,6 +66,8 @@ export default function Filters({
       grad_date: '',
       salary_min: '',
       salary_max: '',
+      company: '',
+      location: '',
     })
   }
 
@@ -80,7 +83,9 @@ export default function Filters({
     filters.license ||
     filters.grad_date ||
     filters.salary_min ||
-    filters.salary_max
+    filters.salary_max ||
+    filters.company ||
+    filters.location
 
   const getFilterLabel = (key: keyof JobFilters, value: string): string => {
     const labels: Record<string, Record<string, string>> = {
@@ -89,6 +94,8 @@ export default function Filters({
       pipeline_stage: { ...Object.fromEntries(PIPELINE_STAGES.map((s) => [s, s])) },
       remote_type: { ...Object.fromEntries(REMOTE_TYPES.map((r) => [r, r])) },
       license: { ...Object.fromEntries(FINANCE_LICENSES.map((l) => [l, l])) },
+      company: { [value]: value },
+      location: { [value]: value },
       grad_date: { [value]: `Graduating: ${value}` },
       salary_min: {
         [value]: `Min: $${parseInt(value) >= 1000 ? `${Math.round(parseInt(value) / 1000)}K` : value}`,
@@ -102,6 +109,8 @@ export default function Filters({
 
   const activeFilters = [
     { key: 'category' as const, value: filters.category },
+    { key: 'company' as const, value: filters.company },
+    { key: 'location' as const, value: filters.location },
     { key: 'job_type' as const, value: filters.job_type },
     { key: 'pipeline_stage' as const, value: filters.pipeline_stage },
     { key: 'remote_type' as const, value: filters.remote_type },
@@ -113,12 +122,13 @@ export default function Filters({
 
   const activeFilterCount = activeFilters.length
 
-  // Filter sort options: show "Most relevant" only when search is active
-  const visibleSortOptions = SORT_OPTIONS.filter(opt => !opt.searchOnly || hasSearch)
+  const visibleSortOptions = SORT_OPTIONS.filter(
+    (opt) => !opt.searchOnly || hasSearch
+  )
 
   return (
     <div className="space-y-6">
-      {/* Sort Dropdown - Always Visible */}
+      {/* Sort Dropdown */}
       <div className="flex flex-col gap-2">
         <label htmlFor="sort" className="text-sm font-semibold text-navy-900">
           Sort by
@@ -159,11 +169,16 @@ export default function Filters({
           stroke="currentColor"
           viewBox="0 0 24 24"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 14l-7 7m0 0l-7-7m7 7V3"
+          />
         </svg>
       </button>
 
-      {/* Filter Grid - Collapsible on Mobile */}
+      {/* Filter Grid */}
       {filtersOpen && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -176,9 +191,35 @@ export default function Filters({
               >
                 <option value="">Category</option>
                 {JOB_CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Company */}
+            <div>
+              <select
+                value={filters.company}
+                onChange={(e) => handleChange('company', e.target.value)}
+                className={`${selectClassName} w-full`}
+              >
+                <option value="">Company</option>
+                {companies.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Location */}
+            <div>
+              <select
+                value={filters.location}
+                onChange={(e) => handleChange('location', e.target.value)}
+                className={`${selectClassName} w-full`}
+              >
+                <option value="">Location</option>
+                {locations.map((l) => (
+                  <option key={l} value={l}>{l}</option>
                 ))}
               </select>
             </div>
@@ -192,9 +233,7 @@ export default function Filters({
               >
                 <option value="">Job Type</option>
                 {JOB_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
+                  <option key={t} value={t}>{t}</option>
                 ))}
               </select>
             </div>
@@ -208,9 +247,7 @@ export default function Filters({
               >
                 <option value="">Pipeline Stage</option>
                 {PIPELINE_STAGES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
+                  <option key={s} value={s}>{s}</option>
                 ))}
               </select>
             </div>
@@ -224,9 +261,7 @@ export default function Filters({
               >
                 <option value="">Remote Type</option>
                 {REMOTE_TYPES.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
+                  <option key={r} value={r}>{r}</option>
                 ))}
               </select>
             </div>
@@ -240,9 +275,7 @@ export default function Filters({
               >
                 <option value="">License Required</option>
                 {FINANCE_LICENSES.map((l) => (
-                  <option key={l} value={l}>
-                    {l}
-                  </option>
+                  <option key={l} value={l}>{l}</option>
                 ))}
               </select>
             </div>
@@ -267,6 +300,7 @@ export default function Filters({
                 <option value="100000">$100K+</option>
               </select>
             </div>
+
             <div>
               <label className="block text-xs font-medium text-navy-500 mb-1">Max Salary</label>
               <select
@@ -283,6 +317,7 @@ export default function Filters({
                 <option value="200000">Up to $200K</option>
               </select>
             </div>
+
             <div>
               <label className="block text-xs font-medium text-navy-500 mb-1">Graduation Date</label>
               <input
