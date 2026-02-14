@@ -43,7 +43,7 @@ export default function Footer() {
               {JOB_CATEGORIES.map((cat) => (
                 <li key={cat}>
                   <Link
-                    href={`/?category=${encodeURIComponent(cat)}`}
+                    href={`/category/${cat.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`}
                     className="text-sm text-navy-400 hover:text-white transition"
                   >
                     {cat}

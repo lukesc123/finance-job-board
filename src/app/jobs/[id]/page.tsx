@@ -121,7 +121,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Jobs', item: siteUrl },
-      { '@type': 'ListItem', position: 2, name: job.category, item: `${siteUrl}/?category=${encodeURIComponent(job.category)}` },
+      { '@type': 'ListItem', position: 2, name: job.category, item: `${siteUrl}/category/${slugify(job.category)}` },
       { '@type': 'ListItem', position: 3, name: job.title },
     ],
   }
@@ -158,7 +158,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             <svg className="h-3.5 w-3.5 text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-            <Link href={`/?category=${encodeURIComponent(job.category)}`} className="font-medium text-navy-500 hover:text-navy-800 transition">
+            <Link href={`/category/${slugify(job.category)}`} className="font-medium text-navy-500 hover:text-navy-800 transition">
               {job.category}
             </Link>
             <svg className="h-3.5 w-3.5 text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,7 +273,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             ) : (
               <div className="p-3.5 sm:p-4 text-center">
                 <p className="text-[10px] font-semibold text-navy-400 uppercase tracking-wider mb-0.5">Category</p>
-                <Link href={`/?category=${encodeURIComponent(job.category)}`} className="text-sm font-semibold text-navy-900 hover:text-navy-700 hover:underline transition">
+                <Link href={`/category/${slugify(job.category)}`} className="text-sm font-semibold text-navy-900 hover:text-navy-700 hover:underline transition">
                   {job.category}
                 </Link>
               </div>

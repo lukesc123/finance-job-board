@@ -41,12 +41,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }))
 
-  // Category filter pages
+  // Category landing pages
   const categoryEntries: MetadataRoute.Sitemap = JOB_CATEGORIES.map((cat) => ({
-    url: `${baseUrl}/?category=${encodeURIComponent(cat)}`,
+    url: `${baseUrl}/category/${slugify(cat)}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
-    priority: 0.7,
+    priority: 0.8,
   }))
 
   // Pipeline stage filter pages
