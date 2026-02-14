@@ -277,8 +277,46 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
           </div>
         )}
 
+        {/* Browse by Category & Location */}
+        {(categories.length > 0 || locations.length > 0) && (
+          <div className="mt-8 pt-6 border-t border-navy-200">
+            {categories.length > 0 && (
+              <div className="mb-4">
+                <h3 className="text-sm font-bold text-navy-700 mb-2">Categories at {company.name}</h3>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((cat) => (
+                    <Link
+                      key={cat}
+                      href={`/category/${slugify(cat)}`}
+                      className="rounded-full border border-navy-200 bg-white px-3 py-1 text-xs font-medium text-navy-600 hover:bg-navy-50 hover:border-navy-300 transition"
+                    >
+                      {cat}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+            {locations.length > 0 && (
+              <div className="mb-4">
+                <h3 className="text-sm font-bold text-navy-700 mb-2">Locations</h3>
+                <div className="flex flex-wrap gap-2">
+                  {locations.map((loc) => (
+                    <Link
+                      key={loc}
+                      href={`/location/${slugify(loc)}`}
+                      className="rounded-full border border-navy-200 bg-white px-3 py-1 text-xs font-medium text-navy-600 hover:bg-navy-50 hover:border-navy-300 transition"
+                    >
+                      {loc}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* CTA */}
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="mt-6 flex flex-wrap gap-3">
           <Link href="/" className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition">
             Browse All Jobs
           </Link>

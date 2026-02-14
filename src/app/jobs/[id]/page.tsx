@@ -389,6 +389,43 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             <SimilarJobs jobId={job.id} />
           </div>
 
+          {/* Browse More Links */}
+          <div className="px-5 sm:px-8 py-5 border-t border-navy-100">
+            <h3 className="text-sm font-bold text-navy-900 mb-3">Browse More</h3>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href={`/category/${slugify(job.category)}`}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-navy-200 bg-white px-3 py-2 text-xs font-medium text-navy-700 hover:bg-navy-50 hover:border-navy-300 transition"
+              >
+                <svg className="h-3.5 w-3.5 text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                All {job.category} Jobs
+              </Link>
+              <Link
+                href={`/location/${slugify(job.location)}`}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-navy-200 bg-white px-3 py-2 text-xs font-medium text-navy-700 hover:bg-navy-50 hover:border-navy-300 transition"
+              >
+                <svg className="h-3.5 w-3.5 text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                Jobs in {job.location}
+              </Link>
+              {job.company?.name && (
+                <Link
+                  href={`/companies/${slugify(job.company.name)}`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-navy-200 bg-white px-3 py-2 text-xs font-medium text-navy-700 hover:bg-navy-50 hover:border-navy-300 transition"
+                >
+                  <svg className="h-3.5 w-3.5 text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                  All {job.company.name} Jobs
+                </Link>
+              )}
+              <Link
+                href="/"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-navy-200 bg-white px-3 py-2 text-xs font-medium text-navy-700 hover:bg-navy-50 hover:border-navy-300 transition"
+              >
+                <svg className="h-3.5 w-3.5 text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                Browse All Jobs
+              </Link>
+            </div>
+          </div>
+
           {/* Apply Footer */}
           <div className="p-5 sm:p-8 bg-navy-50 border-t border-navy-200">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
