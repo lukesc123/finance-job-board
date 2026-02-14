@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, useMemo, useRef, Suspense } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef, Suspense, type RefCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import SearchBar from '@/components/SearchBar'
 import Filters from '@/components/Filters'
@@ -72,6 +72,22 @@ function HomePageContent() {
   const [visibleCount, setVisibleCount] = useState(20)
   const [showSaved, setShowSaved] = useState(() => searchParams.get('saved') === '1')
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set())
+  const loadMoreRef = useRef<HTMLDivElement | null>(null)
+
+  // Infinite scroll observer
+  useEffect(() => {
+    if (!loadMoreRef.current) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount(prev => prev + PAGE_SIZE)
+        }
+      },
+      { rootMargin: '200px' }
+    )
+    observer.observe(loadMoreRef.current)
+    return () => observer.disconnect()
+  })
 
   useEffect(() => {
     try {
@@ -464,14 +480,9 @@ function HomePageContent() {
               ))}
 
               {sortedJobs.length > visibleCount && (
-                <div className="pt-6 flex flex-col items-center gap-2">
-                  <button
-                    onClick={() => setVisibleCount(prev => prev + PAGE_SIZE)}
-                    className="px-8 py-2.5 bg-navy-900 text-white rounded-lg hover:bg-navy-800 transition-colors font-semibold text-sm shadow-sm"
-                  >
-                    Show More Jobs
-                  </button>
-                  <span className="text-xs text-navy-400">{sortedJobs.length - visibleCount} more available</span>
+                <div ref={loadMoreRef} className="pt-6 flex flex-col items-center gap-2">
+                  <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-navy-300 border-t-navy-600"></div>
+                  <span className="text-xs text-navy-400">Loading more jobs...</span>
                 </div>
               )}
             </>

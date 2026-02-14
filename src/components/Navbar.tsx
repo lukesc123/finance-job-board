@@ -70,21 +70,21 @@ export default function Navbar() {
               </span>
             </Link>
           )}
-          {appliedCount > 0 && (
-            <Link
-              href="/tracker"
-              className={`relative rounded-lg px-3.5 py-2 text-sm font-medium transition ${
-                pathname === '/tracker'
-                  ? 'text-navy-900 bg-navy-100'
-                  : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50'
-              }`}
-            >
-              Tracker
+          <Link
+            href="/tracker"
+            className={`relative rounded-lg px-3.5 py-2 text-sm font-medium transition ${
+              pathname === '/tracker'
+                ? 'text-navy-900 bg-navy-100'
+                : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50'
+            }`}
+          >
+            Tracker
+            {appliedCount > 0 && (
               <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[10px] font-bold text-white">
                 {appliedCount}
               </span>
-            </Link>
-          )}
+            )}
+          </Link>
           <Link
             href="/companies"
             className={`rounded-lg px-3.5 py-2 text-sm font-medium transition ${
@@ -131,14 +131,14 @@ export default function Navbar() {
                 </span>
               </Link>
             )}
-            {appliedCount > 0 && (
-              <Link href="/tracker" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50 flex items-center justify-between">
-                Application Tracker
+            <Link href="/tracker" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50 flex items-center justify-between">
+              Application Tracker
+              {appliedCount > 0 && (
                 <span className="inline-flex items-center justify-center h-5 min-w-5 rounded-full bg-emerald-500 px-1.5 text-[11px] font-bold text-white">
                   {appliedCount}
                 </span>
-              </Link>
-            )}
+              )}
+            </Link>
             <Link href="/companies" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
               Companies
             </Link>
