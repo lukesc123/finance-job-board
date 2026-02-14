@@ -10,6 +10,7 @@ import JobAlertSignup from '@/components/JobAlertSignup'
 import RecentlyViewed from '@/components/RecentlyViewed'
 import KeyboardNav from '@/components/KeyboardNav'
 import CompareBar from '@/components/CompareBar'
+import SalaryInsights from '@/components/SalaryInsights'
 import { Job, JobFilters } from '@/types'
 import { debounce } from '@/lib/formatting'
 
@@ -371,6 +372,9 @@ function HomePageContent() {
             locationCounts={locationCounts}
           />
         </div>
+
+        {/* Salary Insights */}
+        <SalaryInsights />
 
         {/* Quick Stage Filters */}
         <div className="mb-4 flex flex-wrap gap-1.5">
