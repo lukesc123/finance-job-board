@@ -18,12 +18,14 @@ function isNewJob(postedDate: string): boolean {
 
 const HighlightText = memo(function HighlightText({ text, highlight }: { text: string; highlight: string }) {
   if (!highlight || highlight.length < 2) return <>{text}</>
-  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
-  const parts = text.split(regex)
+  const escaped = highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const splitRegex = new RegExp(`(${escaped})`, 'gi')
+  const testRegex = new RegExp(`^${escaped}$`, 'i')
+  const parts = text.split(splitRegex)
   return (
     <>
       {parts.map((part, i) =>
-        regex.test(part) ? (
+        testRegex.test(part) ? (
           <mark key={i} className="bg-yellow-100 text-inherit rounded-sm px-0.5">{part}</mark>
         ) : (
           <span key={i}>{part}</span>
