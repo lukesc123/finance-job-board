@@ -120,7 +120,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
-        { '@type': 'ListItem', position: 2, name: category, item: `${siteUrl}/category/${slug}` },
+        { '@type': 'ListItem', position: 2, name: 'Categories', item: `${siteUrl}/categories` },
+        { '@type': 'ListItem', position: 3, name: category, item: `${siteUrl}/category/${slug}` },
       ],
     },
   ]
@@ -137,6 +138,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <nav className="flex items-center gap-1.5 text-xs text-navy-400">
             <Link href="/" className="hover:text-navy-700 transition">Home</Link>
+            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            <Link href="/categories" className="hover:text-navy-700 transition">Categories</Link>
             <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             <span className="text-navy-700 font-medium">{category}</span>
           </nav>

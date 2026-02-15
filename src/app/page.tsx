@@ -178,19 +178,26 @@ function HomePageContent() {
   }, [])
 
   useEffect(() => {
-    async function fetchAllJobs() {
+    async function initialFetch() {
       try {
-        const response = await fetch('/api/jobs')
-        if (!response.ok) return
-        const data = await response.json()
-        setAllJobs(data)
-      } catch { /* ignore */ }
-    }
-    fetchAllJobs()
-  }, [])
+        // Fetch all jobs once for counts, salary insights, etc.
+        const allRes = await fetch('/api/jobs')
+        if (!allRes.ok) return
+        const allData = await allRes.json()
+        setAllJobs(allData)
 
-  useEffect(() => {
-    fetchJobs(filters)
+        // If no filters are active on initial load, reuse the same data
+        const hasFilters = FILTER_KEYS.some(key => filters[key])
+        if (!hasFilters) {
+          setJobs(allData)
+        } else {
+          await fetchJobs(filters)
+        }
+      } catch {
+        await fetchJobs(filters)
+      }
+    }
+    initialFetch()
     isInitialMount.current = false
   }, [])
 
