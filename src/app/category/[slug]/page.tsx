@@ -3,8 +3,9 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { JOB_CATEGORIES, type JobCategory } from '@/types'
-import { timeAgo, formatSalary, slugify, stageColors, isGenericApplyUrl } from '@/lib/formatting'
+import { slugify } from '@/lib/formatting'
 import BackToTop from '@/components/BackToTop'
+import FilterableJobList from '@/components/FilterableJobList'
 
 export const revalidate = 300
 
@@ -98,7 +99,6 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const description = CATEGORY_DESCRIPTIONS[category] || ''
 
   const locations = [...new Set(jobs.map((j) => j.location))].sort()
-  const stages = [...new Set(jobs.map((j) => j.pipeline_stage))].sort()
   const companies = [...new Set(jobs.map((j) => j.company?.name).filter(Boolean))].sort()
   const salaryJobs = jobs.filter((j) => j.salary_min || j.salary_max)
   const avgSalary = salaryJobs.length > 0
@@ -183,104 +183,11 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
 
       {/* Main Content */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stage filter pills */}
-        {stages.length > 1 && (
-          <div className="flex flex-wrap gap-2 mb-5">
-            {stages.map((stage) => (
-              <span key={stage} className={`rounded-full border px-3 py-1 text-xs font-semibold ${stageColors[stage] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
-                {stage} ({jobs.filter((j) => j.pipeline_stage === stage).length})
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Job cards */}
-        <div className="space-y-3">
-          {jobs.map((job) => {
-            const salary = formatSalary(job.salary_min, job.salary_max)
-            return (
-              <Link
-                key={job.id}
-                href={`/jobs/${job.id}`}
-                className="block rounded-xl border border-navy-200 bg-white p-4 sm:p-5 hover:shadow-md hover:border-navy-300 transition group"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex gap-3 min-w-0">
-                    {job.company?.logo_url ? (
-                      <img src={job.company.logo_url} alt={`${job.company.name} logo`} className="h-10 w-10 rounded-lg object-contain border border-navy-100 bg-white flex-shrink-0 mt-0.5" />
-                    ) : (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy-900 text-white font-bold text-sm flex-shrink-0 mt-0.5">
-                        {job.company?.name?.charAt(0) || '?'}
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <h3 className="font-bold text-navy-900 group-hover:text-navy-700 transition truncate text-sm sm:text-base">
-                        {job.title}
-                      </h3>
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5 text-xs text-navy-500">
-                        <span className="font-medium">
-                          {job.company?.name}
-                        </span>
-                        <span className="text-navy-200">|</span>
-                        <span className="inline-flex items-center gap-1">
-                          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                          {job.location}
-                        </span>
-                        <span className="text-navy-200">|</span>
-                        <span>{job.remote_type}</span>
-                        <span className="text-navy-200">|</span>
-                        <span>{job.job_type}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                    {salary && (
-                      <span className="text-sm font-bold text-emerald-600 whitespace-nowrap">
-                        {salary}
-                      </span>
-                    )}
-                    <span className="text-[11px] text-navy-400">{timeAgo(job.posted_date)}</span>
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
-                  <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${stageColors[job.pipeline_stage] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
-                    {job.pipeline_stage}
-                  </span>
-                  {job.licenses_required?.filter((l: string) => l !== 'None Required').map((lic: string) => (
-                    <span key={lic} className="rounded-full bg-orange-50 border border-orange-200 px-2 py-0.5 text-[10px] font-medium text-orange-700">
-                      {lic}
-                    </span>
-                  ))}
-                  {job.apply_url && (() => {
-                    const url = job.apply_url!.startsWith('http') ? job.apply_url! : `https://${job.apply_url}`
-                    const generic = isGenericApplyUrl(url)
-                    return (
-                      <a
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="ml-auto inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-emerald-700 transition"
-                      >
-                        {generic ? `Careers at ${job.company?.name || 'Company'}` : `Apply at ${job.company?.name || 'Company'}`}
-                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                      </a>
-                    )
-                  })()}
-                </div>
-              </Link>
-            )
-          })}
-        </div>
-
-        {jobs.length === 0 && (
-          <div className="text-center py-12 text-navy-400">
-            <p className="text-lg font-semibold mb-2">No open {category.toLowerCase()} positions right now</p>
-            <p className="text-sm">Check back soon or browse all available jobs.</p>
-          </div>
-        )}
+        <FilterableJobList
+          jobs={jobs}
+          filterBy="stage"
+          emptyLabel={`No open ${category.toLowerCase()} positions right now`}
+        />
 
         {/* Related Categories */}
         <div className="mt-10 pt-8 border-t border-navy-200">

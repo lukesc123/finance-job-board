@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
       .from('jobs')
       .select('title, category, location, company:company_id(name)')
       .eq('is_active', true)
+      .limit(1000)
 
     if (error) throw error
 

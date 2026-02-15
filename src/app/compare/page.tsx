@@ -56,6 +56,7 @@ export default function ComparePage() {
   }
 
   const clearAll = () => {
+    if (!window.confirm('Remove all jobs from comparison?')) return
     localStorage.setItem('compareJobs', JSON.stringify([]))
     window.dispatchEvent(new Event('compareJobsChanged'))
   }

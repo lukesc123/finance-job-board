@@ -110,7 +110,7 @@ export default function TrackerPage() {
       <div className="bg-gradient-to-b from-navy-950 to-navy-900 text-white py-10 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-3">
-            <Link href="/" className="text-navy-400 hover:text-white transition">
+            <Link href="/" className="text-navy-400 hover:text-white transition" aria-label="Back to home">
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
@@ -200,6 +200,7 @@ export default function TrackerPage() {
                       <select
                         value={status}
                         onChange={(e) => updateStatus(job.id, e.target.value as TrackedJob['status'])}
+                        aria-label={`Application status for ${job.title}`}
                         className="rounded-lg border border-navy-200 bg-white px-2 py-1.5 text-xs font-medium text-navy-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-navy-500/20"
                       >
                         {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
@@ -209,6 +210,7 @@ export default function TrackerPage() {
                       <button
                         onClick={() => removeJob(job.id)}
                         className="p-1.5 rounded-lg text-navy-300 hover:text-red-500 hover:bg-red-50 transition"
+                        aria-label={`Remove ${job.title} from tracker`}
                         title="Remove from tracker"
                       >
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -223,6 +225,7 @@ export default function TrackerPage() {
                     <textarea
                       value={notes}
                       onChange={(e) => updateNotes(job.id, e.target.value)}
+                      aria-label={`Notes for ${job.title}`}
                       placeholder="Add notes (interview date, contact info, follow-up reminders...)"
                       className="w-full rounded-lg border border-navy-200 bg-navy-50/50 px-3 py-2 text-sm text-navy-700 placeholder-navy-400 resize-none focus:outline-none focus:ring-2 focus:ring-navy-500/20 focus:border-navy-400 transition"
                       rows={2}
