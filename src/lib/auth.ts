@@ -56,7 +56,46 @@ export function verifyPassword(password: string): boolean {
     return password === getAdminPassword()
 }
 
+/**
+ * Validates that a mutation request originates from our own site.
+ * Provides basic CSRF protection by checking Origin/Referer headers.
+ */
+function validateOrigin(request: Request | NextRequest): void {
+    const origin = request.headers.get('origin')
+    const referer = request.headers.get('referer')
+    const host = request.headers.get('host')
+
+    // In development, skip origin check
+    if (process.env.NODE_ENV === 'development') return
+
+    // Accept if Origin header matches host
+    if (origin && host) {
+        try {
+            const originHost = new URL(origin).host
+            if (originHost === host) return
+        } catch { /* invalid URL, continue checking */ }
+    }
+
+    // Accept if Referer header matches host
+    if (referer && host) {
+        try {
+            const refererHost = new URL(referer).host
+            if (refererHost === host) return
+        } catch { /* invalid URL, continue checking */ }
+    }
+
+    // If neither Origin nor Referer match, reject
+    if (origin || referer) {
+        throw new Error('Forbidden')
+    }
+    // If no Origin/Referer at all (e.g. same-origin fetch), allow
+    // Browser-based CSRF attacks always send Origin/Referer
+}
+
 export function requireAdmin(request: Request | NextRequest): void {
+    // Validate request origin for CSRF protection
+    validateOrigin(request)
+
     const authHeader =
           request.headers.get('authorization') || request.headers.get('Authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

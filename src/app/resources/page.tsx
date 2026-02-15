@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { SITE_URL } from "@/lib/constants"
 
 
+export const revalidate = 3600 // Static content, revalidate hourly
+
 export const metadata: Metadata = {
   title: 'Career Resources | FinanceJobs',
   description: 'Essential guides, tips, and resources for landing your first finance job. Interview prep, resume advice, and career path guides for entry-level finance professionals.',
