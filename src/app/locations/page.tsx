@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { slugify } from '@/lib/formatting'
+import { SITE_URL } from "@/lib/constants"
 
 export const revalidate = 300
 
@@ -50,16 +51,15 @@ async function getLocationsData(): Promise<LocationData[]> {
 export async function generateMetadata(): Promise<Metadata> {
   const locations = await getLocationsData()
   const totalJobs = locations.reduce((sum, l) => sum + l.jobCount, 0)
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
   return {
     title: `Finance Jobs by Location | ${locations.length} Cities | FinanceJobs`,
     description: `Browse ${totalJobs}+ entry-level finance jobs across ${locations.length} cities. Find positions in New York, San Francisco, Chicago, Charlotte, Boston, and more.`,
-    alternates: { canonical: `${siteUrl}/locations` },
+    alternates: { canonical: `${SITE_URL}/locations` },
     openGraph: {
       title: `Finance Jobs by Location | ${locations.length} Cities`,
       description: `Browse ${totalJobs}+ entry-level finance jobs across ${locations.length} cities.`,
-      url: `${siteUrl}/locations`,
+      url: `${SITE_URL}/locations`,
       siteName: 'FinanceJobs',
       type: 'website',
     },
@@ -69,14 +69,13 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function LocationsPage() {
   const locations = await getLocationsData()
   const totalJobs = locations.reduce((sum, l) => sum + l.jobCount, 0)
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: `Finance Jobs by Location`,
     description: `Browse ${totalJobs}+ entry-level finance jobs across ${locations.length} cities.`,
-    url: `${siteUrl}/locations`,
+    url: `${SITE_URL}/locations`,
     mainEntity: {
       '@type': 'ItemList',
       numberOfItems: locations.length,
@@ -84,7 +83,7 @@ export default async function LocationsPage() {
         '@type': 'ListItem',
         position: i + 1,
         name: loc.name,
-        url: `${siteUrl}/location/${loc.slug}`,
+        url: `${SITE_URL}/location/${loc.slug}`,
       })),
     },
   }

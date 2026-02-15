@@ -1,14 +1,14 @@
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { SITE_URL } from "@/lib/constants"
 
 export const revalidate = 300
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
 export const metadata: Metadata = {
   title: 'For Employers | FinanceJobs',
   description: 'Reach top entry-level finance and accounting talent. Post your opportunities on FinanceJobs and connect directly with qualified candidates through your career page.',
-  alternates: { canonical: `${siteUrl}/employers` },
+  alternates: { canonical: `${SITE_URL}/employers` },
   openGraph: {
     title: 'For Employers | FinanceJobs',
     description: 'Reach top entry-level finance and accounting talent. Post your opportunities on FinanceJobs.',

@@ -3,15 +3,15 @@ import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import CompaniesGrid from '@/components/CompaniesGrid'
 import { slugify } from '@/lib/formatting'
+import { SITE_URL } from "@/lib/constants"
 
 export const revalidate = 300
 
-const siteUrlMeta = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
 export const metadata: Metadata = {
   title: 'Companies Hiring | FinanceJobs',
   description: 'Browse all companies with entry-level finance and accounting job openings. Find your next employer and explore open positions.',
-  alternates: { canonical: `${siteUrlMeta}/companies` },
+  alternates: { canonical: `${SITE_URL}/companies` },
   openGraph: {
     title: 'Companies Hiring | FinanceJobs',
     description: 'Browse all companies with entry-level finance and accounting job openings.',
@@ -76,7 +76,6 @@ export default async function CompaniesPage() {
   const companies = await getCompaniesWithJobs()
   const totalJobs = companies.reduce((sum, c) => sum + c.job_count, 0)
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
   const jsonLd = [
     {
@@ -84,15 +83,15 @@ export default async function CompaniesPage() {
       '@type': 'CollectionPage',
       name: 'Companies Hiring',
       description: `Browse ${companies.length} companies with ${totalJobs} open entry-level finance positions.`,
-      url: `${siteUrl}/companies`,
-      isPartOf: { '@type': 'WebSite', name: 'FinanceJobs', url: siteUrl },
+      url: `${SITE_URL}/companies`,
+      isPartOf: { '@type': 'WebSite', name: 'FinanceJobs', url: SITE_URL },
     },
     {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
-        { '@type': 'ListItem', position: 2, name: 'Companies', item: `${siteUrl}/companies` },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+        { '@type': 'ListItem', position: 2, name: 'Companies', item: `${SITE_URL}/companies` },
       ],
     },
   ]

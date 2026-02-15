@@ -9,6 +9,7 @@ import SimilarJobs from '@/components/SimilarJobs'
 import JobDetailActions from '@/components/JobDetailActions'
 import TrackView from '@/components/TrackView'
 import JobDescription from '@/components/JobDescription'
+import { SITE_URL } from "@/lib/constants"
 
 export const revalidate = 300
 
@@ -74,7 +75,6 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const badgeColor = getPipelineStageBadgeColor(job.pipeline_stage)
   const hasLicenseInfo = job.licenses_required && job.licenses_required.length > 0 && !job.licenses_required.every(l => l === 'None Required')
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -113,7 +113,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
       },
     }),
     directApply: false,
-    url: `${siteUrl}/jobs/${job.id}`,
+    url: `${SITE_URL}/jobs/${job.id}`,
     validThrough: new Date(new Date(job.posted_date).getTime() + 90 * 86400000).toISOString(),
     industry: 'Financial Services',
   }
@@ -122,8 +122,8 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Jobs', item: siteUrl },
-      { '@type': 'ListItem', position: 2, name: job.category, item: `${siteUrl}/category/${slugify(job.category)}` },
+      { '@type': 'ListItem', position: 1, name: 'Jobs', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: job.category, item: `${SITE_URL}/category/${slugify(job.category)}` },
       { '@type': 'ListItem', position: 3, name: job.title },
     ],
   }
@@ -444,7 +444,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 <p>Posted {timeAgo(job.posted_date)}</p>
                 {job.last_verified_at && <p>Verified {timeAgo(job.last_verified_at)}</p>}
                 <a
-                  href={`mailto:luke.schindler@me.com?subject=${encodeURIComponent(`Issue with listing: ${job.title} at ${job.company?.name || 'Company'}`)}&body=${encodeURIComponent(`Job URL: ${siteUrl}/jobs/${job.id}\n\nPlease describe the issue:\n`)}`}
+                  href={`mailto:luke.schindler@me.com?subject=${encodeURIComponent(`Issue with listing: ${job.title} at ${job.company?.name || 'Company'}`)}&body=${encodeURIComponent(`Job URL: ${SITE_URL}/jobs/${job.id}\n\nPlease describe the issue:\n`)}`}
                   className="text-xs text-navy-400 hover:text-navy-600 transition underline underline-offset-2 inline-flex items-center gap-1"
                 >
                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

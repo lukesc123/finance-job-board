@@ -1,11 +1,11 @@
 import { MetadataRoute } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { JOB_CATEGORIES } from '@/types'
+import { SITE_URL } from "@/lib/constants"
 
 export const dynamic = 'force-dynamic'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
   // Fetch all companies
   const { data: companies } = await supabaseAdmin
@@ -17,7 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   const companyEntries: MetadataRoute.Sitemap = (companies || []).map((c: any) => ({
-    url: `${baseUrl}/companies/${slugify(c.name)}`,
+    url: `${SITE_URL}/companies/${slugify(c.name)}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
     priority: 0.8,
@@ -35,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   const jobEntries: MetadataRoute.Sitemap = (jobs || []).map((job) => ({
-    url: `${baseUrl}/jobs/${job.id}`,
+    url: `${SITE_URL}/jobs/${job.id}`,
     lastModified: new Date(job.updated_at || new Date()),
     changeFrequency: 'weekly' as const,
     priority: 0.8,
@@ -43,7 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Category landing pages
   const categoryEntries: MetadataRoute.Sitemap = JOB_CATEGORIES.map((cat) => ({
-    url: `${baseUrl}/category/${slugify(cat)}`,
+    url: `${SITE_URL}/category/${slugify(cat)}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
     priority: 0.8,
@@ -57,7 +57,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const uniqueLocations = [...new Set((locationJobs || []).map((j: any) => j.location as string))].filter(Boolean)
   const locationEntries: MetadataRoute.Sitemap = uniqueLocations.map((loc) => ({
-    url: `${baseUrl}/location/${slugify(loc)}`,
+    url: `${SITE_URL}/location/${slugify(loc)}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
     priority: 0.8,
@@ -65,37 +65,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     {
-      url: baseUrl,
+      url: SITE_URL,
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 1,
     },
     {
-      url: `${baseUrl}/companies`,
+      url: `${SITE_URL}/companies`,
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/employers`,
+      url: `${SITE_URL}/employers`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/locations`,
+      url: `${SITE_URL}/locations`,
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/categories`,
+      url: `${SITE_URL}/categories`,
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/resources`,
+      url: `${SITE_URL}/resources`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,

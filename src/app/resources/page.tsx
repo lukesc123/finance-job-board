@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { SITE_URL } from "@/lib/constants"
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
 export const metadata: Metadata = {
   title: 'Career Resources | FinanceJobs',
   description: 'Essential guides, tips, and resources for landing your first finance job. Interview prep, resume advice, and career path guides for entry-level finance professionals.',
-  alternates: { canonical: `${siteUrl}/resources` },
+  alternates: { canonical: `${SITE_URL}/resources` },
   openGraph: {
     title: 'Finance Career Resources | FinanceJobs',
     description: 'Essential guides for landing your first finance job.',
@@ -108,7 +108,7 @@ export default function ResourcesPage() {
     '@type': 'CollectionPage',
     name: 'Finance Career Resources',
     description: 'Essential guides, tips, and resources for landing your first finance job.',
-    url: `${siteUrl}/resources`,
+    url: `${SITE_URL}/resources`,
     mainEntity: {
       '@type': 'ItemList',
       itemListElement: GUIDES.map((guide, i) => ({

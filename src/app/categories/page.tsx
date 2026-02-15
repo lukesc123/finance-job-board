@@ -3,6 +3,7 @@ import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { JOB_CATEGORIES } from '@/types'
 import { slugify } from '@/lib/formatting'
+import { SITE_URL } from "@/lib/constants"
 
 export const revalidate = 300
 
@@ -94,16 +95,15 @@ async function getCategoriesData(): Promise<CategoryData[]> {
 export async function generateMetadata(): Promise<Metadata> {
   const categories = await getCategoriesData()
   const totalJobs = categories.reduce((sum, c) => sum + c.jobCount, 0)
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
   return {
     title: `Finance Job Categories | ${categories.length} Specializations | FinanceJobs`,
     description: `Browse ${totalJobs}+ entry-level finance jobs across ${categories.length} categories including Investment Banking, Accounting, Private Equity, Consulting, and more.`,
-    alternates: { canonical: `${siteUrl}/categories` },
+    alternates: { canonical: `${SITE_URL}/categories` },
     openGraph: {
       title: `Finance Job Categories | ${categories.length} Specializations`,
       description: `Browse ${totalJobs}+ entry-level finance jobs across ${categories.length} categories.`,
-      url: `${siteUrl}/categories`,
+      url: `${SITE_URL}/categories`,
       siteName: 'FinanceJobs',
       type: 'website',
     },
@@ -118,14 +118,13 @@ function formatSalaryShort(amount: number): string {
 export default async function CategoriesPage() {
   const categories = await getCategoriesData()
   const totalJobs = categories.reduce((sum, c) => sum + c.jobCount, 0)
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: 'Finance Job Categories',
     description: `Browse ${totalJobs}+ entry-level finance jobs across ${categories.length} categories.`,
-    url: `${siteUrl}/categories`,
+    url: `${SITE_URL}/categories`,
     mainEntity: {
       '@type': 'ItemList',
       numberOfItems: categories.length,
@@ -133,7 +132,7 @@ export default async function CategoriesPage() {
         '@type': 'ListItem',
         position: i + 1,
         name: cat.name,
-        url: `${siteUrl}/category/${cat.slug}`,
+        url: `${SITE_URL}/category/${cat.slug}`,
       })),
     },
   }

@@ -5,6 +5,7 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { JOB_CATEGORIES, type JobCategory } from '@/types'
 import { slugify } from '@/lib/formatting'
 import FilterableJobList from '@/components/FilterableJobList'
+import { SITE_URL } from "@/lib/constants"
 
 export const revalidate = 300
 
@@ -104,7 +105,6 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     ? Math.round(salaryJobs.reduce((s, j) => s + (j.salary_min || j.salary_max || 0), 0) / salaryJobs.length)
     : null
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
   const jsonLd = [
     {
@@ -112,16 +112,16 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       '@type': 'CollectionPage',
       name: `${category} Jobs`,
       description,
-      url: `${siteUrl}/category/${slug}`,
-      isPartOf: { '@type': 'WebSite', name: 'FinanceJobs', url: siteUrl },
+      url: `${SITE_URL}/category/${slug}`,
+      isPartOf: { '@type': 'WebSite', name: 'FinanceJobs', url: SITE_URL },
     },
     {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
-        { '@type': 'ListItem', position: 2, name: 'Categories', item: `${siteUrl}/categories` },
-        { '@type': 'ListItem', position: 3, name: category, item: `${siteUrl}/category/${slug}` },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+        { '@type': 'ListItem', position: 2, name: 'Categories', item: `${SITE_URL}/categories` },
+        { '@type': 'ListItem', position: 3, name: category, item: `${SITE_URL}/category/${slug}` },
       ],
     },
   ]

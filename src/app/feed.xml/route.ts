@@ -1,9 +1,9 @@
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { SITE_URL } from "@/lib/constants"
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
   const { data: jobs } = await supabaseAdmin
     .from('jobs')
@@ -25,8 +25,8 @@ export async function GET() {
     const desc = escapeXml((job.description || '').substring(0, 300))
     return `    <item>
       <title>${escapeXml(job.title)} at ${escapeXml(companyName)}</title>
-      <link>${siteUrl}/jobs/${job.id}</link>
-      <guid isPermaLink="true">${siteUrl}/jobs/${job.id}</guid>
+      <link>${SITE_URL}/jobs/${job.id}</link>
+      <guid isPermaLink="true">${SITE_URL}/jobs/${job.id}</guid>
       <description>${desc}...</description>
       <category>${escapeXml(job.category)}</category>
       <pubDate>${new Date(job.posted_date).toUTCString()}</pubDate>
@@ -37,11 +37,11 @@ export async function GET() {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>FinanceJobs - Entry-Level Finance Positions</title>
-    <link>${siteUrl}</link>
+    <link>${SITE_URL}</link>
     <description>Curated entry-level finance and accounting jobs sourced directly from company career pages.</description>
     <language>en-us</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-    <atom:link href="${siteUrl}/feed.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>
 ${items}
   </channel>
 </rss>`

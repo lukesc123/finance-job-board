@@ -5,10 +5,10 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { slugify } from '@/lib/formatting'
 import CompanyJobList from '@/components/CompanyJobList'
 import CompanyLogo from '@/components/CompanyLogo'
+import { SITE_URL } from "@/lib/constants"
 
 export const revalidate = 300
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
 interface CompanyDetail {
   id: string
@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: `${company.name} Jobs | FinanceJobs`,
     description: `Browse ${jobs.length} entry-level finance positions at ${company.name}. ${company.description || ''}`.trim(),
-    alternates: { canonical: `${siteUrl}/companies/${slug}` },
+    alternates: { canonical: `${SITE_URL}/companies/${slug}` },
     openGraph: {
       title: `${company.name} - Entry-Level Finance Jobs`,
       description: `${jobs.length} open positions at ${company.name}`,
@@ -101,9 +101,9 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
-        { '@type': 'ListItem', position: 2, name: 'Companies', item: `${siteUrl}/companies` },
-        { '@type': 'ListItem', position: 3, name: company.name, item: `${siteUrl}/companies/${slug}` },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+        { '@type': 'ListItem', position: 2, name: 'Companies', item: `${SITE_URL}/companies` },
+        { '@type': 'ListItem', position: 3, name: company.name, item: `${SITE_URL}/companies/${slug}` },
       ],
     },
   ]

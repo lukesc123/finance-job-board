@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { slugify } from '@/lib/formatting'
 import FilterableJobList from '@/components/FilterableJobList'
+import { SITE_URL } from "@/lib/constants"
 
 export const revalidate = 300
 
@@ -121,7 +122,6 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
     ? Math.round(salaryJobs.reduce((s, j) => s + (j.salary_min || j.salary_max || 0), 0) / salaryJobs.length)
     : null
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
   // Get all locations for the "Other Locations" section
   const allLocations = await getAllLocations()
@@ -133,16 +133,16 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
       '@type': 'CollectionPage',
       name: `Finance Jobs in ${location}`,
       description,
-      url: `${siteUrl}/location/${slug}`,
-      isPartOf: { '@type': 'WebSite', name: 'FinanceJobs', url: siteUrl },
+      url: `${SITE_URL}/location/${slug}`,
+      isPartOf: { '@type': 'WebSite', name: 'FinanceJobs', url: SITE_URL },
     },
     {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
-        { '@type': 'ListItem', position: 2, name: 'Locations', item: `${siteUrl}/locations` },
-        { '@type': 'ListItem', position: 3, name: location, item: `${siteUrl}/location/${slug}` },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+        { '@type': 'ListItem', position: 2, name: 'Locations', item: `${SITE_URL}/locations` },
+        { '@type': 'ListItem', position: 3, name: location, item: `${SITE_URL}/location/${slug}` },
       ],
     },
   ]

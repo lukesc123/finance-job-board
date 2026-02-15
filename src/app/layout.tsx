@@ -3,8 +3,8 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import ScrollToTop from '@/components/ScrollToTop'
+import { SITE_URL } from "@/lib/constants"
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -15,7 +15,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   title: 'FinanceJobs | Entry-Level Finance & Accounting Positions',
   description:
     'Curated entry-level finance and accounting jobs sourced directly from company career pages. No easy apply. Real opportunities.',
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: siteUrl,
+    url: SITE_URL,
     siteName: 'FinanceJobs',
     title: 'FinanceJobs | Entry-Level Finance & Accounting Positions',
     description:
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
       'Curated entry-level finance and accounting jobs sourced directly from company career pages.',
   },
   alternates: {
-    canonical: siteUrl,
+    canonical: SITE_URL,
   },
 }
 
@@ -56,8 +56,8 @@ const organizationJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'FinanceJobs',
-  url: siteUrl,
-  logo: `${siteUrl}/icon.png`,
+  url: SITE_URL,
+  logo: `${SITE_URL}/icon.png`,
   description: 'Curated entry-level finance and accounting jobs sourced directly from company career pages.',
   contactPoint: {
     '@type': 'ContactPoint',
@@ -70,13 +70,13 @@ const websiteJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'FinanceJobs',
-  url: siteUrl,
+  url: SITE_URL,
   description: 'Curated entry-level finance and accounting jobs sourced directly from company career pages.',
   potentialAction: {
     '@type': 'SearchAction',
     target: {
       '@type': 'EntryPoint',
-      urlTemplate: `${siteUrl}/?search={search_term_string}`,
+      urlTemplate: `${SITE_URL}/?search={search_term_string}`,
     },
     'query-input': 'required name=search_term_string',
   },
