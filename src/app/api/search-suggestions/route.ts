@@ -60,7 +60,9 @@ export async function GET(request: NextRequest) {
       if (!seen.has('l:' + l)) { seen.add('l:' + l); suggestions.push({ type: 'location', value: l, count: c }) }
     }
 
-    return NextResponse.json({ suggestions: suggestions.slice(0, 8) })
+    return NextResponse.json({ suggestions: suggestions.slice(0, 8) }, {
+      headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120' },
+    })
   } catch {
     return NextResponse.json({ suggestions: [] })
   }

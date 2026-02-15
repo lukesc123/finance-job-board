@@ -57,7 +57,9 @@ export async function GET(request: NextRequest) {
       .filter((job) => job._score >= 2)
       .map(({ _score, ...rest }) => rest)
 
-    return NextResponse.json(results)
+    return NextResponse.json(results, {
+      headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600' },
+    })
   } catch (error) {
     console.error('Error fetching similar jobs:', error)
     return NextResponse.json({ error: 'Failed to fetch similar jobs' }, { status: 500 })

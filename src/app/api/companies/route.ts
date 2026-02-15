@@ -11,7 +11,9 @@ export async function GET() {
 
     if (error) throw error
 
-    return NextResponse.json(data ?? [])
+    return NextResponse.json(data ?? [], {
+      headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600' },
+    })
   } catch (error) {
     console.error('Error fetching companies:', error)
     return NextResponse.json({ error: 'Failed to fetch companies' }, { status: 500 })

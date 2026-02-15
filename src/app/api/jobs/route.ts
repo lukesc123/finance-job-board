@@ -128,7 +128,9 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    return NextResponse.json(filteredData)
+    return NextResponse.json(filteredData, {
+      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
+    })
   } catch (error) {
     console.error('Error fetching jobs:', error)
     return NextResponse.json({ error: 'Failed to fetch jobs' }, { status: 500 })
