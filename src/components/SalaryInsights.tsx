@@ -3,11 +3,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
-import { slugify } from '@/lib/formatting'
-
-function formatK(n: number): string {
-  return n >= 1000 ? `$${Math.round(n / 1000)}k` : `$${n}`
-}
+import { slugify, formatSalaryShort } from '@/lib/formatting'
 
 export default function SalaryInsights({ jobs }: { jobs: Job[] }) {
   const [expanded, setExpanded] = useState(false)
@@ -71,7 +67,7 @@ export default function SalaryInsights({ jobs }: { jobs: Job[] }) {
                   <span className="text-navy-400 ml-1.5">({insight.count} jobs)</span>
                 </span>
                 <span className="text-xs font-bold text-emerald-700">
-                  {formatK(insight.avgMin)} - {formatK(insight.avgMax)}
+                  {formatSalaryShort(insight.avgMin)} - {formatSalaryShort(insight.avgMax)}
                 </span>
               </div>
               <div className="h-2 bg-navy-100 rounded-full overflow-hidden relative">

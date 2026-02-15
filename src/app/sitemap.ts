@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { JOB_CATEGORIES } from '@/types'
+import { slugify } from '@/lib/formatting'
 import { SITE_URL } from "@/lib/constants"
 
 export const dynamic = 'force-dynamic'
@@ -11,10 +12,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: companies } = await supabaseAdmin
     .from('companies')
     .select('name')
-
-  function slugify(name: string) {
-    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-  }
 
   const companyEntries: MetadataRoute.Sitemap = (companies || []).map((c: { name: string }) => ({
     url: `${SITE_URL}/companies/${slugify(c.name)}`,

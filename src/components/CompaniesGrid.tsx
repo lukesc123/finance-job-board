@@ -150,7 +150,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
       </div>
 
       {/* Results count */}
-      <p className="text-sm text-navy-600 mb-4">
+      <p className="text-sm text-navy-600 mb-4" aria-live="polite" aria-atomic="true">
         <span className="font-semibold text-navy-900">{filtered.length}</span> {filtered.length === 1 ? 'company' : 'companies'}
         {search && <span className="text-navy-400"> matching &ldquo;{search}&rdquo;</span>}
         {selectedCategory && <span className="text-navy-400"> in {selectedCategory}</span>}

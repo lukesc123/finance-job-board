@@ -84,16 +84,33 @@ export async function GET(request: NextRequest) {
     // Apply salary range filter
     const salaryMin = searchParams.get('salary_min')
     const salaryMax = searchParams.get('salary_max')
-    if (salaryMin) query = query.gte('salary_max', parseInt(salaryMin))
-    if (salaryMax) query = query.lte('salary_min', parseInt(salaryMax))
+    if (salaryMin) {
+      const parsed = parseInt(salaryMin, 10)
+      if (!isNaN(parsed) && parsed > 0) query = query.gte('salary_max', parsed)
+    }
+    if (salaryMax) {
+      const parsed = parseInt(salaryMax, 10)
+      if (!isNaN(parsed) && parsed > 0) query = query.lte('salary_min', parsed)
+    }
 
     const { data, error } = await query
 
     if (error) throw error
 
     // Post-fetch: filter and rank by search term (includes company name matching)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let filteredData: any[] = data ?? []
+    interface JobRow {
+      title?: string
+      description?: string
+      location?: string
+      company?: { name?: string } | null
+      posted_date: string
+      grad_date_required?: boolean
+      grad_date_earliest?: string | null
+      grad_date_latest?: string | null
+      _relevance?: number
+      [key: string]: unknown
+    }
+    let filteredData: JobRow[] = (data ?? []) as JobRow[]
 
     if (search) {
       const searchLower = search.toLowerCase()
@@ -119,7 +136,9 @@ export async function GET(request: NextRequest) {
       })
 
       filteredData.sort((a, b) => {
-        if (b._relevance !== a._relevance) return b._relevance - a._relevance
+        const aRel = a._relevance ?? 0
+        const bRel = b._relevance ?? 0
+        if (bRel !== aRel) return bRel - aRel
         return new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime()
       })
     }

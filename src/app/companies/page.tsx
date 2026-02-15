@@ -60,11 +60,18 @@ async function getCompaniesWithJobs(): Promise<CompanyWithCount[]> {
     if (job.location) jobsByCompany[job.company_id].locations.add(job.location)
   })
 
-  return companies
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .filter((c: any) => jobsByCompany[c.id]?.count > 0)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .map((c: any) => ({
+  interface RawCompany {
+    id: string
+    name: string
+    website: string
+    careers_url: string
+    logo_url: string | null
+    description: string | null
+  }
+
+  return (companies as RawCompany[])
+    .filter((c) => jobsByCompany[c.id]?.count > 0)
+    .map((c) => ({
       id: c.id,
       name: c.name,
       slug: slugify(c.name),

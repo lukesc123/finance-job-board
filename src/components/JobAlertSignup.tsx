@@ -45,7 +45,7 @@ export default function JobAlertSignup() {
       categories: selectedCategories.length > 0 ? selectedCategories : 'all',
       subscribedAt: new Date().toISOString(),
     }
-    localStorage.setItem('jobAlert', JSON.stringify(alertData))
+    try { localStorage.setItem('jobAlert', JSON.stringify(alertData)) } catch { /* ignore */ }
     await new Promise(resolve => setTimeout(resolve, 600))
     setSubmitted(true)
     setLoading(false)
@@ -145,6 +145,7 @@ export default function JobAlertSignup() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="your@email.com"
             required
+            autoComplete="email"
             aria-label="Email address for job alerts"
             className="flex-1 rounded-lg border border-navy-600 bg-navy-800/50 px-3.5 py-2.5 text-sm text-white placeholder-navy-400 focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-400"
           />

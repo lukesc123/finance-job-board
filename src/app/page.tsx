@@ -313,7 +313,7 @@ function HomePageContent() {
     }
   }
 
-  const uniqueCompanies = new Set(jobs.map((job) => job.company_id)).size
+  const uniqueCompanies = useMemo(() => new Set(jobs.map((job) => job.company_id)).size, [jobs])
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {}
