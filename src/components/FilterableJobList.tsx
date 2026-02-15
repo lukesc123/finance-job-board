@@ -74,6 +74,9 @@ export default function FilterableJobList({
 
   return (
     <>
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {filtered.length} {filtered.length === 1 ? 'job' : 'jobs'} shown{activeFilter ? ` for ${activeFilter}` : ''}
+      </div>
       {filterValues.length > 1 && (
         <div className="flex flex-wrap gap-2 mb-5">
           <button
