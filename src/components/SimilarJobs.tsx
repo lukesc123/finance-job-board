@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Job } from '@/types'
 import { formatSalary, getPipelineStageBadgeColor, getPipelineStageAccent } from '@/lib/formatting'
 
@@ -58,9 +59,11 @@ export default function SimilarJobs({ jobId }: { jobId: string }) {
               <div className={`group rounded-lg border border-l-4 border-navy-100 bg-white p-3.5 transition hover:shadow-md hover:border-navy-200 hover:-translate-y-px ${getPipelineStageAccent(job.pipeline_stage)}`}>
                 <div className="flex items-start gap-3">
                   {job.company?.logo_url ? (
-                    <img
+                    <Image
                       src={job.company.logo_url}
-                      alt={job.company.name}
+                      alt={`${job.company.name} logo`}
+                      width={36}
+                      height={36}
                       className="h-9 w-9 rounded-lg object-contain flex-shrink-0 border border-navy-100 bg-white"
                     />
                   ) : (

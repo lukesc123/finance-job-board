@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getPipelineStageBadgeColor, getPipelineStageAccent } from '@/lib/formatting'
+import { getPipelineStageBadgeColor, getPipelineStageAccent, timeAgoFromTimestamp } from '@/lib/formatting'
 import Link from 'next/link'
 
 interface RecentJob {
@@ -15,17 +15,6 @@ interface RecentJob {
 }
 
 
-
-function timeAgoShort(timestamp: number): string {
-  const seconds = Math.floor((Date.now() - timestamp) / 1000)
-  if (seconds < 60) return 'just now'
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return minutes + 'm ago'
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return hours + 'h ago'
-  const days = Math.floor(hours / 24)
-  return days + 'd ago'
-}
 
 export default function RecentlyViewed() {
   const [recentJobs, setRecentJobs] = useState<RecentJob[]>([])
@@ -69,7 +58,7 @@ export default function RecentlyViewed() {
               <span className={'inline-block rounded-md border px-1.5 py-0.5 text-[10px] font-semibold ' + getPipelineStageBadgeColor(job.stage)}>
                 {job.stage}
               </span>
-              <span className="text-[10px] text-navy-400">{timeAgoShort(job.viewedAt)}</span>
+              <span className="text-[10px] text-navy-400">{timeAgoFromTimestamp(job.viewedAt)}</span>
             </div>
             <p className="text-sm font-semibold text-navy-900 group-hover:text-navy-700 truncate">{job.title}</p>
             <p className="text-xs text-navy-500 truncate mt-0.5">{job.company}</p>
