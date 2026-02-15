@@ -168,6 +168,9 @@ export default function Navbar() {
             <Link href="/locations" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
               Locations
             </Link>
+            <Link href="/resources" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
+              Resources
+            </Link>
             <Link href="/employers" className="rounded-lg bg-navy-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-800 text-center">
               For Employers
             </Link>

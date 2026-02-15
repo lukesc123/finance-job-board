@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
 
     // Extract query parameters
+    const ids = searchParams.getAll('ids')
     const category = searchParams.get('category')
     const location = searchParams.get('location')
     const jobType = searchParams.get('job_type')
@@ -16,6 +17,16 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search')
     const gradDate = searchParams.get('grad_date')
     const company = searchParams.get('company')
+
+    // If specific IDs requested, return just those jobs
+    if (ids.length > 0) {
+      const { data, error } = await supabaseAdmin
+        .from('jobs')
+        .select('*, company:companies(*)')
+        .in('id', ids)
+      if (error) throw error
+      return NextResponse.json(data ?? [])
+    }
 
     let query = supabaseAdmin
       .from('jobs')

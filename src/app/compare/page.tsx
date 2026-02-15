@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
-import { formatSalary } from '@/lib/formatting'
+import { formatSalary, isGenericApplyUrl } from '@/lib/formatting'
 
 export default function ComparePage() {
   const [compareIds, setCompareIds] = useState<string[]>([])
@@ -35,10 +35,13 @@ export default function ComparePage() {
       }
       setLoading(true)
       try {
-        const response = await fetch('/api/jobs')
+        const params = new URLSearchParams()
+        compareIds.forEach(id => params.append('ids', id))
+        const response = await fetch(`/api/jobs?${params.toString()}`)
         if (!response.ok) throw new Error('Failed')
-        const allJobs: Job[] = await response.json()
-        const matched = compareIds.map(id => allJobs.find(j => j.id === id)).filter(Boolean) as Job[]
+        const fetchedJobs: Job[] = await response.json()
+        // Maintain the order from compareIds
+        const matched = compareIds.map(id => fetchedJobs.find(j => j.id === id)).filter(Boolean) as Job[]
         setJobs(matched)
       } catch { setJobs([]) }
       setLoading(false)
@@ -203,19 +206,23 @@ export default function ComparePage() {
                   <td className="p-4 text-xs font-semibold text-navy-500 uppercase tracking-wider">Apply</td>
                   {jobs.map(job => (
                     <td key={job.id} className="p-4">
-                      {job.apply_url ? (
-                        <a
-                          href={job.apply_url.startsWith('http') ? job.apply_url : 'https://' + job.apply_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition"
-                        >
-                          Apply at {job.company?.name}
-                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                        </a>
-                      ) : (
+                      {job.apply_url ? (() => {
+                        const url = job.apply_url!.startsWith('http') ? job.apply_url! : 'https://' + job.apply_url
+                        const generic = isGenericApplyUrl(url)
+                        return (
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition"
+                          >
+                            {generic ? `Careers at ${job.company?.name}` : `Apply at ${job.company?.name}`}
+                            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </a>
+                        )
+                      })() : (
                         <span className="text-xs text-navy-400">No link available</span>
                       )}
                     </td>
