@@ -3,7 +3,6 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { slugify } from '@/lib/formatting'
-import BackToTop from '@/components/BackToTop'
 import FilterableJobList from '@/components/FilterableJobList'
 
 export const revalidate = 300
@@ -260,7 +259,6 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
         </div>
       </section>
 
-      <BackToTop />
     </div>
   )
 }

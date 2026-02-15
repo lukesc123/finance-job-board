@@ -4,7 +4,6 @@ import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { JOB_CATEGORIES, type JobCategory } from '@/types'
 import { slugify } from '@/lib/formatting'
-import BackToTop from '@/components/BackToTop'
 import FilterableJobList from '@/components/FilterableJobList'
 
 export const revalidate = 300
@@ -216,7 +215,6 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         </div>
       </section>
 
-      <BackToTop />
     </div>
   )
 }

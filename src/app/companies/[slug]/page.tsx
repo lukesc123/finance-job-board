@@ -5,7 +5,6 @@ import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { slugify } from '@/lib/formatting'
 import CompanyJobList from '@/components/CompanyJobList'
-import BackToTop from '@/components/BackToTop'
 
 export const revalidate = 300
 
@@ -241,7 +240,6 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
         </div>
       </section>
 
-      <BackToTop />
     </div>
   )
 }
