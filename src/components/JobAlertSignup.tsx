@@ -1,20 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
+import { JOB_CATEGORIES } from '@/lib/constants'
 
-const ALERT_CATEGORIES = [
-  'Investment Banking',
-  'Accounting',
-  'Sales & Trading',
-  'Corporate Finance',
-  'Consulting',
-  'Private Wealth',
-  'Research',
-  'Risk Management',
-  'Private Equity',
-]
-
-export default function JobAlertSignup() {
+export default memo(function JobAlertSignup() {
   const [email, setEmail] = useState('')
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [submitted, setSubmitted] = useState(false)
@@ -120,7 +109,7 @@ export default function JobAlertSignup() {
           </button>
           {showCategories && (
             <div className="flex flex-wrap gap-1.5 mt-2">
-              {ALERT_CATEGORIES.map(cat => (
+              {JOB_CATEGORIES.map(cat => (
                 <button
                   key={cat}
                   type="button"
@@ -165,4 +154,4 @@ export default function JobAlertSignup() {
       </div>
     </div>
   )
-}
+})

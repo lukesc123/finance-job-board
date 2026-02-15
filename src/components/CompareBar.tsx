@@ -1,9 +1,10 @@
 'use client'
 
+import { memo } from 'react'
 import Link from 'next/link'
 import { useCompareIds } from '@/hooks/useJobActions'
 
-export default function CompareBar() {
+export default memo(function CompareBar() {
   const { ids, clearAll: clearCompare } = useCompareIds()
   const count = ids.length
 
@@ -41,4 +42,4 @@ export default function CompareBar() {
       </div>
     </div>
   )
-}
+})

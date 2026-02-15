@@ -14,8 +14,8 @@ import CompareBar from '@/components/CompareBar'
 import SalaryInsights from '@/components/SalaryInsights'
 import JobPreview from '@/components/JobPreview'
 import { Job, JobFilters } from '@/types'
-import { getPipelineStageDisplay } from '@/lib/formatting'
-import { debounce } from '@/lib/formatting'
+import { getPipelineStageDisplay, debounce } from '@/lib/formatting'
+import { JOB_CATEGORIES } from '@/lib/constants'
 
 type SortBy = 'newest' | 'salary_high' | 'salary_low' | 'company_az' | 'relevance'
 
@@ -49,17 +49,7 @@ function filtersToParams(filters: JobFilters, sortBy: string, showSaved: boolean
   return params.toString()
 }
 
-const HERO_CATEGORIES = [
-  'Investment Banking',
-  'Accounting',
-  'Sales & Trading',
-  'Corporate Finance',
-  'Consulting',
-  'Private Wealth',
-  'Research',
-  'Risk Management',
-  'Private Equity',
-]
+const HERO_CATEGORIES = JOB_CATEGORIES
 
 function HomePageContent() {
   const searchParams = useSearchParams()

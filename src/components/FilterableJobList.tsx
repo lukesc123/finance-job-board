@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import Link from 'next/link'
 import { stageColors, timeAgo, formatSalary, isGenericApplyUrl } from '@/lib/formatting'
 import { trackApplyClick } from '@/hooks/useJobActions'
+import { CATEGORY_COLORS } from '@/lib/constants'
 import CompanyLogo from '@/components/CompanyLogo'
 
 interface FilterableJob {
@@ -22,18 +23,6 @@ interface FilterableJob {
   company: { name: string; logo_url: string | null } | null
 }
 
-const categoryColors: Record<string, string> = {
-  'Investment Banking': 'bg-blue-50 text-blue-700 border-blue-200',
-  'Private Wealth': 'bg-purple-50 text-purple-700 border-purple-200',
-  'Accounting': 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  'Sales & Trading': 'bg-red-50 text-red-700 border-red-200',
-  'Corporate Finance': 'bg-indigo-50 text-indigo-700 border-indigo-200',
-  'Consulting': 'bg-teal-50 text-teal-700 border-teal-200',
-  'Research': 'bg-cyan-50 text-cyan-700 border-cyan-200',
-  'Risk Management': 'bg-orange-50 text-orange-700 border-orange-200',
-  'Private Equity': 'bg-violet-50 text-violet-700 border-violet-200',
-  'Commercial Banking': 'bg-sky-50 text-sky-700 border-sky-200',
-}
 
 interface FilterableJobListProps {
   jobs: FilterableJob[]
@@ -41,7 +30,7 @@ interface FilterableJobListProps {
   emptyLabel?: string
 }
 
-export default function FilterableJobList({
+export default memo(function FilterableJobList({
   jobs,
   filterBy,
   emptyLabel = 'No positions found',
@@ -67,7 +56,7 @@ export default function FilterableJobList({
     : jobs
 
   function getFilterColor(value: string): string {
-    if (filterBy === 'category') return categoryColors[value] || 'bg-gray-50 text-gray-600 border-gray-200'
+    if (filterBy === 'category') return CATEGORY_COLORS[value] || 'bg-gray-50 text-gray-600 border-gray-200'
     if (filterBy === 'stage') return stageColors[value] || 'bg-gray-50 text-gray-600 border-gray-200'
     return 'bg-white text-navy-600 border-navy-200'
   }
@@ -155,7 +144,7 @@ export default function FilterableJobList({
                 <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${stageColors[job.pipeline_stage] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
                   {job.pipeline_stage}
                 </span>
-                <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${categoryColors[job.category] || 'bg-navy-50 text-navy-600 border-navy-200'}`}>
+                <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${CATEGORY_COLORS[job.category] || 'bg-navy-50 text-navy-600 border-navy-200'}`}>
                   {job.category}
                 </span>
                 {job.licenses_required?.filter((l: string) => l !== 'None Required').map((lic: string) => (
@@ -205,4 +194,4 @@ export default function FilterableJobList({
       )}
     </>
   )
-}
+})

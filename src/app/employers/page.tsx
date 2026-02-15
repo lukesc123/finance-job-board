@@ -19,6 +19,7 @@ export const metadata: Metadata = {
     title: 'For Employers | FinanceJobs',
     description: 'Reach top entry-level finance and accounting talent.',
   },
+  robots: { index: true, follow: true },
 }
 
 const VALUE_PROPS = [

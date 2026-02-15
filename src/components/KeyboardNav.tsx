@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, memo } from 'react'
 import { useRouter } from 'next/navigation'
 
 /**
@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation'
  * - Esc: close help / deselect
  */
 
-export default function KeyboardNav() {
+export default memo(function KeyboardNav() {
   const router = useRouter()
   const [focusIndex, setFocusIndex] = useState(-1)
   const [showHelp, setShowHelp] = useState(false)
@@ -178,4 +178,4 @@ export default function KeyboardNav() {
       </div>
     </div>
   )
-}
+})

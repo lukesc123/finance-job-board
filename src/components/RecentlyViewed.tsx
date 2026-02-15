@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { getPipelineStageBadgeColor, getPipelineStageAccent, timeAgoFromTimestamp } from '@/lib/formatting'
 import Link from 'next/link'
 
@@ -16,7 +16,7 @@ interface RecentJob {
 
 
 
-export default function RecentlyViewed() {
+export default memo(function RecentlyViewed() {
   const [recentJobs, setRecentJobs] = useState<RecentJob[]>([])
 
   useEffect(() => {
@@ -72,4 +72,4 @@ export default function RecentlyViewed() {
       </div>
     </div>
   )
-}
+})

@@ -18,6 +18,7 @@ export const metadata: Metadata = {
     title: 'Career Resources | FinanceJobs',
     description: 'Essential guides for landing your first finance job.',
   },
+  robots: { index: true, follow: true },
 }
 
 const GUIDES = [
