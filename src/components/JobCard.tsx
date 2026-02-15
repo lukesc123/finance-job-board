@@ -45,6 +45,12 @@ export default memo(function JobCard({ job, searchQuery = '', onPreview, isActiv
   const salary = formatSalary(job.salary_min, job.salary_max)
   const timePosted = timeAgo(job.posted_date)
   const isNew = isNewJob(job.posted_date)
+  const isStale = (() => {
+    if (job.removal_detected_at) return 'removed'
+    const verified = new Date(job.last_verified_at).getTime()
+    const daysSinceVerified = (Date.now() - verified) / (1000 * 60 * 60 * 24)
+    return daysSinceVerified > 14 ? 'stale' : null
+  })()
 
   const hasNonRequiredLicenses = job.licenses_required &&
     job.licenses_required.length > 0 &&
@@ -214,6 +220,21 @@ export default memo(function JobCard({ job, searchQuery = '', onPreview, isActiv
                 {job.grad_date_required && (
                   <span className="inline-flex items-center rounded-md border border-yellow-200 bg-yellow-50 px-2 py-0.5 text-[11px] font-medium text-yellow-700">
                     Grad Date Req.
+                  </span>
+                )}
+
+                {isStale === 'removed' && (
+                  <span className="inline-flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-600" title="This listing may no longer be available">
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    May be closed
+                  </span>
+                )}
+
+                {isStale === 'stale' && (
+                  <span className="inline-flex items-center rounded-md border border-navy-200 bg-navy-50 px-2 py-0.5 text-[11px] font-medium text-navy-400" title="This listing hasn't been verified recently">
+                    Unverified
                   </span>
                 )}
 

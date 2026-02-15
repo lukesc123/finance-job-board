@@ -104,6 +104,30 @@ export default function TrackerPage() {
     setTrackedJobs(prev => prev.filter(t => t.job.id !== jobId))
   }
 
+  const exportCSV = () => {
+    if (trackedJobs.length === 0) return
+    const headers = ['Title', 'Company', 'Location', 'Category', 'Salary', 'Status', 'Applied Date', 'Notes', 'Apply URL']
+    const rows = trackedJobs.map(t => [
+      t.job.title,
+      t.job.company?.name || '',
+      t.job.location,
+      t.job.category,
+      formatSalary(t.job.salary_min, t.job.salary_max) || '',
+      STATUS_CONFIG[t.status].label,
+      new Date(t.appliedAt).toLocaleDateString(),
+      t.notes.replace(/"/g, '""'),
+      t.job.apply_url || '',
+    ])
+    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `job-applications-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const filteredJobs = filter === 'all' ? trackedJobs : trackedJobs.filter(t => t.status === filter)
 
   const statusCounts = trackedJobs.reduce((acc, t) => {
@@ -123,7 +147,21 @@ export default function TrackerPage() {
             </Link>
             <h1 className="text-2xl sm:text-3xl font-bold">Application Tracker</h1>
           </div>
-          <p className="text-navy-300 text-sm">Track the status of jobs you've applied to. All data stored locally in your browser.</p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-navy-300 text-sm">Track the status of jobs you've applied to. All data stored locally in your browser.</p>
+            {trackedJobs.length > 0 && (
+              <button
+                onClick={exportCSV}
+                className="flex-shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-navy-800/60 px-3 py-1.5 text-xs font-medium text-navy-300 hover:bg-navy-700 hover:text-white transition"
+                aria-label="Export applications as CSV"
+              >
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Export CSV
+              </button>
+            )}
+          </div>
 
           {trackedJobs.length > 0 && (
             <div className="flex gap-3 mt-5 flex-wrap">

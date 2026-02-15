@@ -516,10 +516,14 @@ function HomePageContent() {
                 />
               ))}
 
-              {sortedJobs.length > visibleCount && (
+              {sortedJobs.length > visibleCount ? (
                 <div ref={loadMoreRef} className="pt-6 flex flex-col items-center gap-2">
                   <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-navy-300 border-t-navy-600"></div>
                   <span className="text-xs text-navy-400">Loading more jobs...</span>
+                </div>
+              ) : sortedJobs.length > PAGE_SIZE && (
+                <div className="pt-6 pb-2 text-center">
+                  <p className="text-xs text-navy-400">Showing all {sortedJobs.length} jobs</p>
                 </div>
               )}
             </>
