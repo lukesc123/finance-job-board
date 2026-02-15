@@ -1,10 +1,10 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { slugify } from '@/lib/formatting'
 import CompanyJobList from '@/components/CompanyJobList'
+import CompanyLogo from '@/components/CompanyLogo'
 
 export const revalidate = 300
 
@@ -127,13 +127,13 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
       <section className="bg-gradient-to-b from-navy-950 to-navy-900 text-white py-10 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-start gap-4">
-            {company.logo_url ? (
-              <Image src={company.logo_url} alt={`${company.name} logo`} width={56} height={56} className="h-14 w-14 rounded-xl object-contain border border-navy-700 bg-white flex-shrink-0" />
-            ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-navy-800 text-white font-bold text-xl flex-shrink-0 border border-navy-700">
-                {company.name.charAt(0)}
-              </div>
-            )}
+            <CompanyLogo
+              logoUrl={company.logo_url}
+              name={company.name}
+              size="lg"
+              imgClassName="rounded-xl border-navy-700"
+              fallbackClassName="bg-navy-800 text-white text-xl border border-navy-700 rounded-xl"
+            />
             <div>
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">{company.name}</h1>
               {company.description && (

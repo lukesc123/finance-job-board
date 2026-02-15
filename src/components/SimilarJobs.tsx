@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { Job } from '@/types'
+import CompanyLogo from '@/components/CompanyLogo'
 import { formatSalary, getPipelineStageBadgeColor, getPipelineStageAccent } from '@/lib/formatting'
 
 
@@ -58,19 +58,7 @@ export default function SimilarJobs({ jobId }: { jobId: string }) {
             <Link key={job.id} href={`/jobs/${job.id}`}>
               <div className={`group rounded-lg border border-l-4 border-navy-100 bg-white p-3.5 transition hover:shadow-md hover:border-navy-200 hover:-translate-y-px ${getPipelineStageAccent(job.pipeline_stage)}`}>
                 <div className="flex items-start gap-3">
-                  {job.company?.logo_url ? (
-                    <Image
-                      src={job.company.logo_url}
-                      alt={`${job.company.name} logo`}
-                      width={36}
-                      height={36}
-                      className="h-9 w-9 rounded-lg object-contain flex-shrink-0 border border-navy-100 bg-white"
-                    />
-                  ) : (
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-navy-900 text-xs font-bold text-white flex-shrink-0">
-                      {job.company?.name?.charAt(0) || '?'}
-                    </div>
-                  )}
+                  <CompanyLogo logoUrl={job.company?.logo_url} name={job.company?.name || '?'} size="sm" />
                   <div className="min-w-0 flex-1">
                     <h3 className="font-semibold text-navy-900 group-hover:text-navy-700 text-sm leading-snug truncate">
                       {job.title}

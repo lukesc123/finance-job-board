@@ -2,8 +2,8 @@
 
 import { memo } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { Job } from '@/types'
+import CompanyLogo from '@/components/CompanyLogo'
 import { timeAgo, formatSalary, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor, getPipelineStageAccent } from '@/lib/formatting'
 import { useJobActions, trackApplyClick } from '@/hooks/useJobActions'
 
@@ -131,19 +131,7 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
           <div className="flex gap-3.5 pr-16 sm:pr-20">
             {/* Company Logo */}
             <div className="flex-shrink-0 mt-0.5">
-              {job.company?.logo_url ? (
-                <Image
-                  src={job.company.logo_url}
-                  alt={`${job.company.name} logo`}
-                  width={44}
-                  height={44}
-                  className="h-11 w-11 rounded-lg object-contain border border-navy-100 bg-white"
-                />
-              ) : (
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-navy-900 text-sm font-bold text-white">
-                  {companyInitial}
-                </div>
-              )}
+              <CompanyLogo logoUrl={job.company?.logo_url} name={job.company?.name || '?'} />
             </div>
 
             {/* Content */}

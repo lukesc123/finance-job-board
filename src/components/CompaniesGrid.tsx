@@ -2,8 +2,8 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { slugify } from '@/lib/formatting'
+import CompanyLogo from '@/components/CompanyLogo'
 
 interface CompanyWithCount {
   id: string
@@ -159,13 +159,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
         {filtered.map((company) => (
           <div key={company.id} className="rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md transition-shadow group">
             <div className="flex items-start gap-3 mb-3">
-              {company.logo_url ? (
-                <Image src={company.logo_url} alt={`${company.name} logo`} width={40} height={40} className="h-10 w-10 rounded-lg object-contain border border-navy-100 bg-white flex-shrink-0" />
-              ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy-100 text-navy-600 font-bold text-sm flex-shrink-0">
-                  {company.name.charAt(0)}
-                </div>
-              )}
+              <CompanyLogo logoUrl={company.logo_url} name={company.name} fallbackClassName="bg-navy-100 text-navy-600" />
               <div className="min-w-0">
                 <Link
                   href={`/companies/${company.slug}`}
