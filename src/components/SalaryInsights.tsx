@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
 
@@ -8,21 +8,8 @@ function formatK(n: number): string {
   return n >= 1000 ? `$${Math.round(n / 1000)}k` : `$${n}`
 }
 
-export default function SalaryInsights() {
-  const [jobs, setJobs] = useState<Job[]>([])
+export default function SalaryInsights({ jobs }: { jobs: Job[] }) {
   const [expanded, setExpanded] = useState(false)
-
-  useEffect(() => {
-    async function fetch_() {
-      try {
-        const res = await fetch('/api/jobs')
-        if (!res.ok) return
-        const data = await res.json()
-        setJobs(data)
-      } catch { /* ignore */ }
-    }
-    fetch_()
-  }, [])
 
   const insights = useMemo(() => {
     const byCategory: Record<string, { min: number[]; max: number[]; count: number }> = {}

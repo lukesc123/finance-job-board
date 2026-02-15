@@ -402,7 +402,7 @@ function HomePageContent() {
         </div>
 
         {/* Salary Insights */}
-        <SalaryInsights />
+        <SalaryInsights jobs={allJobs} />
 
         {/* Quick Stage Filters */}
         <div className="mb-4 flex flex-wrap gap-1.5">

@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { JOB_CATEGORIES, type JobCategory } from '@/types'
-import { timeAgo, formatSalary } from '@/lib/formatting'
+import { timeAgo, formatSalary, slugify, stageColors } from '@/lib/formatting'
 
 export const revalidate = 300
 
@@ -29,13 +29,6 @@ const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   'Other': 'Additional entry-level finance and business positions across various specializations.',
 }
 
-function slugify(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-}
-
-function companySlugify(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-}
 
 interface CategoryJob {
   id: string
@@ -92,15 +85,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export async function generateStaticParams() {
   return JOB_CATEGORIES.map((cat) => ({ slug: slugify(cat) }))
-}
-
-const stageColors: Record<string, string> = {
-  'Sophomore Internship': 'bg-purple-50 text-purple-700 border-purple-200',
-  'Junior Internship': 'bg-blue-50 text-blue-700 border-blue-200',
-  'Senior Internship': 'bg-indigo-50 text-indigo-700 border-indigo-200',
-  'New Grad': 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  'Early Career': 'bg-teal-50 text-teal-700 border-teal-200',
-  'No Experience Required': 'bg-amber-50 text-amber-700 border-amber-200',
 }
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {

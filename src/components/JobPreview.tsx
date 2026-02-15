@@ -3,11 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
-import { formatSalary, timeAgo, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl } from '@/lib/formatting'
-
-function slugify(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-}
+import { formatSalary, timeAgo, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify } from '@/lib/formatting'
 
 function getPipelineStageBadgeColor(stage: string): string {
   if (stage.includes('Internship')) return 'bg-emerald-50 text-emerald-700 border-emerald-200'

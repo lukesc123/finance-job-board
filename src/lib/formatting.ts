@@ -118,6 +118,19 @@ export function isGenericApplyUrl(url: string): boolean {
   }
 }
 
+export function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+
+export const stageColors: Record<string, string> = {
+  'Sophomore Internship': 'bg-purple-50 text-purple-700 border-purple-200',
+  'Junior Internship': 'bg-blue-50 text-blue-700 border-blue-200',
+  'Senior Internship': 'bg-indigo-50 text-indigo-700 border-indigo-200',
+  'New Grad': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  'Early Career': 'bg-teal-50 text-teal-700 border-teal-200',
+  'No Experience Required': 'bg-amber-50 text-amber-700 border-amber-200',
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function debounce<T extends (...args: any[]) => void>(
   fn: T,

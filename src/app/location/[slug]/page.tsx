@@ -2,17 +2,9 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { timeAgo, formatSalary } from '@/lib/formatting'
+import { timeAgo, formatSalary, slugify, stageColors } from '@/lib/formatting'
 
 export const revalidate = 300
-
-function slugify(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-}
-
-function categorySlugify(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-}
 
 interface LocationJob {
   id: string
@@ -111,14 +103,6 @@ export async function generateStaticParams() {
   return locations.map((loc) => ({ slug: slugify(loc) }))
 }
 
-const stageColors: Record<string, string> = {
-  'Sophomore Internship': 'bg-purple-50 text-purple-700 border-purple-200',
-  'Junior Internship': 'bg-blue-50 text-blue-700 border-blue-200',
-  'Senior Internship': 'bg-indigo-50 text-indigo-700 border-indigo-200',
-  'New Grad': 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  'Early Career': 'bg-teal-50 text-teal-700 border-teal-200',
-  'No Experience Required': 'bg-amber-50 text-amber-700 border-amber-200',
-}
 
 const categoryColors: Record<string, string> = {
   'Investment Banking': 'bg-blue-50 text-blue-700 border-blue-200',
@@ -237,7 +221,7 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
             {categories.map((cat) => (
               <Link
                 key={cat}
-                href={`/category/${categorySlugify(cat)}`}
+                href={`/category/${slugify(cat)}`}
                 className={`rounded-full border px-3 py-1 text-xs font-semibold hover:shadow-sm transition ${categoryColors[cat] || 'bg-gray-50 text-gray-600 border-gray-200'}`}
               >
                 {cat} ({jobs.filter((j) => j.category === cat).length})

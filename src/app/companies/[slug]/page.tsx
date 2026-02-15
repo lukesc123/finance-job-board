@@ -2,12 +2,9 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { slugify, stageColors, timeAgo, formatSalary, isGenericApplyUrl } from '@/lib/formatting'
 
 export const revalidate = 300
-
-function slugify(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-}
 
 interface CompanyDetail {
   id: string
@@ -30,6 +27,7 @@ interface CompanyJob {
   pipeline_stage: string
   licenses_required: string[]
   posted_date: string
+  apply_url: string | null
 }
 
 async function getCompanyBySlug(slug: string): Promise<{ company: CompanyDetail; jobs: CompanyJob[] } | null> {
@@ -41,7 +39,7 @@ async function getCompanyBySlug(slug: string): Promise<{ company: CompanyDetail;
 
   const { data: jobs } = await supabaseAdmin
     .from('jobs')
-    .select('id, title, category, location, remote_type, salary_min, salary_max, job_type, pipeline_stage, licenses_required, posted_date')
+    .select('id, title, category, location, remote_type, salary_min, salary_max, job_type, pipeline_stage, licenses_required, posted_date, apply_url')
     .eq('company_id', company.id)
     .eq('is_active', true)
     .order('posted_date', { ascending: false })
@@ -69,33 +67,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export async function generateStaticParams() {
   const { data: companies } = await supabaseAdmin.from('companies').select('name')
   return (companies || []).map((c: any) => ({ slug: slugify(c.name) }))
-}
-
-function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const days = Math.floor(diff / 86400000)
-  if (days === 0) return 'Today'
-  if (days === 1) return '1d ago'
-  if (days < 7) return `${days}d ago`
-  if (days < 30) return `${Math.floor(days / 7)}w ago`
-  return `${Math.floor(days / 30)}mo ago`
-}
-
-function formatSalary(min: number | null, max: number | null) {
-  if (!min && !max) return null
-  const fmt = (n: number) => `$${Math.round(n / 1000)}K`
-  if (min && max) return `${fmt(min)} - ${fmt(max)}`
-  if (min) return `${fmt(min)}+`
-  return `Up to ${fmt(max!)}`
-}
-
-const stageColors: Record<string, string> = {
-  'Sophomore Internship': 'bg-purple-50 text-purple-700 border-purple-200',
-  'Junior Internship': 'bg-blue-50 text-blue-700 border-blue-200',
-  'Senior Internship': 'bg-indigo-50 text-indigo-700 border-indigo-200',
-  'New Grad': 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  'Early Career': 'bg-teal-50 text-teal-700 border-teal-200',
-  'No Experience Required': 'bg-amber-50 text-amber-700 border-amber-200',
 }
 
 export default async function CompanyDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -264,6 +235,24 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
                       {lic}
                     </span>
                   ))}
+                  {job.apply_url && (() => {
+                    const url = job.apply_url!.startsWith('http') ? job.apply_url! : `https://${job.apply_url}`
+                    const generic = isGenericApplyUrl(url)
+                    return (
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="ml-auto inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-emerald-700 transition"
+                      >
+                        {generic ? `Careers at ${company.name}` : `Apply at ${company.name}`}
+                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    )
+                  })()}
                 </div>
               </Link>
             )

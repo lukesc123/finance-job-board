@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import CompaniesGrid from '@/components/CompaniesGrid'
+import { slugify } from '@/lib/formatting'
 
 export const revalidate = 300
 
@@ -13,10 +14,6 @@ export const metadata: Metadata = {
     description: 'Browse all companies with entry-level finance and accounting job openings.',
     type: 'website',
   },
-}
-
-function slugify(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 }
 
 export interface CompanyWithCount {

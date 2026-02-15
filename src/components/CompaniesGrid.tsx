@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import { slugify } from '@/lib/formatting'
 
 interface CompanyWithCount {
   id: string
@@ -14,10 +15,6 @@ interface CompanyWithCount {
   job_count: number
   categories: string[]
   locations: string[]
-}
-
-function slugify(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 }
 
 type SortOption = 'jobs' | 'name_az' | 'name_za'

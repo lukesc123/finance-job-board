@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { timeAgo, formatSalary, formatDate, isGenericApplyUrl } from '@/lib/formatting'
+import { timeAgo, formatSalary, formatDate, isGenericApplyUrl, slugify } from '@/lib/formatting'
 import { Job } from '@/types'
 import SimilarJobs from '@/components/SimilarJobs'
 import JobDetailActions from '@/components/JobDetailActions'
@@ -10,10 +10,6 @@ import TrackView from '@/components/TrackView'
 import JobDescription from '@/components/JobDescription'
 
 export const revalidate = 300
-
-function slugify(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-}
 
 interface JobDetailPageProps {
   params: Promise<{ id: string }>

@@ -2,12 +2,9 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { JOB_CATEGORIES } from '@/types'
+import { slugify } from '@/lib/formatting'
 
 export const revalidate = 300
-
-function slugify(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-}
 
 const CATEGORY_ICONS: Record<string, string> = {
   'Investment Banking': '🏦',
