@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, memo } from 'react'
 
 interface Suggestion {
   type: string
@@ -15,7 +15,7 @@ interface SearchBarProps {
   initialValue?: string
 }
 
-export default function SearchBar({
+export default memo(function SearchBar({
   onSearch,
   onCategorySelect,
   placeholder = 'Search by title, company, or location...',
@@ -235,4 +235,4 @@ export default function SearchBar({
       )}
     </div>
   )
-}
+})

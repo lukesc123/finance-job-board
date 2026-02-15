@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
 import { slugify, formatSalaryShort } from '@/lib/formatting'
 
-export default function SalaryInsights({ jobs }: { jobs: Job[] }) {
+export default memo(function SalaryInsights({ jobs }: { jobs: Job[] }) {
   const [expanded, setExpanded] = useState(false)
 
   const insights = useMemo(() => {
@@ -91,4 +91,4 @@ export default function SalaryInsights({ jobs }: { jobs: Job[] }) {
       )}
     </div>
   )
-}
+})
