@@ -110,8 +110,9 @@ export default function Navbar() {
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="sm:hidden flex flex-col items-center justify-center gap-1.5 p-2 rounded-lg hover:bg-navy-50 transition"
-          aria-label="Toggle mobile menu"
+          aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={mobileMenuOpen}
+          aria-controls="mobile-nav"
         >
           <span className={`block h-0.5 w-5 bg-navy-800 transition-all duration-300 ${mobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
           <span className={`block h-0.5 w-5 bg-navy-800 transition-all duration-300 ${mobileMenuOpen ? 'opacity-0' : ''}`} />
@@ -121,7 +122,7 @@ export default function Navbar() {
 
       {/* Mobile Dropdown */}
       {mobileMenuOpen && (
-        <div className="sm:hidden border-t border-navy-100 bg-white">
+        <div id="mobile-nav" className="sm:hidden border-t border-navy-100 bg-white" role="navigation" aria-label="Mobile navigation">
           <div className="flex flex-col px-4 py-2 gap-1">
             <Link href="/" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
               Browse Jobs
