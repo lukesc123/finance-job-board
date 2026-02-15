@@ -68,6 +68,56 @@ export function getGradYearText(earliest: string | null, latest: string | null):
   return `Class of ${year}`
 }
 
+/**
+ * Checks if an apply URL is a generic careers page rather than a specific job posting.
+ * Generic URLs point to search pages, career landing pages, etc. rather than a direct job listing.
+ */
+export function isGenericApplyUrl(url: string): boolean {
+  if (!url) return false
+  try {
+    const u = new URL(url.startsWith('http') ? url : `https://${url}`)
+    const path = u.pathname.toLowerCase()
+    const host = u.hostname.toLowerCase()
+
+    // Patterns that indicate a generic careers/search page
+    const genericPatterns = [
+      /\/careers\/?$/,
+      /\/careers\/?#/,
+      /\/search-jobs\/?$/,
+      /\/search-results\/?$/,
+      /\/job-search-results\/?$/,
+      /\/early-careers?\/?$/,
+      /\/entry-level\/?$/,
+      /\/students?\/?$/,
+      /\/students-and-graduates\/?$/,
+      /\/career-discovery-programs\/?$/,
+      /\/open-positions\/?$/,
+      /\/find-open-positions\/?$/,
+      /\/new-analyst-program\/?$/,
+      /\/campus\/?$/,
+      /\/jobboard\/?/,
+    ]
+
+    // Check path against generic patterns
+    for (const pattern of genericPatterns) {
+      if (pattern.test(path)) return true
+    }
+
+    // Workday campus/search pages
+    if (host.includes('myworkdayjobs.com') && !path.match(/\/job\/\d/)) return true
+
+    // Goldman higher.gs.com roles listing (not a specific role)
+    if (host === 'higher.gs.com' && path === '/roles') return true
+
+    // Very short paths on careers domains are likely generic
+    if (path.split('/').filter(Boolean).length <= 2 && /career|jobs|hiring/i.test(path)) return true
+
+    return false
+  } catch {
+    return false
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function debounce<T extends (...args: any[]) => void>(
   fn: T,

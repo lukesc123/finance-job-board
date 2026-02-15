@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
-import { timeAgo, formatSalary, getPipelineStageDisplay, getGradYearText } from '@/lib/formatting'
+import { timeAgo, formatSalary, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl } from '@/lib/formatting'
 
 function getPipelineStageBadgeColor(stage: string): string {
   if (stage.includes('Internship')) return 'bg-emerald-50 text-emerald-700 border-emerald-200'
@@ -346,8 +346,7 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
                     }}
                     className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white sm:opacity-0 sm:group-hover:opacity-100 transition-all hover:bg-emerald-700"
                   >
-                    <span className="hidden sm:inline">Apply at {job.company?.name || 'Company'}</span>
-                    <span className="sm:hidden">Apply</span>
+                    Apply at {job.company?.name || 'Company'}
                     <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
-import { formatSalary, timeAgo, getPipelineStageDisplay, getGradYearText } from '@/lib/formatting'
+import { formatSalary, timeAgo, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl } from '@/lib/formatting'
 
 function slugify(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -177,7 +177,16 @@ export default function JobPreview({ job, onClose }: JobPreviewProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </span>
-              <span className="text-[10px] text-emerald-200 group-hover/apply:text-emerald-100 mt-0.5">
+              <span className="text-[10px] text-emerald-200 group-hover/apply:text-emerald-100 mt-0.5 flex items-center gap-1">
+                {isGenericApplyUrl(applyUrl) && (
+                  <span className="inline-flex items-center gap-0.5">
+                    <svg className="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    Careers page
+                    <span className="mx-0.5">·</span>
+                  </span>
+                )}
                 {(() => { try { return new URL(applyUrl).hostname.replace('www.', '') } catch { return '' } })()}
               </span>
             </a>
