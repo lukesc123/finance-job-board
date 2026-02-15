@@ -13,6 +13,11 @@ export const metadata: Metadata = {
     title: 'Finance Career Resources | FinanceJobs',
     description: 'Essential guides for landing your first finance job.',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Career Resources | FinanceJobs',
+    description: 'Essential guides for landing your first finance job.',
+  },
 }
 
 const GUIDES = [

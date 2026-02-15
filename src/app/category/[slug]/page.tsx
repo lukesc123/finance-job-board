@@ -56,7 +56,8 @@ async function getCategoryJobs(category: JobCategory): Promise<CategoryJob[]> {
     .eq('is_active', true)
     .order('posted_date', { ascending: false })
 
-  return ((data || []) as any[]).map((j) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return ((data || []) as any[]).map((j: any) => ({
     ...j,
     company: Array.isArray(j.company) ? j.company[0] || null : j.company,
   })) as CategoryJob[]

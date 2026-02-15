@@ -63,6 +63,11 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: 'FinanceJobs',
       type: 'website',
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: `Finance Jobs by Location | FinanceJobs`,
+      description: `Browse ${totalJobs}+ entry-level finance jobs across ${locations.length} cities.`,
+    },
   }
 }
 

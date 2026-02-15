@@ -107,6 +107,11 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: 'FinanceJobs',
       type: 'website',
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: `Finance Job Categories | FinanceJobs`,
+      description: `Browse ${totalJobs}+ entry-level finance jobs across ${categories.length} categories.`,
+    },
   }
 }
 

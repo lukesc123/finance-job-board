@@ -17,6 +17,11 @@ export const metadata: Metadata = {
     description: 'Browse all companies with entry-level finance and accounting job openings.',
     type: 'website',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Companies Hiring | FinanceJobs',
+    description: 'Browse all companies with entry-level finance and accounting job openings.',
+  },
 }
 
 export interface CompanyWithCount {

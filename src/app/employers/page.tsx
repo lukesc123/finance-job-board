@@ -14,6 +14,11 @@ export const metadata: Metadata = {
     description: 'Reach top entry-level finance and accounting talent. Post your opportunities on FinanceJobs.',
     type: 'website',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'For Employers | FinanceJobs',
+    description: 'Reach top entry-level finance and accounting talent.',
+  },
 }
 
 const VALUE_PROPS = [
