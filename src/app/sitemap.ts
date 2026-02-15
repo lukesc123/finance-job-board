@@ -16,7 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
   }
 
-  const companyEntries: MetadataRoute.Sitemap = (companies || []).map((c: any) => ({
+  const companyEntries: MetadataRoute.Sitemap = (companies || []).map((c: { name: string }) => ({
     url: `${SITE_URL}/companies/${slugify(c.name)}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
@@ -55,7 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .select('location')
     .eq('is_active', true)
 
-  const uniqueLocations = [...new Set((locationJobs || []).map((j: any) => j.location as string))].filter(Boolean)
+  const uniqueLocations = [...new Set((locationJobs || []).map((j: { location: string }) => j.location))].filter(Boolean)
   const locationEntries: MetadataRoute.Sitemap = uniqueLocations.map((loc) => ({
     url: `${SITE_URL}/location/${slugify(loc)}`,
     lastModified: new Date(),

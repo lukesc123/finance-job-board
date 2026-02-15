@@ -19,7 +19,17 @@ export async function GET() {
     })
   }
 
-  const items = (jobs || []).map((job: any) => {
+  interface FeedJob {
+    id: string
+    title: string
+    description: string | null
+    posted_date: string
+    location: string
+    category: string
+    company: { name: string } | { name: string }[] | null
+  }
+
+  const items = (jobs || []).map((job: FeedJob) => {
     const company = Array.isArray(job.company) ? job.company[0] : job.company
     const companyName = company?.name || 'Company'
     const desc = escapeXml((job.description || '').substring(0, 300))

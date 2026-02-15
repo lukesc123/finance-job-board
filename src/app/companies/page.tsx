@@ -46,7 +46,7 @@ async function getCompaniesWithJobs(): Promise<CompanyWithCount[]> {
   if (!companies) return []
 
   const jobsByCompany: Record<string, { count: number; categories: Set<string>; locations: Set<string> }> = {}
-  ;(jobs || []).forEach((job: any) => {
+  ;(jobs || []).forEach((job: { company_id: string; category: string; location: string }) => {
     if (!jobsByCompany[job.company_id]) {
       jobsByCompany[job.company_id] = { count: 0, categories: new Set(), locations: new Set() }
     }
@@ -56,7 +56,9 @@ async function getCompaniesWithJobs(): Promise<CompanyWithCount[]> {
   })
 
   return companies
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .filter((c: any) => jobsByCompany[c.id]?.count > 0)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .map((c: any) => ({
       id: c.id,
       name: c.name,
