@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useMemo, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import SearchBar from '@/components/SearchBar'
 import Filters from '@/components/Filters'
 import JobCard from '@/components/JobCard'
@@ -88,7 +89,8 @@ function HomePageContent() {
 
   // Infinite scroll observer
   useEffect(() => {
-    if (!loadMoreRef.current) return
+    const el = loadMoreRef.current
+    if (!el) return
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -97,7 +99,7 @@ function HomePageContent() {
       },
       { rootMargin: '200px' }
     )
-    observer.observe(loadMoreRef.current)
+    observer.observe(el)
     return () => observer.disconnect()
   })
 
@@ -543,7 +545,7 @@ function HomePageContent() {
           <div className="mt-10 pt-8 border-t border-navy-200">
             <h2 className="text-lg font-bold text-navy-900 mb-4">Explore More</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <a
+              <Link
                 href="/categories"
                 className="group rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 transition"
               >
@@ -556,8 +558,8 @@ function HomePageContent() {
                   <h3 className="font-bold text-navy-900 text-sm group-hover:text-navy-700 transition">Browse by Category</h3>
                 </div>
                 <p className="text-xs text-navy-500">Investment Banking, Accounting, Private Equity, and more</p>
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/locations"
                 className="group rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 transition"
               >
@@ -571,8 +573,8 @@ function HomePageContent() {
                   <h3 className="font-bold text-navy-900 text-sm group-hover:text-navy-700 transition">Browse by Location</h3>
                 </div>
                 <p className="text-xs text-navy-500">New York, San Francisco, Chicago, Charlotte, and more</p>
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/companies"
                 className="group rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 transition"
               >
@@ -585,7 +587,7 @@ function HomePageContent() {
                   <h3 className="font-bold text-navy-900 text-sm group-hover:text-navy-700 transition">Companies Hiring</h3>
                 </div>
                 <p className="text-xs text-navy-500">Goldman Sachs, J.P. Morgan, Morgan Stanley, and more</p>
-              </a>
+              </Link>
             </div>
           </div>
         )}

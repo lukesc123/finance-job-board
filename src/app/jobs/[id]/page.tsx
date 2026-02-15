@@ -150,16 +150,16 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               </svg>
               Jobs
             </Link>
-            <svg className="h-3.5 w-3.5 text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-3.5 w-3.5 text-navy-300" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
             <Link href={`/category/${slugify(job.category)}`} className="font-medium text-navy-500 hover:text-navy-800 transition">
               {job.category}
             </Link>
-            <svg className="h-3.5 w-3.5 text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-3.5 w-3.5 text-navy-300" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-            <span className="text-navy-400 truncate max-w-[200px] sm:max-w-none">{job.title}</span>
+            <span className="text-navy-400 truncate max-w-[200px] sm:max-w-none" aria-current="page">{job.title}</span>
           </nav>
         </div>
       </div>

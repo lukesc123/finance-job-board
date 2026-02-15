@@ -94,6 +94,8 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
       name: company.name,
       url: company.website,
       description: company.description,
+      ...(company.logo_url && { logo: company.logo_url }),
+      ...(company.careers_url && { sameAs: [company.website, company.careers_url].filter(Boolean) }),
     },
     {
       '@context': 'https://schema.org',
@@ -113,12 +115,12 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
       {/* Breadcrumb */}
       <div className="bg-white border-b border-navy-100">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <nav className="flex items-center gap-1.5 text-xs text-navy-400">
+          <nav className="flex items-center gap-1.5 text-xs text-navy-400" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-navy-700 transition">Home</Link>
-            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            <svg className="h-3 w-3" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             <Link href="/companies" className="hover:text-navy-700 transition">Companies</Link>
-            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-            <span className="text-navy-700 font-medium">{company.name}</span>
+            <svg className="h-3 w-3" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            <span className="text-navy-700 font-medium" aria-current="page">{company.name}</span>
           </nav>
         </div>
       </div>
