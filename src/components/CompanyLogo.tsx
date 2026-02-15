@@ -1,4 +1,6 @@
-import { memo } from 'react'
+'use client'
+
+import { useState, memo } from 'react'
 import Image from 'next/image'
 
 interface CompanyLogoProps {
@@ -28,8 +30,9 @@ export default memo(function CompanyLogo({
 }: CompanyLogoProps) {
   const { px, cls } = sizeMap[size]
   const initial = name?.charAt(0).toUpperCase() || '?'
+  const [imgError, setImgError] = useState(false)
 
-  if (logoUrl) {
+  if (logoUrl && !imgError) {
     return (
       <Image
         src={logoUrl}
@@ -37,6 +40,7 @@ export default memo(function CompanyLogo({
         width={px}
         height={px}
         priority={priority}
+        onError={() => setImgError(true)}
         className={`${cls} rounded-lg object-contain border border-navy-100 bg-white flex-shrink-0 ${imgClassName} ${className}`}
       />
     )
