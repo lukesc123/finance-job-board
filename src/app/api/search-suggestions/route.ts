@@ -92,14 +92,15 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Location suggestions with counts (deduplicate city names)
+    // Location suggestions with counts (deduplicate by full location string)
     if (locationRes.data) {
       const locs = new Map<string, number>()
       for (const j of locationRes.data) {
-        const city = j.location.split(',')[0].trim()
-        locs.set(city, (locs.get(city) || 0) + 1)
+        const loc = j.location.trim()
+        locs.set(loc, (locs.get(loc) || 0) + 1)
       }
-      for (const [l, c] of [...locs].slice(0, 3)) {
+      const sorted = [...locs].sort((a, b) => b[1] - a[1])
+      for (const [l, c] of sorted.slice(0, 3)) {
         const k = 'l:' + l
         if (!seen.has(k)) {
           seen.add(k)

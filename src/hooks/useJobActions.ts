@@ -25,7 +25,13 @@ function readList(key: string): string[] {
 }
 
 function writeList(key: string, list: string[], event: string) {
-  try { localStorage.setItem(key, JSON.stringify(list)) } catch { /* ignore */ }
+  try {
+    localStorage.setItem(key, JSON.stringify(list))
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'QuotaExceededError') {
+      console.warn(`[FinanceJobs] Storage quota exceeded for "${key}". Some data may not be saved.`)
+    }
+  }
   window.dispatchEvent(new Event(event))
 }
 

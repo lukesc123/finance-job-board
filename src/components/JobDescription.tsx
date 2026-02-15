@@ -33,26 +33,44 @@ function linkify(text: string): (string | React.ReactElement)[] {
   })
 }
 
-function formatLine(line: string): (string | React.ReactElement)[] {
-  // Bold **text**
-  const boldRegex = /\*\*(.+?)\*\*/g
+function formatInlineMarkdown(text: string): (string | React.ReactElement)[] {
+  // Process markdown links [text](url), bold **text**, and italic _text_
+  const inlineRegex = /\[([^\]]+)\]\((https?:\/\/[^)]+)\)|\*\*(.+?)\*\*|_([^_]+)_/g
   const parts: (string | React.ReactElement)[] = []
   let lastIndex = 0
   let match
 
-  while ((match = boldRegex.exec(line)) !== null) {
+  while ((match = inlineRegex.exec(text)) !== null) {
     if (match.index > lastIndex) {
-      parts.push(...linkify(line.substring(lastIndex, match.index)))
+      parts.push(...linkify(text.substring(lastIndex, match.index)))
     }
-    parts.push(<strong key={`b-${match.index}`} className="font-semibold text-navy-900">{match[1]}</strong>)
+    if (match[1] && match[2]) {
+      // Markdown link [text](url)
+      parts.push(
+        <a key={`l-${match.index}`} href={match[2]} target="_blank" rel="noopener noreferrer nofollow"
+          className="text-navy-600 underline decoration-navy-300 hover:text-navy-800 hover:decoration-navy-500 transition">
+          {match[1]}
+        </a>
+      )
+    } else if (match[3]) {
+      // Bold **text**
+      parts.push(<strong key={`b-${match.index}`} className="font-semibold text-navy-900">{match[3]}</strong>)
+    } else if (match[4]) {
+      // Italic _text_
+      parts.push(<em key={`i-${match.index}`} className="italic">{match[4]}</em>)
+    }
     lastIndex = match.index + match[0].length
   }
 
-  if (lastIndex < line.length) {
-    parts.push(...linkify(line.substring(lastIndex)))
+  if (lastIndex < text.length) {
+    parts.push(...linkify(text.substring(lastIndex)))
   }
 
-  return parts.length > 0 ? parts : linkify(line)
+  return parts.length > 0 ? parts : linkify(text)
+}
+
+function formatLine(line: string): (string | React.ReactElement)[] {
+  return formatInlineMarkdown(line)
 }
 
 function isAllCapsHeader(line: string): boolean {
