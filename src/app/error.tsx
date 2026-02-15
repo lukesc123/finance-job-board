@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 export default function Error({
   error,
   reset,
@@ -20,15 +22,23 @@ export default function Error({
           <p className="text-sm text-navy-600 mb-6">
             We encountered an unexpected error. Please try again.
           </p>
-          <button
-            onClick={() => reset()}
-            className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Try Again
-          </button>
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={() => reset()}
+              className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Try Again
+            </button>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-5 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition"
+            >
+              Go Home
+            </Link>
+          </div>
         </div>
       </div>
     </div>
