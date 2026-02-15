@@ -73,7 +73,7 @@ export default function JobAlertSignup() {
               <p className="text-sm text-emerald-700">We'll email you when new finance jobs are posted.</p>
             </div>
           </div>
-          <button onClick={handleDismiss} className="text-emerald-400 hover:text-emerald-600 transition p-1">
+          <button onClick={handleDismiss} className="text-emerald-400 hover:text-emerald-600 transition p-1" aria-label="Dismiss notification">
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -145,6 +145,7 @@ export default function JobAlertSignup() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="your@email.com"
             required
+            aria-label="Email address for job alerts"
             className="flex-1 rounded-lg border border-navy-600 bg-navy-800/50 px-3.5 py-2.5 text-sm text-white placeholder-navy-400 focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-400"
           />
           <button
