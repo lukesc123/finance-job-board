@@ -15,14 +15,18 @@ export default function Navbar() {
     setMobileMenuOpen(false)
   }, [pathname])
 
-  // Close mobile menu on Escape key
+  // Close mobile menu on Escape key + lock body scroll when open
   useEffect(() => {
     if (!mobileMenuOpen) return
+    document.body.style.overflow = 'hidden'
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setMobileMenuOpen(false)
     }
     window.addEventListener('keydown', handleEscape)
-    return () => window.removeEventListener('keydown', handleEscape)
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('keydown', handleEscape)
+    }
   }, [mobileMenuOpen])
 
   if (pathname?.startsWith('/admin')) return null
