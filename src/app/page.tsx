@@ -169,7 +169,11 @@ function HomePageContent() {
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return
       console.error('Error fetching jobs:', err)
-      setError('Failed to load jobs. Please try again.')
+      if (err instanceof TypeError && err.message === 'Failed to fetch') {
+        setError('Network error. Check your connection and try again.')
+      } else {
+        setError('Failed to load jobs. Please try again.')
+      }
       setJobs([])
     } finally {
       setLoading(false)
