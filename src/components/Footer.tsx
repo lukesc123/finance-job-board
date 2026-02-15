@@ -21,7 +21,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-navy-800 bg-navy-950 text-white">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 py-10">
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 lg:grid-cols-4" role="navigation" aria-label="Footer navigation">
           {/* Brand */}
           <div className="col-span-2 sm:col-span-1 space-y-3">
             <Link href="/" className="inline-flex items-center gap-2 text-lg font-bold text-white">
@@ -77,13 +77,15 @@ export default function Footer() {
                 <Link href="/employers" className="text-sm text-navy-400 hover:text-white transition">For Employers</Link>
               </li>
               <li>
-                <a href="https://www.finra.org/registration-exams-ce" target="_blank" rel="noopener noreferrer nofollow" className="text-sm text-navy-400 hover:text-white transition">
+                <a href="https://www.finra.org/registration-exams-ce" target="_blank" rel="noopener noreferrer nofollow" className="text-sm text-navy-400 hover:text-white transition" aria-label="FINRA License Info (opens in new tab)">
                   FINRA License Info
+                  <span className="sr-only"> (external link)</span>
                 </a>
               </li>
               <li>
-                <a href="https://www.aicpa-cima.com/resources/landing/cpa-exam" target="_blank" rel="noopener noreferrer nofollow" className="text-sm text-navy-400 hover:text-white transition">
+                <a href="https://www.aicpa-cima.com/resources/landing/cpa-exam" target="_blank" rel="noopener noreferrer nofollow" className="text-sm text-navy-400 hover:text-white transition" aria-label="CPA Exam Guide (opens in new tab)">
                   CPA Exam Guide
+                  <span className="sr-only"> (external link)</span>
                 </a>
               </li>
               <li>

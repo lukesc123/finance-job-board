@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
 import { formatSalary, timeAgo, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor } from '@/lib/formatting'
@@ -10,7 +11,7 @@ interface JobPreviewProps {
   onClose: () => void
 }
 
-export default function JobPreview({ job, onClose }: JobPreviewProps) {
+export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
   const { saved, applied, toggleSave, markApplied } = useJobActions(job?.id)
 
   if (!job) return null
@@ -215,4 +216,4 @@ export default function JobPreview({ job, onClose }: JobPreviewProps) {
       </div>
     </div>
   )
-}
+})
