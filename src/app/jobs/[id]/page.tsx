@@ -189,7 +189,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
                 <div className="flex items-center gap-2 flex-wrap">
                   {job.company?.logo_url && (
-                    <img src={job.company.logo_url} alt="" className="h-5 w-5 rounded object-contain" />
+                    <img src={job.company.logo_url} alt={`${job.company.name} logo`} className="h-5 w-5 rounded object-contain" />
                   )}
                   <Link
                     href={`/companies/${slugify(job.company?.name || '')}`}

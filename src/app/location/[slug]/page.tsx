@@ -259,7 +259,7 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex gap-3 min-w-0">
                     {job.company?.logo_url ? (
-                      <img src={job.company.logo_url} alt="" className="h-10 w-10 rounded-lg object-contain border border-navy-100 bg-white flex-shrink-0 mt-0.5" />
+                      <img src={job.company.logo_url} alt={`${job.company.name} logo`} className="h-10 w-10 rounded-lg object-contain border border-navy-100 bg-white flex-shrink-0 mt-0.5" />
                     ) : (
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy-900 text-white font-bold text-sm flex-shrink-0 mt-0.5">
                         {job.company?.name?.charAt(0) || '?'}

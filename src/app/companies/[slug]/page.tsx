@@ -57,9 +57,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!result) return { title: 'Company Not Found | FinanceJobs' }
 
   const { company, jobs } = result
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
   return {
     title: `${company.name} Jobs | FinanceJobs`,
     description: `Browse ${jobs.length} entry-level finance positions at ${company.name}. ${company.description || ''}`.trim(),
+    alternates: { canonical: `${siteUrl}/companies/${slug}` },
     openGraph: {
       title: `${company.name} - Entry-Level Finance Jobs`,
       description: `${jobs.length} open positions at ${company.name}`,
@@ -127,7 +129,7 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
         <div className="max-w-5xl mx-auto">
           <div className="flex items-start gap-4">
             {company.logo_url ? (
-              <img src={company.logo_url} alt="" className="h-14 w-14 rounded-xl object-contain border border-navy-700 bg-white flex-shrink-0" />
+              <img src={company.logo_url} alt={`${company.name} logo`} className="h-14 w-14 rounded-xl object-contain border border-navy-700 bg-white flex-shrink-0" />
             ) : (
               <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-navy-800 text-white font-bold text-xl flex-shrink-0 border border-navy-700">
                 {company.name.charAt(0)}

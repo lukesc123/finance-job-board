@@ -158,7 +158,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
           <div key={company.id} className="rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md transition-shadow group">
             <div className="flex items-start gap-3 mb-3">
               {company.logo_url ? (
-                <img src={company.logo_url} alt="" className="h-10 w-10 rounded-lg object-contain border border-navy-100 bg-white flex-shrink-0" />
+                <img src={company.logo_url} alt={`${company.name} logo`} className="h-10 w-10 rounded-lg object-contain border border-navy-100 bg-white flex-shrink-0" />
               ) : (
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy-100 text-navy-600 font-bold text-sm flex-shrink-0">
                   {company.name.charAt(0)}

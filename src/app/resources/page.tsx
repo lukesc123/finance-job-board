@@ -1,9 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
+
 export const metadata: Metadata = {
   title: 'Career Resources | FinanceJobs',
   description: 'Essential guides, tips, and resources for landing your first finance job. Interview prep, resume advice, and career path guides for entry-level finance professionals.',
+  alternates: { canonical: `${siteUrl}/resources` },
   openGraph: {
     title: 'Finance Career Resources | FinanceJobs',
     description: 'Essential guides for landing your first finance job.',
@@ -100,8 +103,26 @@ const CATEGORY_ICONS: Record<string, string> = {
 }
 
 export default function ResourcesPage() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Finance Career Resources',
+    description: 'Essential guides, tips, and resources for landing your first finance job.',
+    url: `${siteUrl}/resources`,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: GUIDES.map((guide, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: guide.title,
+        description: guide.description,
+      })),
+    },
+  }
+
   return (
     <div className="min-h-screen bg-navy-50">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* Hero */}
       <section className="bg-gradient-to-b from-navy-950 to-navy-900 text-white py-14 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto text-center">
