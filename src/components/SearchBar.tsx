@@ -158,7 +158,7 @@ export default function SearchBar({
   }
 
   return (
-    <div ref={containerRef} className="relative w-full">
+    <div ref={containerRef} className="relative w-full" role="search" aria-label="Search jobs">
       <svg
         className="absolute left-4 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-navy-400"
         fill="none"
@@ -175,6 +175,7 @@ export default function SearchBar({
         onKeyDown={handleKeyDown}
         onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
         placeholder={placeholder}
+        aria-label="Search jobs by title, company, or location"
         className="w-full rounded-xl border border-navy-200 bg-white py-3 pl-11 pr-20 text-sm text-navy-900 placeholder-navy-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-navy-500/30 focus:border-navy-400 transition"
         role="combobox"
         aria-expanded={showSuggestions}

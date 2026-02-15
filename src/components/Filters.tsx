@@ -173,6 +173,7 @@ export default function Filters({
             <select
               value={filters.category}
               onChange={(e) => handleChange('category', e.target.value)}
+              aria-label="Filter by category"
               className={`${selectClassName} w-full`}
             >
               <option value="">All Categories</option>
@@ -184,6 +185,7 @@ export default function Filters({
             <select
               value={filters.company}
               onChange={(e) => handleChange('company', e.target.value)}
+              aria-label="Filter by company"
               className={`${selectClassName} w-full`}
             >
               <option value="">All Companies</option>
@@ -195,6 +197,7 @@ export default function Filters({
             <select
               value={filters.location}
               onChange={(e) => handleChange('location', e.target.value)}
+              aria-label="Filter by location"
               className={`${selectClassName} w-full`}
             >
               <option value="">All Locations</option>
@@ -206,6 +209,7 @@ export default function Filters({
             <select
               value={filters.job_type}
               onChange={(e) => handleChange('job_type', e.target.value)}
+              aria-label="Filter by job type"
               className={`${selectClassName} w-full`}
             >
               <option value="">All Job Types</option>
@@ -220,6 +224,7 @@ export default function Filters({
             <select
               value={filters.pipeline_stage}
               onChange={(e) => handleChange('pipeline_stage', e.target.value)}
+              aria-label="Filter by pipeline stage"
               className={`${selectClassName} w-full`}
             >
               <option value="">All Stages</option>
@@ -231,6 +236,7 @@ export default function Filters({
             <select
               value={filters.remote_type}
               onChange={(e) => handleChange('remote_type', e.target.value)}
+              aria-label="Filter by work style"
               className={`${selectClassName} w-full`}
             >
               <option value="">All Work Styles</option>
@@ -242,6 +248,7 @@ export default function Filters({
             <select
               value={filters.license}
               onChange={(e) => handleChange('license', e.target.value)}
+              aria-label="Filter by license requirement"
               className={`${selectClassName} w-full`}
             >
               <option value="">Any License</option>
@@ -268,6 +275,7 @@ export default function Filters({
             <select
               value={filters.salary_min}
               onChange={(e) => handleChange('salary_min', e.target.value)}
+              aria-label="Minimum salary"
               className={`${selectClassName}`}
             >
               <option value="">No min</option>
@@ -282,6 +290,7 @@ export default function Filters({
             <select
               value={filters.salary_max}
               onChange={(e) => handleChange('salary_max', e.target.value)}
+              aria-label="Maximum salary"
               className={`${selectClassName}`}
             >
               <option value="">No max</option>
