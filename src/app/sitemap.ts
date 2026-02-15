@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { JOB_CATEGORIES, PIPELINE_STAGES } from '@/types'
+import { JOB_CATEGORIES } from '@/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,14 +63,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }))
 
-  // Pipeline stage filter pages
-  const stageEntries: MetadataRoute.Sitemap = PIPELINE_STAGES.map((stage) => ({
-    url: `${baseUrl}/?pipeline_stage=${encodeURIComponent(stage)}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: 0.6,
-  }))
-
   return [
     {
       url: baseUrl,
@@ -108,16 +100,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     },
-    {
-      url: `${baseUrl}/tracker`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.5,
-    },
     ...companyEntries,
     ...categoryEntries,
     ...locationEntries,
-    ...stageEntries,
     ...jobEntries,
   ]
 }
