@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { memo } from 'react'
 
 /**
  * Renders job descriptions with basic formatting:
@@ -84,7 +84,7 @@ interface JobDescriptionProps {
   text: string
 }
 
-export default function JobDescription({ text }: JobDescriptionProps) {
+export default memo(function JobDescription({ text }: JobDescriptionProps) {
   if (!text) return null
 
   const lines = text.split('\n')
@@ -190,4 +190,4 @@ export default function JobDescription({ text }: JobDescriptionProps) {
   flushNumbered()
 
   return <div className="space-y-3">{elements}</div>
-}
+})

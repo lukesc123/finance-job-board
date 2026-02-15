@@ -193,6 +193,7 @@ export default function ComparePage() {
                             href={url}
                             target="_blank"
                             rel="noopener noreferrer nofollow"
+                            aria-label={`${generic ? 'Careers' : 'Apply'} at ${job.company?.name} (opens in new tab)`}
                             className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition"
                           >
                             {generic ? `Careers at ${job.company?.name}` : `Apply at ${job.company?.name}`}

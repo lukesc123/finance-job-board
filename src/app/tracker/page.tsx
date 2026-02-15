@@ -245,6 +245,7 @@ export default function TrackerPage() {
                         href={job.apply_url.startsWith('http') ? job.apply_url : `https://${job.apply_url}`}
                         target="_blank"
                         rel="noopener noreferrer nofollow"
+                        aria-label={`Visit ${job.company?.name || 'company'} application page (opens in new tab)`}
                         className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 transition"
                       >
                         <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -257,6 +258,7 @@ export default function TrackerPage() {
                           href={job.company.careers_url}
                           target="_blank"
                           rel="noopener noreferrer nofollow"
+                          aria-label={`${job.company.name} careers page (opens in new tab)`}
                           className="inline-flex items-center gap-1 text-xs font-medium text-navy-400 hover:text-navy-600 transition"
                         >
                           <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

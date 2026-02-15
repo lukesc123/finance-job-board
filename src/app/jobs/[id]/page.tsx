@@ -217,6 +217,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                       rel="noopener noreferrer nofollow"
                       className="text-navy-400 hover:text-navy-600 transition"
                       title={`Visit ${job.company.name} website`}
+                      aria-label={`Visit ${job.company.name} website (opens in new tab)`}
                     >
                       <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -233,6 +234,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                     href={applyUrl}
                     target="_blank"
                     rel="noopener noreferrer nofollow"
+                    aria-label={`${isGenericApplyUrl(applyUrl) ? 'Careers' : 'Apply'} at ${job.company?.name || 'Company'} (opens in new tab)`}
                     className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
                   >
                     {isGenericApplyUrl(applyUrl) ? `Careers at ${job.company?.name || 'Company'}` : `Apply at ${job.company?.name || 'Company'}`}
@@ -394,6 +396,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                       href={job.company.careers_url}
                       target="_blank"
                       rel="noopener noreferrer nofollow"
+                      aria-label={`${job.company.name} careers page (opens in new tab)`}
                       className="inline-flex items-center gap-1 text-sm font-medium text-navy-400 hover:text-navy-600 transition"
                     >
                       {job.company.name} Careers
@@ -471,6 +474,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                     href={applyUrl}
                     target="_blank"
                     rel="noopener noreferrer nofollow"
+                    aria-label={`${isGenericApplyUrl(applyUrl) ? 'Careers' : 'Apply'} at ${job.company?.name || 'Company'} (opens in new tab)`}
                     className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-emerald-600 px-8 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
                   >
                     {isGenericApplyUrl(applyUrl) ? `Careers at ${job.company?.name || 'Company'}` : `Apply at ${job.company?.name || 'Company'}`}
@@ -509,6 +513,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             href={applyUrl}
             target="_blank"
             rel="noopener noreferrer nofollow"
+            aria-label={`${isGenericApplyUrl(applyUrl) ? 'Careers' : 'Apply'} at ${job.company?.name || 'Company'} (opens in new tab)`}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
           >
             {isGenericApplyUrl(applyUrl) ? (

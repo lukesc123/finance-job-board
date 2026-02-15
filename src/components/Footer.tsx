@@ -1,20 +1,14 @@
 'use client'
 
+import { memo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { slugify } from '@/lib/formatting'
-import { CONTACT_EMAIL } from '@/lib/constants'
+import { CONTACT_EMAIL, JOB_CATEGORIES } from '@/lib/constants'
 
-const JOB_CATEGORIES = [
-  'Investment Banking',
-  'Private Wealth',
-  'Accounting',
-  'Sales & Trading',
-  'Corporate Finance',
-  'Consulting',
-]
+const FOOTER_CATEGORIES = JOB_CATEGORIES.slice(0, 6)
 
-export default function Footer() {
+export default memo(function Footer() {
   const pathname = usePathname()
 
   if (pathname?.startsWith('/admin')) return null
@@ -42,7 +36,7 @@ export default function Footer() {
               <Link href="/categories" className="hover:text-white transition">Categories</Link>
             </h3>
             <ul className="space-y-2">
-              {JOB_CATEGORIES.map((cat) => (
+              {FOOTER_CATEGORIES.map((cat) => (
                 <li key={cat}>
                   <Link
                     href={`/category/${slugify(cat)}`}
@@ -140,4 +134,4 @@ export default function Footer() {
       </div>
     </footer>
   )
-}
+})

@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
 import CompanyLogo from '@/components/CompanyLogo'
 import { formatSalary, getPipelineStageBadgeColor, getPipelineStageAccent } from '@/lib/formatting'
 
-export default function SimilarJobs({ jobId }: { jobId: string }) {
+export default memo(function SimilarJobs({ jobId }: { jobId: string }) {
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -98,4 +98,4 @@ export default function SimilarJobs({ jobId }: { jobId: string }) {
       </div>
     </div>
   )
-}
+})
