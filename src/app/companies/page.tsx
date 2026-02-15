@@ -6,9 +6,12 @@ import { slugify } from '@/lib/formatting'
 
 export const revalidate = 300
 
+const siteUrlMeta = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
+
 export const metadata: Metadata = {
   title: 'Companies Hiring | FinanceJobs',
   description: 'Browse all companies with entry-level finance and accounting job openings. Find your next employer and explore open positions.',
+  alternates: { canonical: `${siteUrlMeta}/companies` },
   openGraph: {
     title: 'Companies Hiring | FinanceJobs',
     description: 'Browse all companies with entry-level finance and accounting job openings.',
