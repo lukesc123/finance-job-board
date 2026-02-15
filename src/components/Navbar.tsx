@@ -49,6 +49,7 @@ export default function Navbar() {
                 ? 'text-navy-900 bg-navy-100'
                 : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50'
             }`}
+            aria-current={pathname === '/' ? 'page' : undefined}
           >
             Browse Jobs
           </Link>
@@ -70,6 +71,7 @@ export default function Navbar() {
                 ? 'text-navy-900 bg-navy-100'
                 : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50'
             }`}
+            aria-current={pathname === '/tracker' ? 'page' : undefined}
           >
             Tracker
             {appliedCount > 0 && (
@@ -85,6 +87,7 @@ export default function Navbar() {
                 ? 'text-navy-900 bg-navy-100'
                 : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50'
             }`}
+            aria-current={pathname?.startsWith('/companies') ? 'page' : undefined}
           >
             Companies
           </Link>
@@ -95,6 +98,7 @@ export default function Navbar() {
                 ? 'text-navy-900 bg-navy-100'
                 : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50'
             }`}
+            aria-current={pathname?.startsWith('/categor') ? 'page' : undefined}
           >
             Categories
           </Link>
@@ -105,6 +109,7 @@ export default function Navbar() {
                 ? 'text-navy-900 bg-navy-100'
                 : 'text-navy-600 hover:text-navy-900 hover:bg-navy-50'
             }`}
+            aria-current={pathname?.startsWith('/location') ? 'page' : undefined}
           >
             Locations
           </Link>
