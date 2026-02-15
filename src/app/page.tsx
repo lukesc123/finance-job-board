@@ -218,7 +218,7 @@ function HomePageContent() {
       company: '', location: '',
     }
     setFilters(cleared)
-    setVisibleCount(20)
+    setVisibleCount(PAGE_SIZE)
     fetchJobs(cleared)
     updateURL(cleared, 'newest')
     setSortBy('newest')
@@ -226,7 +226,7 @@ function HomePageContent() {
 
   const handleFilterChange = (newFilters: JobFilters) => {
     setFilters(newFilters)
-    setVisibleCount(20)
+    setVisibleCount(PAGE_SIZE)
     fetchJobs(newFilters)
     updateURL(newFilters, sortBy)
   }
@@ -268,7 +268,7 @@ function HomePageContent() {
   const handleToggleSaved = () => {
     const next = !showSaved
     setShowSaved(next)
-    setVisibleCount(20)
+    setVisibleCount(PAGE_SIZE)
     updateURL(filters, sortBy, next)
   }
 
@@ -350,6 +350,7 @@ function HomePageContent() {
                   handleFilterChange(newFilters)
                   window.scrollTo({ top: 400, behavior: 'smooth' })
                 }}
+                aria-pressed={filters.category === cat}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all inline-flex items-center gap-1.5 ${
                   filters.category === cat
                     ? 'bg-white text-navy-950 shadow-sm'
@@ -431,6 +432,7 @@ function HomePageContent() {
                 const newFilters = { ...filters, pipeline_stage: filters.pipeline_stage === stage ? '' : stage } as JobFilters
                 handleFilterChange(newFilters)
               }}
+              aria-pressed={filters.pipeline_stage === stage}
               className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
                 filters.pipeline_stage === stage
                   ? 'bg-navy-900 text-white shadow-sm'

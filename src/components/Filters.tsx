@@ -318,6 +318,7 @@ export default memo(function Filters({
             <button
               key={`${key}-${value}`}
               onClick={() => handleRemoveFilter(key)}
+              aria-label={`Remove filter: ${getFilterLabel(key, value)}`}
               className="inline-flex items-center gap-1.5 rounded-full bg-navy-900 text-white pl-3 pr-2 py-1 text-xs font-medium transition hover:bg-navy-700 group"
             >
               {getFilterLabel(key, value)}
