@@ -68,6 +68,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description: `${jobs.length} open positions at ${company.name}`,
       type: 'website',
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${company.name} Jobs | FinanceJobs`,
+      description: `${jobs.length} open positions at ${company.name}`,
+    },
   }
 }
 

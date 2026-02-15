@@ -80,6 +80,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description: `${jobs.length} open entry-level ${category.toLowerCase()} positions`,
       type: 'website',
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${category} Jobs | FinanceJobs`,
+      description: `${jobs.length} open entry-level ${category.toLowerCase()} positions`,
+    },
     alternates: {
       canonical: `/category/${slug}`,
     },

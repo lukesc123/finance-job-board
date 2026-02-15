@@ -95,6 +95,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description: `${jobs.length} open entry-level finance positions in ${location}`,
       type: 'website',
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: `Finance Jobs in ${location} | FinanceJobs`,
+      description: `${jobs.length} open entry-level finance positions in ${location}`,
+    },
     alternates: {
       canonical: `/location/${slug}`,
     },
