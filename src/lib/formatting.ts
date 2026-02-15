@@ -164,6 +164,15 @@ export const stageColors: Record<string, string> = {
   'No Experience Required': 'bg-amber-50 text-amber-700 border-amber-200',
 }
 
+/** Safely extract a clean hostname from a URL string, stripping 'www.' prefix. */
+export function extractHostname(url: string): string {
+  try {
+    return new URL(url.startsWith('http') ? url : `https://${url}`).hostname.replace('www.', '')
+  } catch {
+    return ''
+  }
+}
+
 // Generic debounce: args typed via Parameters<T>
 export function debounce<T extends (...args: never[]) => void>(
   fn: T,

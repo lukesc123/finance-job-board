@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { timeAgo, formatSalary, formatDate, isGenericApplyUrl, slugify, getPipelineStageBadgeColor } from '@/lib/formatting'
+import { timeAgo, formatSalary, formatDate, isGenericApplyUrl, slugify, getPipelineStageBadgeColor, extractHostname } from '@/lib/formatting'
 import { Job } from '@/types'
 import dynamic from 'next/dynamic'
 
@@ -62,7 +62,8 @@ export async function generateMetadata({ params }: JobDetailPageProps): Promise<
   const locationMeta = job.location ? ` in ${job.location}` : ''
   const rawDesc = (job.description || '').replace(/[#*_\[\]<>]/g, '').replace(/\s+/g, ' ').trim()
   const snippet = rawDesc.length > 80 ? rawDesc.substring(0, 80).trim() + '...' : rawDesc
-  const description = `${job.title} at ${companyName}${locationMeta}.${salaryMeta}${snippet ? ` ${snippet}` : ''}`
+  const fallback = !snippet ? ` ${job.pipeline_stage} ${job.job_type} position. Apply now on FinanceJobs.` : ''
+  const description = `${job.title} at ${companyName}${locationMeta}.${salaryMeta}${snippet ? ` ${snippet}` : fallback}`
   const title = `${job.title} at ${companyName} | FinanceJobs`
 
   return {
@@ -83,7 +84,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const applyUrl = job.apply_url
     ? (job.apply_url.startsWith('http') ? job.apply_url : 'https://' + job.apply_url)
     : null
-  const applyDomain = applyUrl ? (() => { try { return new URL(applyUrl).hostname.replace('www.', '') } catch { return '' } })() : ''
+  const applyDomain = applyUrl ? extractHostname(applyUrl) : ''
   const badgeColor = getPipelineStageBadgeColor(job.pipeline_stage)
   const hasLicenseInfo = job.licenses_required && job.licenses_required.length > 0 && !job.licenses_required.every(l => l === 'None Required')
 

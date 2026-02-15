@@ -3,7 +3,7 @@
 import { memo } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
-import { formatSalary, timeAgo, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor } from '@/lib/formatting'
+import { formatSalary, timeAgo, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor, extractHostname } from '@/lib/formatting'
 import { useJobActions, trackApplyClick } from '@/hooks/useJobActions'
 
 interface JobPreviewProps {
@@ -133,7 +133,7 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
                     <span className="mx-0.5">·</span>
                   </span>
                 )}
-                {(() => { try { return new URL(applyUrl).hostname.replace('www.', '') } catch { return '' } })()}
+                {extractHostname(applyUrl)}
               </span>
             </a>
           ) : (
