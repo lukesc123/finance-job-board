@@ -72,28 +72,34 @@ export default function TrackerPage() {
   }, [loadTrackedJobs])
 
   const updateStatus = (jobId: string, status: TrackedJob['status']) => {
-    const trackerData = JSON.parse(localStorage.getItem('jobTracker') || '{}')
-    trackerData[jobId] = { ...trackerData[jobId], status, appliedAt: trackerData[jobId]?.appliedAt || Date.now() }
-    localStorage.setItem('jobTracker', JSON.stringify(trackerData))
+    try {
+      const trackerData = JSON.parse(localStorage.getItem('jobTracker') || '{}')
+      trackerData[jobId] = { ...trackerData[jobId], status, appliedAt: trackerData[jobId]?.appliedAt || Date.now() }
+      localStorage.setItem('jobTracker', JSON.stringify(trackerData))
+    } catch { /* ignore */ }
     setTrackedJobs(prev => prev.map(t => t.job.id === jobId ? { ...t, status } : t))
   }
 
   const updateNotes = (jobId: string, notes: string) => {
-    const trackerData = JSON.parse(localStorage.getItem('jobTracker') || '{}')
-    trackerData[jobId] = { ...trackerData[jobId], notes }
-    localStorage.setItem('jobTracker', JSON.stringify(trackerData))
+    try {
+      const trackerData = JSON.parse(localStorage.getItem('jobTracker') || '{}')
+      trackerData[jobId] = { ...trackerData[jobId], notes }
+      localStorage.setItem('jobTracker', JSON.stringify(trackerData))
+    } catch { /* ignore */ }
     setTrackedJobs(prev => prev.map(t => t.job.id === jobId ? { ...t, notes } : t))
   }
 
   const removeJob = (jobId: string) => {
-    // Remove from applied list
-    const appliedJobs: string[] = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
-    localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs.filter(id => id !== jobId)))
-    window.dispatchEvent(new Event('appliedJobsChanged'))
-    // Remove tracker data
-    const trackerData = JSON.parse(localStorage.getItem('jobTracker') || '{}')
-    delete trackerData[jobId]
-    localStorage.setItem('jobTracker', JSON.stringify(trackerData))
+    try {
+      // Remove from applied list
+      const appliedJobs: string[] = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
+      localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs.filter(id => id !== jobId)))
+      window.dispatchEvent(new Event('appliedJobsChanged'))
+      // Remove tracker data
+      const trackerData = JSON.parse(localStorage.getItem('jobTracker') || '{}')
+      delete trackerData[jobId]
+      localStorage.setItem('jobTracker', JSON.stringify(trackerData))
+    } catch { /* ignore */ }
     // Update state
     setTrackedJobs(prev => prev.filter(t => t.job.id !== jobId))
   }

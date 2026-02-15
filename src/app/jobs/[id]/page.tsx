@@ -5,7 +5,18 @@ import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { timeAgo, formatSalary, formatDate, isGenericApplyUrl, slugify, getPipelineStageBadgeColor } from '@/lib/formatting'
 import { Job } from '@/types'
-import SimilarJobs from '@/components/SimilarJobs'
+import dynamic from 'next/dynamic'
+
+const SimilarJobs = dynamic(() => import('@/components/SimilarJobs'), {
+  loading: () => (
+    <div className="animate-pulse space-y-3">
+      <div className="h-5 w-32 bg-navy-100 rounded" />
+      <div className="grid grid-cols-2 gap-3">
+        {[1,2,3,4].map(i => <div key={i} className="h-24 bg-navy-100 rounded-lg" />)}
+      </div>
+    </div>
+  ),
+})
 import JobDetailActions from '@/components/JobDetailActions'
 import TrackView from '@/components/TrackView'
 import JobDescription from '@/components/JobDescription'

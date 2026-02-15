@@ -164,8 +164,8 @@ export const stageColors: Record<string, string> = {
   'No Experience Required': 'bg-amber-50 text-amber-700 border-amber-200',
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function debounce<T extends (...args: any[]) => void>(
+// Generic debounce: args typed via Parameters<T>
+export function debounce<T extends (...args: never[]) => void>(
   fn: T,
   delay: number
 ): (...args: Parameters<T>) => void {

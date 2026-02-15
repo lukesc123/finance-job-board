@@ -117,14 +117,14 @@ export function trackApplyClick(job: { id: string; title: string; company?: { na
 }
 
 // ── useListCount: reactive count for navbar/compare bar ──────
+const EVENT_MAP: Record<string, string> = {
+  savedJobs: SAVED_EVENT,
+  appliedJobs: APPLIED_EVENT,
+  compareJobs: COMPARE_EVENT,
+}
+
 export function useListCount(key: 'savedJobs' | 'appliedJobs' | 'compareJobs') {
   const [count, setCount] = useState(0)
-
-  const eventMap: Record<string, string> = {
-    savedJobs: SAVED_EVENT,
-    appliedJobs: APPLIED_EVENT,
-    compareJobs: COMPARE_EVENT,
-  }
 
   useEffect(() => {
     const update = () => {
@@ -133,10 +133,9 @@ export function useListCount(key: 'savedJobs' | 'appliedJobs' | 'compareJobs') {
       } catch { setCount(0) }
     }
     update()
-    const eventName = eventMap[key]
+    const eventName = EVENT_MAP[key]
     window.addEventListener(eventName, update)
     return () => window.removeEventListener(eventName, update)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key])
 
   return count
