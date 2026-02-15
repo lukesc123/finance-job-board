@@ -12,19 +12,23 @@ export async function GET() {
     .order('posted_date', { ascending: false })
     .limit(50)
 
-  const items = (jobs || []).map((job: any) => {
-    const company = Array.isArray(job.company) ? job.company[0] : job.company
-    const companyName = company?.name || 'Company'
-    const desc = (job.description || '').substring(0, 300).replace(/[<>&'"]/g, (c: string) => {
+  function escapeXml(str: string): string {
+    return str.replace(/[<>&'"]/g, (c: string) => {
       const map: Record<string, string> = { '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }
       return map[c] || c
     })
+  }
+
+  const items = (jobs || []).map((job: any) => {
+    const company = Array.isArray(job.company) ? job.company[0] : job.company
+    const companyName = company?.name || 'Company'
+    const desc = escapeXml((job.description || '').substring(0, 300))
     return `    <item>
-      <title>${job.title} at ${companyName}</title>
+      <title>${escapeXml(job.title)} at ${escapeXml(companyName)}</title>
       <link>${siteUrl}/jobs/${job.id}</link>
       <guid isPermaLink="true">${siteUrl}/jobs/${job.id}</guid>
       <description>${desc}...</description>
-      <category>${job.category}</category>
+      <category>${escapeXml(job.category)}</category>
       <pubDate>${new Date(job.posted_date).toUTCString()}</pubDate>
     </item>`
   }).join('\n')
