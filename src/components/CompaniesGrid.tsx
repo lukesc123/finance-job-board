@@ -240,6 +240,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
                   href={company.careers_url}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
+                  aria-label={`${company.name} careers page (opens in new tab)`}
                   className="inline-flex items-center gap-1 text-xs font-medium text-navy-400 hover:text-navy-600 transition"
                 >
                   Careers
@@ -253,6 +254,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
                   href={company.website}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
+                  aria-label={`${company.name} website (opens in new tab)`}
                   className="inline-flex items-center gap-1 text-xs font-medium text-navy-400 hover:text-navy-600 transition ml-auto"
                 >
                   Website

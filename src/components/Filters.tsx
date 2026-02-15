@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import {
   JobFilters,
   JOB_CATEGORIES,
@@ -59,7 +59,7 @@ const SORT_OPTIONS = [
   { value: 'company_az', label: 'Company A-Z' },
 ]
 
-export default function Filters({
+export default memo(function Filters({
   filters,
   onFilterChange,
   sortBy,
@@ -355,4 +355,4 @@ export default function Filters({
       )}
     </div>
   )
-}
+})

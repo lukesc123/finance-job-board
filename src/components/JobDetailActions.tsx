@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { useJobActions } from '@/hooks/useJobActions'
 
 interface JobDetailActionsProps {
@@ -10,7 +10,7 @@ interface JobDetailActionsProps {
   postedDate: string
 }
 
-export default function JobDetailActions({ jobId, jobTitle, companyName, postedDate }: JobDetailActionsProps) {
+export default memo(function JobDetailActions({ jobId, jobTitle, companyName, postedDate }: JobDetailActionsProps) {
   const { saved, applied, toggleSave, toggleApplied } = useJobActions(jobId)
   const [copied, setCopied] = useState(false)
 
@@ -126,4 +126,4 @@ export default function JobDetailActions({ jobId, jobTitle, companyName, postedD
       )}
     </div>
   )
-}
+})

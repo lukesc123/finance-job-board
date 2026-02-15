@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import Link from 'next/link'
 import { stageColors, timeAgo, formatSalary, isGenericApplyUrl } from '@/lib/formatting'
 import { trackApplyClick } from '@/hooks/useJobActions'
@@ -20,7 +20,7 @@ interface CompanyJob {
   apply_url: string | null
 }
 
-export default function CompanyJobList({
+export default memo(function CompanyJobList({
   jobs,
   companyName,
 }: {
@@ -158,4 +158,4 @@ export default function CompanyJobList({
       )}
     </>
   )
-}
+})
