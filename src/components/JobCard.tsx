@@ -7,8 +7,6 @@ import CompanyLogo from '@/components/CompanyLogo'
 import { timeAgo, formatSalary, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor, getPipelineStageAccent } from '@/lib/formatting'
 import { useJobActions, trackApplyClick } from '@/hooks/useJobActions'
 
-
-
 function isNewJob(postedDate: string): boolean {
   const posted = new Date(postedDate)
   const now = new Date()
@@ -43,7 +41,6 @@ interface JobCardProps {
 
 export default function JobCard({ job, searchQuery = '', onPreview, isActive = false }: JobCardProps) {
   const salary = formatSalary(job.salary_min, job.salary_max)
-  const companyInitial = job.company?.name?.charAt(0).toUpperCase() || '?'
   const timePosted = timeAgo(job.posted_date)
   const isNew = isNewJob(job.posted_date)
 

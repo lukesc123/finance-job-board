@@ -6,8 +6,6 @@ import { Job } from '@/types'
 import CompanyLogo from '@/components/CompanyLogo'
 import { formatSalary, getPipelineStageBadgeColor, getPipelineStageAccent } from '@/lib/formatting'
 
-
-
 export default function SimilarJobs({ jobId }: { jobId: string }) {
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)

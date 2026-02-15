@@ -47,9 +47,9 @@ export async function POST(request: NextRequest) {
     if (error) throw error
 
     return NextResponse.json(data)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating company:', error)
-    if (error.message === 'Unauthorized') {
+    if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     return NextResponse.json({ error: 'Failed to create company' }, { status: 500 })
