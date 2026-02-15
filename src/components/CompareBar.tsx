@@ -1,15 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { useListCount } from '@/hooks/useJobActions'
+import { useCompareIds } from '@/hooks/useJobActions'
 
 export default function CompareBar() {
-  const count = useListCount('compareJobs')
+  const { ids, clearAll: clearCompare } = useCompareIds()
+  const count = ids.length
 
-  const clearAll = () => {
-    localStorage.setItem('compareJobs', JSON.stringify([]))
-    window.dispatchEvent(new Event('compareJobsChanged'))
-  }
+  const clearAll = () => clearCompare()
 
   if (count === 0) return null
 
