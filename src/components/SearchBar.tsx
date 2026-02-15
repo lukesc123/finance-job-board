@@ -28,6 +28,7 @@ export default memo(function SearchBar({
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const fetchTimeout = useRef<ReturnType<typeof setTimeout>>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -55,11 +56,15 @@ export default memo(function SearchBar({
       setSuggestions([])
       return
     }
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
     try {
-      const res = await fetch(`/api/search-suggestions?q=${encodeURIComponent(q)}`)
+      const res = await fetch(`/api/search-suggestions?q=${encodeURIComponent(q)}`, { signal: controller.signal })
       const data = await res.json()
       setSuggestions(data.suggestions || [])
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return
       setSuggestions([])
     }
   }, [])

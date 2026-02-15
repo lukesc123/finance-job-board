@@ -2,12 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useListCount } from '@/hooks/useJobActions'
 
 export default function Navbar() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
+  const hamburgerRef = useRef<HTMLButtonElement>(null)
   const savedCount = useListCount('savedJobs')
   const appliedCount = useListCount('appliedJobs')
 
@@ -15,19 +17,44 @@ export default function Navbar() {
     setMobileMenuOpen(false)
   }, [pathname])
 
-  // Close mobile menu on Escape key + lock body scroll when open
+  // Close mobile menu on Escape key, lock body scroll, and trap focus
+  const handleMenuKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setMobileMenuOpen(false)
+      hamburgerRef.current?.focus()
+      return
+    }
+    if (e.key !== 'Tab') return
+    const menu = mobileMenuRef.current
+    if (!menu) return
+    const focusable = menu.querySelectorAll<HTMLElement>('a, button')
+    if (focusable.length === 0) return
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault()
+      last.focus()
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault()
+      first.focus()
+    }
+  }, [])
+
   useEffect(() => {
     if (!mobileMenuOpen) return
     document.body.style.overflow = 'hidden'
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMobileMenuOpen(false)
+    window.addEventListener('keydown', handleMenuKeyDown)
+    // Focus first link in menu
+    const menu = mobileMenuRef.current
+    if (menu) {
+      const firstLink = menu.querySelector<HTMLElement>('a, button')
+      firstLink?.focus()
     }
-    window.addEventListener('keydown', handleEscape)
     return () => {
       document.body.style.overflow = ''
-      window.removeEventListener('keydown', handleEscape)
+      window.removeEventListener('keydown', handleMenuKeyDown)
     }
-  }, [mobileMenuOpen])
+  }, [mobileMenuOpen, handleMenuKeyDown])
 
   if (pathname?.startsWith('/admin')) return null
 
@@ -127,6 +154,7 @@ export default function Navbar() {
 
         {/* Mobile Hamburger */}
         <button
+          ref={hamburgerRef}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="sm:hidden flex flex-col items-center justify-center gap-1.5 p-2 rounded-lg hover:bg-navy-50 transition"
           aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
@@ -141,7 +169,7 @@ export default function Navbar() {
 
       {/* Mobile Dropdown */}
       {mobileMenuOpen && (
-        <div id="mobile-nav" className="sm:hidden border-t border-navy-100 bg-white" role="navigation" aria-label="Mobile navigation">
+        <div ref={mobileMenuRef} id="mobile-nav" className="sm:hidden border-t border-navy-100 bg-white" role="navigation" aria-label="Mobile navigation">
           <div className="flex flex-col px-4 py-2 gap-1">
             <Link href="/" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
               Browse Jobs
