@@ -148,10 +148,10 @@ export default async function CategoriesPage() {
       {/* Hero */}
       <div className="bg-navy-950 text-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
-          <nav className="flex items-center gap-2 text-xs text-navy-400 mb-6">
+          <nav className="flex items-center gap-2 text-xs text-navy-400 mb-6" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-white transition">Home</Link>
-            <span>/</span>
-            <span className="text-navy-300">Categories</span>
+            <span aria-hidden="true">/</span>
+            <span className="text-navy-300" aria-current="page">Categories</span>
           </nav>
           <div className="flex items-center gap-3 mb-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-navy-800">

@@ -146,6 +146,7 @@ export default function Filters({
           onClick={() => setFiltersOpen(!filtersOpen)}
           className="sm:hidden flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm font-medium text-navy-700 hover:bg-navy-50 transition flex-1 justify-between"
           aria-expanded={filtersOpen}
+          aria-label={`${filtersOpen ? 'Hide' : 'Show'} filters${activeFilterCount > 0 ? ` (${activeFilterCount} active)` : ''}`}
         >
           <span className="flex items-center gap-2">
             <svg className="w-4 h-4 text-navy-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
