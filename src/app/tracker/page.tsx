@@ -85,6 +85,19 @@ export default function TrackerPage() {
     setTrackedJobs(prev => prev.map(t => t.job.id === jobId ? { ...t, notes } : t))
   }
 
+  const removeJob = (jobId: string) => {
+    // Remove from applied list
+    const appliedJobs: string[] = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
+    localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs.filter(id => id !== jobId)))
+    window.dispatchEvent(new Event('appliedJobsChanged'))
+    // Remove tracker data
+    const trackerData = JSON.parse(localStorage.getItem('jobTracker') || '{}')
+    delete trackerData[jobId]
+    localStorage.setItem('jobTracker', JSON.stringify(trackerData))
+    // Update state
+    setTrackedJobs(prev => prev.filter(t => t.job.id !== jobId))
+  }
+
   const filteredJobs = filter === 'all' ? trackedJobs : trackedJobs.filter(t => t.status === filter)
 
   const statusCounts = trackedJobs.reduce((acc, t) => {
@@ -182,16 +195,27 @@ export default function TrackerPage() {
                       </div>
                     </div>
 
-                    {/* Status selector */}
-                    <select
-                      value={status}
-                      onChange={(e) => updateStatus(job.id, e.target.value as TrackedJob['status'])}
-                      className="rounded-lg border border-navy-200 bg-white px-2 py-1.5 text-xs font-medium text-navy-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-navy-500/20"
-                    >
-                      {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-                        <option key={key} value={key}>{cfg.label}</option>
-                      ))}
-                    </select>
+                    {/* Status selector + actions */}
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={status}
+                        onChange={(e) => updateStatus(job.id, e.target.value as TrackedJob['status'])}
+                        className="rounded-lg border border-navy-200 bg-white px-2 py-1.5 text-xs font-medium text-navy-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-navy-500/20"
+                      >
+                        {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
+                          <option key={key} value={key}>{cfg.label}</option>
+                        ))}
+                      </select>
+                      <button
+                        onClick={() => removeJob(job.id)}
+                        className="p-1.5 rounded-lg text-navy-300 hover:text-red-500 hover:bg-red-50 transition"
+                        title="Remove from tracker"
+                      >
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Notes */}
@@ -204,6 +228,36 @@ export default function TrackerPage() {
                       rows={2}
                     />
                   </div>
+
+                  {/* Quick actions */}
+                  {job.apply_url && (
+                    <div className="mt-2 flex items-center gap-3">
+                      <a
+                        href={job.apply_url.startsWith('http') ? job.apply_url : `https://${job.apply_url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 transition"
+                      >
+                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        Visit application page
+                      </a>
+                      {job.company?.careers_url && (
+                        <a
+                          href={job.company.careers_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-navy-400 hover:text-navy-600 transition"
+                        >
+                          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                          {job.company.name} careers
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </div>
               )
             })}
