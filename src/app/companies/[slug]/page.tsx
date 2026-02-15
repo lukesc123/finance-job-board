@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
@@ -128,7 +129,7 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
         <div className="max-w-5xl mx-auto">
           <div className="flex items-start gap-4">
             {company.logo_url ? (
-              <img src={company.logo_url} alt={`${company.name} logo`} className="h-14 w-14 rounded-xl object-contain border border-navy-700 bg-white flex-shrink-0" />
+              <Image src={company.logo_url} alt={`${company.name} logo`} width={56} height={56} className="h-14 w-14 rounded-xl object-contain border border-navy-700 bg-white flex-shrink-0" />
             ) : (
               <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-navy-800 text-white font-bold text-xl flex-shrink-0 border border-navy-700">
                 {company.name.charAt(0)}

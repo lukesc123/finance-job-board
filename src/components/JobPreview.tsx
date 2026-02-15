@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
 import { formatSalary, timeAgo, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor } from '@/lib/formatting'
+import { useJobActions, trackApplyClick } from '@/hooks/useJobActions'
 
 
 interface JobPreviewProps {
@@ -12,18 +12,7 @@ interface JobPreviewProps {
 }
 
 export default function JobPreview({ job, onClose }: JobPreviewProps) {
-  const [saved, setSaved] = useState(false)
-  const [applied, setApplied] = useState(false)
-
-  useEffect(() => {
-    if (!job) return
-    try {
-      const savedJobs = JSON.parse(localStorage.getItem('savedJobs') || '[]')
-      setSaved(savedJobs.includes(job.id))
-      const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
-      setApplied(appliedJobs.includes(job.id))
-    } catch { /* ignore */ }
-  }, [job?.id])
+  const { saved, applied, toggleSave, markApplied } = useJobActions(job?.id)
 
   if (!job) return null
 
@@ -36,44 +25,9 @@ export default function JobPreview({ job, onClose }: JobPreviewProps) {
     job.licenses_required.length > 0 &&
     !job.licenses_required.every(l => l === 'None Required')
 
-  const toggleSave = () => {
-    try {
-      const savedJobs: string[] = JSON.parse(localStorage.getItem('savedJobs') || '[]')
-      let updated: string[]
-      if (savedJobs.includes(job.id)) {
-        updated = savedJobs.filter(id => id !== job.id)
-        setSaved(false)
-      } else {
-        updated = [...savedJobs, job.id]
-        setSaved(true)
-      }
-      localStorage.setItem('savedJobs', JSON.stringify(updated))
-      window.dispatchEvent(new Event('savedJobsChanged'))
-    } catch { /* ignore */ }
-  }
-
-  const trackApplyClick = () => {
-    try {
-      // Mark as applied
-      const appliedJobs: string[] = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
-      if (!appliedJobs.includes(job.id)) {
-        const updated = [...appliedJobs, job.id]
-        localStorage.setItem('appliedJobs', JSON.stringify(updated))
-        setApplied(true)
-        window.dispatchEvent(new Event('appliedJobsChanged'))
-      }
-      // Track click with timestamp
-      const clicks: Array<{ jobId: string; company: string; title: string; url: string; at: string }> =
-        JSON.parse(localStorage.getItem('applyClicks') || '[]')
-      clicks.unshift({
-        jobId: job.id,
-        company: companyName,
-        title: job.title,
-        url: job.apply_url || '',
-        at: new Date().toISOString(),
-      })
-      localStorage.setItem('applyClicks', JSON.stringify(clicks.slice(0, 100)))
-    } catch { /* ignore */ }
+  const handleApplyClick = () => {
+    markApplied()
+    trackApplyClick(job)
   }
 
   // Clean description into paragraphs
@@ -157,7 +111,7 @@ export default function JobPreview({ job, onClose }: JobPreviewProps) {
               href={applyUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={trackApplyClick}
+              onClick={handleApplyClick}
               className="inline-flex flex-col items-center rounded-lg bg-emerald-600 px-5 py-2.5 text-white hover:bg-emerald-700 transition flex-1 group/apply"
             >
               <span className="flex items-center gap-2 font-bold text-sm">

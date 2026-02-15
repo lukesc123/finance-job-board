@@ -1,22 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useListCount } from '@/hooks/useJobActions'
 
 export default function CompareBar() {
-  const [count, setCount] = useState(0)
-
-  useEffect(() => {
-    const update = () => {
-      try {
-        const ids = JSON.parse(localStorage.getItem('compareJobs') || '[]')
-        setCount(ids.length)
-      } catch { setCount(0) }
-    }
-    update()
-    window.addEventListener('compareJobsChanged', update)
-    return () => window.removeEventListener('compareJobsChanged', update)
-  }, [])
+  const count = useListCount('compareJobs')
 
   const clearAll = () => {
     localStorage.setItem('compareJobs', JSON.stringify([]))

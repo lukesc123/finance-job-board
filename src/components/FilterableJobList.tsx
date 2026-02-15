@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { stageColors, timeAgo, formatSalary, isGenericApplyUrl } from '@/lib/formatting'
 
 interface FilterableJob {
@@ -121,7 +122,7 @@ export default function FilterableJobList({
               <div className="flex items-start justify-between gap-3">
                 <div className="flex gap-3 min-w-0">
                   {job.company?.logo_url ? (
-                    <img src={job.company.logo_url} alt={`${job.company.name} logo`} className="h-10 w-10 rounded-lg object-contain border border-navy-100 bg-white flex-shrink-0 mt-0.5" />
+                    <Image src={job.company.logo_url} alt={`${job.company.name} logo`} width={40} height={40} className="h-10 w-10 rounded-lg object-contain border border-navy-100 bg-white flex-shrink-0 mt-0.5" />
                   ) : (
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy-900 text-white font-bold text-sm flex-shrink-0 mt-0.5">
                       {job.company?.name?.charAt(0) || '?'}

@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useJobActions } from '@/hooks/useJobActions'
 
 interface JobDetailActionsProps {
   jobId: string
@@ -10,50 +11,8 @@ interface JobDetailActionsProps {
 }
 
 export default function JobDetailActions({ jobId, jobTitle, companyName, postedDate }: JobDetailActionsProps) {
-  const [saved, setSaved] = useState(false)
-  const [applied, setApplied] = useState(false)
+  const { saved, applied, toggleSave, toggleApplied } = useJobActions(jobId)
   const [copied, setCopied] = useState(false)
-
-  useEffect(() => {
-    try {
-      const savedJobs = JSON.parse(localStorage.getItem('savedJobs') || '[]')
-      setSaved(savedJobs.includes(jobId))
-      const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
-      setApplied(appliedJobs.includes(jobId))
-    } catch { /* ignore */ }
-  }, [jobId])
-
-  const toggleSave = () => {
-    try {
-      const savedJobs: string[] = JSON.parse(localStorage.getItem('savedJobs') || '[]')
-      let updated: string[]
-      if (savedJobs.includes(jobId)) {
-        updated = savedJobs.filter(id => id !== jobId)
-        setSaved(false)
-      } else {
-        updated = [...savedJobs, jobId]
-        setSaved(true)
-      }
-      localStorage.setItem('savedJobs', JSON.stringify(updated))
-      window.dispatchEvent(new Event('savedJobsChanged'))
-    } catch { /* ignore */ }
-  }
-
-  const toggleApplied = () => {
-    try {
-      const appliedJobs: string[] = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
-      let updated: string[]
-      if (appliedJobs.includes(jobId)) {
-        updated = appliedJobs.filter(id => id !== jobId)
-        setApplied(false)
-      } else {
-        updated = [...appliedJobs, jobId]
-        setApplied(true)
-      }
-      localStorage.setItem('appliedJobs', JSON.stringify(updated))
-      window.dispatchEvent(new Event('appliedJobsChanged'))
-    } catch { /* ignore */ }
-  }
 
   const shareJob = async () => {
     const url = window.location.href

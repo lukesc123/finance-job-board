@@ -4,27 +4,12 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
 import { formatSalary, isGenericApplyUrl, slugify } from '@/lib/formatting'
+import { useCompareIds } from '@/hooks/useJobActions'
 
 export default function ComparePage() {
-  const [compareIds, setCompareIds] = useState<string[]>([])
+  const { ids: compareIds, remove: removeJob, clearAll: clearCompare } = useCompareIds()
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    try {
-      const ids = JSON.parse(localStorage.getItem('compareJobs') || '[]')
-      setCompareIds(ids)
-    } catch { /* ignore */ }
-
-    const handleChange = () => {
-      try {
-        const ids = JSON.parse(localStorage.getItem('compareJobs') || '[]')
-        setCompareIds(ids)
-      } catch { /* ignore */ }
-    }
-    window.addEventListener('compareJobsChanged', handleChange)
-    return () => window.removeEventListener('compareJobsChanged', handleChange)
-  }, [])
 
   useEffect(() => {
     async function fetchJobs() {
@@ -49,16 +34,9 @@ export default function ComparePage() {
     fetchJobs()
   }, [compareIds])
 
-  const removeJob = (id: string) => {
-    const updated = compareIds.filter(i => i !== id)
-    localStorage.setItem('compareJobs', JSON.stringify(updated))
-    window.dispatchEvent(new Event('compareJobsChanged'))
-  }
-
   const clearAll = () => {
     if (!window.confirm('Remove all jobs from comparison?')) return
-    localStorage.setItem('compareJobs', JSON.stringify([]))
-    window.dispatchEvent(new Event('compareJobsChanged'))
+    clearCompare()
   }
 
   if (loading) {

@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useEffect, memo } from 'react'
+import { memo } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Job } from '@/types'
 import { timeAgo, formatSalary, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor, getPipelineStageAccent } from '@/lib/formatting'
+import { useJobActions, trackApplyClick } from '@/hooks/useJobActions'
 
 
 
@@ -49,97 +51,11 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
     job.licenses_required.length > 0 &&
     !job.licenses_required.every(l => l === 'None Required')
 
-  const [saved, setSaved] = useState(false)
-  const [applied, setApplied] = useState(false)
-  const [comparing, setComparing] = useState(false)
+  const { saved, applied, comparing, toggleSave, toggleApplied, toggleCompare, markApplied } = useJobActions(job.id)
 
-  useEffect(() => {
-    try {
-      const savedJobs = JSON.parse(localStorage.getItem('savedJobs') || '[]')
-      setSaved(savedJobs.includes(job.id))
-      const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
-      setApplied(appliedJobs.includes(job.id))
-      const compareJobs = JSON.parse(localStorage.getItem('compareJobs') || '[]')
-      setComparing(compareJobs.includes(job.id))
-    } catch { /* ignore */ }
-  }, [job.id])
-
-  const toggleSave = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    try {
-      const savedJobs: string[] = JSON.parse(localStorage.getItem('savedJobs') || '[]')
-      let updated: string[]
-      if (savedJobs.includes(job.id)) {
-        updated = savedJobs.filter(id => id !== job.id)
-        setSaved(false)
-      } else {
-        updated = [...savedJobs, job.id]
-        setSaved(true)
-      }
-      localStorage.setItem('savedJobs', JSON.stringify(updated))
-      window.dispatchEvent(new Event('savedJobsChanged'))
-    } catch { /* ignore */ }
-  }
-
-  const toggleApplied = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    try {
-      const appliedJobs: string[] = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
-      let updated: string[]
-      if (appliedJobs.includes(job.id)) {
-        updated = appliedJobs.filter(id => id !== job.id)
-        setApplied(false)
-      } else {
-        updated = [...appliedJobs, job.id]
-        setApplied(true)
-      }
-      localStorage.setItem('appliedJobs', JSON.stringify(updated))
-      window.dispatchEvent(new Event('appliedJobsChanged'))
-    } catch { /* ignore */ }
-  }
-
-  const toggleCompare = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    try {
-      const compareJobs: string[] = JSON.parse(localStorage.getItem('compareJobs') || '[]')
-      let updated: string[]
-      if (compareJobs.includes(job.id)) {
-        updated = compareJobs.filter(id => id !== job.id)
-        setComparing(false)
-      } else {
-        if (compareJobs.length >= 4) return // max 4 comparisons
-        updated = [...compareJobs, job.id]
-        setComparing(true)
-      }
-      localStorage.setItem('compareJobs', JSON.stringify(updated))
-      window.dispatchEvent(new Event('compareJobsChanged'))
-    } catch { /* ignore */ }
-  }
-
-  const trackApplyClick = (j: Job) => {
-    try {
-      // Mark as applied
-      const appliedJobs: string[] = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
-      if (!appliedJobs.includes(j.id)) {
-        localStorage.setItem('appliedJobs', JSON.stringify([...appliedJobs, j.id]))
-        setApplied(true)
-        window.dispatchEvent(new Event('appliedJobsChanged'))
-      }
-      // Track click with timestamp
-      const clicks: Array<{ jobId: string; company: string; title: string; url: string; at: string }> =
-        JSON.parse(localStorage.getItem('applyClicks') || '[]')
-      clicks.unshift({
-        jobId: j.id,
-        company: j.company?.name || '',
-        title: j.title,
-        url: j.apply_url || '',
-        at: new Date().toISOString(),
-      })
-      localStorage.setItem('applyClicks', JSON.stringify(clicks.slice(0, 100)))
-    } catch { /* ignore */ }
+  const handleApplyClick = (j: Job) => {
+    markApplied()
+    trackApplyClick(j)
   }
 
   const handleClick = (e: React.MouseEvent) => {
@@ -216,9 +132,11 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
             {/* Company Logo */}
             <div className="flex-shrink-0 mt-0.5">
               {job.company?.logo_url ? (
-                <img
+                <Image
                   src={job.company.logo_url}
-                  alt={job.company.name}
+                  alt={`${job.company.name} logo`}
+                  width={44}
+                  height={44}
                   className="h-11 w-11 rounded-lg object-contain border border-navy-100 bg-white"
                 />
               ) : (
@@ -331,7 +249,7 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
                       rel="noopener noreferrer"
                       onClick={(e) => {
                         e.stopPropagation()
-                        trackApplyClick(job)
+                        handleApplyClick(job)
                       }}
                       className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white sm:opacity-0 sm:group-hover:opacity-100 transition-all hover:bg-emerald-700"
                     >

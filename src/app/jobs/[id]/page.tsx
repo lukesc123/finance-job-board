@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
@@ -182,7 +183,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
                 <div className="flex items-center gap-2 flex-wrap">
                   {job.company?.logo_url && (
-                    <img src={job.company.logo_url} alt={`${job.company.name} logo`} className="h-5 w-5 rounded object-contain" />
+                    <Image src={job.company.logo_url} alt={`${job.company.name} logo`} width={20} height={20} className="h-5 w-5 rounded object-contain" />
                   )}
                   <Link
                     href={`/companies/${slugify(job.company?.name || '')}`}

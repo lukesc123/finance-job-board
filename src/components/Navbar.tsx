@@ -3,34 +3,17 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { useListCount } from '@/hooks/useJobActions'
 
 export default function Navbar() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [savedCount, setSavedCount] = useState(0)
-  const [appliedCount, setAppliedCount] = useState(0)
+  const savedCount = useListCount('savedJobs')
+  const appliedCount = useListCount('appliedJobs')
 
   useEffect(() => {
     setMobileMenuOpen(false)
   }, [pathname])
-
-  useEffect(() => {
-    const updateCounts = () => {
-      try {
-        const saved = JSON.parse(localStorage.getItem('savedJobs') || '[]')
-        setSavedCount(saved.length)
-        const applied = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
-        setAppliedCount(applied.length)
-      } catch { /* ignore */ }
-    }
-    updateCounts()
-    window.addEventListener('savedJobsChanged', updateCounts)
-    window.addEventListener('appliedJobsChanged', updateCounts)
-    return () => {
-      window.removeEventListener('savedJobsChanged', updateCounts)
-      window.removeEventListener('appliedJobsChanged', updateCounts)
-    }
-  }, [])
 
   if (pathname?.startsWith('/admin')) return null
 
