@@ -8,6 +8,8 @@ import BackToTop from '@/components/BackToTop'
 
 export const revalidate = 300
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
+
 interface CompanyDetail {
   id: string
   name: string
@@ -57,7 +59,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!result) return { title: 'Company Not Found | FinanceJobs' }
 
   const { company, jobs } = result
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
   return {
     title: `${company.name} Jobs | FinanceJobs`,
     description: `Browse ${jobs.length} entry-level finance positions at ${company.name}. ${company.description || ''}`.trim(),
@@ -85,8 +86,6 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
   const locations = [...new Set(jobs.map((j) => j.location))].sort()
   const salaryJobs = jobs.filter((j) => j.salary_min || j.salary_max)
   const avgMin = salaryJobs.length > 0 ? Math.round(salaryJobs.reduce((s, j) => s + (j.salary_min || j.salary_max || 0), 0) / salaryJobs.length) : null
-
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job-board.vercel.app'
 
   const jsonLd = [
     {
