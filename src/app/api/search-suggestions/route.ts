@@ -28,8 +28,13 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const jobList = (jobs || []) as any[]
+    interface SuggestionJob {
+      title: string
+      category: string
+      location: string
+      company: { name: string } | { name: string }[] | null
+    }
+    const jobList = (jobs || []) as SuggestionJob[]
     const suggestions: { type: string; value: string; count?: number }[] = []
     const seen = new Set<string>()
 
@@ -43,7 +48,8 @@ export async function GET(request: NextRequest) {
     // Company matches
     const companyNames = new Map<string, number>()
     for (const j of jobList) {
-      const n = j.company?.name
+      const co = Array.isArray(j.company) ? j.company[0] : j.company
+      const n = co?.name
       if (n && n.toLowerCase().includes(query)) companyNames.set(n, (companyNames.get(n) || 0) + 1)
     }
     for (const [n, c] of [...companyNames].slice(0, 3)) {
