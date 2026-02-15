@@ -59,7 +59,7 @@ export default function Navbar() {
               className="relative rounded-lg px-3.5 py-2 text-sm font-medium text-navy-600 hover:text-navy-900 hover:bg-navy-50 transition"
             >
               Saved
-              <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-bold text-white">
+              <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-bold text-white" aria-label={`${savedCount} saved job${savedCount !== 1 ? 's' : ''}`}>
                 {savedCount}
               </span>
             </Link>
@@ -75,7 +75,7 @@ export default function Navbar() {
           >
             Tracker
             {appliedCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[10px] font-bold text-white">
+              <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[10px] font-bold text-white" aria-label={`${appliedCount} application${appliedCount !== 1 ? 's' : ''} tracked`}>
                 {appliedCount}
               </span>
             )}
@@ -145,7 +145,7 @@ export default function Navbar() {
             {savedCount > 0 && (
               <Link href="/?saved=1" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50 flex items-center justify-between">
                 Saved Jobs
-                <span className="inline-flex items-center justify-center h-5 min-w-5 rounded-full bg-amber-500 px-1.5 text-[11px] font-bold text-white">
+                <span className="inline-flex items-center justify-center h-5 min-w-5 rounded-full bg-amber-500 px-1.5 text-[11px] font-bold text-white" aria-label={`${savedCount} saved`}>
                   {savedCount}
                 </span>
               </Link>
@@ -153,7 +153,7 @@ export default function Navbar() {
             <Link href="/tracker" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50 flex items-center justify-between">
               Application Tracker
               {appliedCount > 0 && (
-                <span className="inline-flex items-center justify-center h-5 min-w-5 rounded-full bg-emerald-500 px-1.5 text-[11px] font-bold text-white">
+                <span className="inline-flex items-center justify-center h-5 min-w-5 rounded-full bg-emerald-500 px-1.5 text-[11px] font-bold text-white" aria-label={`${appliedCount} tracked`}>
                   {appliedCount}
                 </span>
               )}

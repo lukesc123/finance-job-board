@@ -46,11 +46,13 @@ async function getLocationJobs(locationSlug: string): Promise<{ location: string
     .eq('is_active', true)
     .order('posted_date', { ascending: false })
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const jobs = ((data || []) as any[]).map((j: any) => ({
+  type RawLocationJob = Omit<LocationJob, 'company'> & {
+    company: { name: string; logo_url: string | null }[] | { name: string; logo_url: string | null } | null
+  }
+  const jobs = ((data || []) as RawLocationJob[]).map((j): LocationJob => ({
     ...j,
     company: Array.isArray(j.company) ? j.company[0] || null : j.company,
-  })) as LocationJob[]
+  }))
 
   return { location, jobs }
 }

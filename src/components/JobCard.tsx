@@ -40,7 +40,7 @@ interface JobCardProps {
   isActive?: boolean
 }
 
-export default function JobCard({ job, searchQuery = '', onPreview, isActive = false }: JobCardProps) {
+export default memo(function JobCard({ job, searchQuery = '', onPreview, isActive = false }: JobCardProps) {
   const router = useRouter()
   const salary = formatSalary(job.salary_min, job.salary_max)
   const timePosted = timeAgo(job.posted_date)
@@ -264,4 +264,4 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
       </div>
     </Link>
   )
-}
+})

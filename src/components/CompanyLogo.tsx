@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import Image from 'next/image'
 
 interface CompanyLogoProps {
@@ -16,7 +17,7 @@ const sizeMap = {
   lg: { px: 56, cls: 'h-14 w-14 text-base' },
 }
 
-export default function CompanyLogo({
+export default memo(function CompanyLogo({
   logoUrl,
   name,
   size = 'md',
@@ -46,4 +47,4 @@ export default function CompanyLogo({
       {initial}
     </div>
   )
-}
+})
