@@ -49,7 +49,6 @@ function filtersToParams(filters: JobFilters, sortBy: string, showSaved: boolean
   return params.toString()
 }
 
-const HERO_CATEGORIES = JOB_CATEGORIES
 
 function HomePageContent() {
   const searchParams = useSearchParams()
@@ -62,7 +61,7 @@ function HomePageContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<SortBy>(() => (searchParams.get('sort') as SortBy) || 'newest')
-  const [visibleCount, setVisibleCount] = useState(20)
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [showSaved, setShowSaved] = useState(() => searchParams.get('saved') === '1')
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set())
   const [previewJob, setPreviewJob] = useState<Job | null>(null)
@@ -340,7 +339,7 @@ function HomePageContent() {
 
           {/* Category Quick Links */}
           <div className="flex flex-wrap justify-center gap-2 mt-2">
-            {HERO_CATEGORIES.map((cat) => (
+            {JOB_CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 onClick={() => {
