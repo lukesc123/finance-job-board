@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const query = searchParams.get('q')?.toLowerCase()
+    const query = searchParams.get('q')?.slice(0, 100).toLowerCase()
 
     if (!query || query.length < 2) {
       return NextResponse.json({ suggestions: [] })

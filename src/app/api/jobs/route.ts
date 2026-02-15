@@ -19,21 +19,25 @@ export async function GET(request: NextRequest) {
     // Extract query parameters
     const ids = searchParams.getAll('ids')
     const category = searchParams.get('category')
-    const location = searchParams.get('location')
+    const location = searchParams.get('location')?.slice(0, 100) || null
     const jobType = searchParams.get('job_type')
     const pipelineStage = searchParams.get('pipeline_stage')
     const remoteType = searchParams.get('remote_type')
     const license = searchParams.get('license')
-    const search = searchParams.get('search')
+    const search = searchParams.get('search')?.slice(0, 200) || null
     const gradDate = searchParams.get('grad_date')
     const company = searchParams.get('company')
 
-    // If specific IDs requested, return just those jobs
+    // If specific IDs requested, return just those jobs (max 50)
     if (ids.length > 0) {
+      const safeIds = ids.slice(0, 50).filter(id => /^[a-f0-9-]{36}$/i.test(id))
+      if (safeIds.length === 0) {
+        return NextResponse.json([])
+      }
       const { data, error } = await supabaseAdmin
         .from('jobs')
         .select('*, company:companies(*)')
-        .in('id', ids)
+        .in('id', safeIds)
       if (error) throw error
       return NextResponse.json(data ?? [])
     }
