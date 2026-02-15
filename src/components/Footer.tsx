@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { slugify } from '@/lib/formatting'
 
 const JOB_CATEGORIES = [
   'Investment Banking',
@@ -43,7 +44,7 @@ export default function Footer() {
               {JOB_CATEGORIES.map((cat) => (
                 <li key={cat}>
                   <Link
-                    href={`/category/${cat.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`}
+                    href={`/category/${slugify(cat)}`}
                     className="text-sm text-navy-400 hover:text-white transition"
                   >
                     {cat}

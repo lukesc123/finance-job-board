@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
+import { slugify } from '@/lib/formatting'
 
 function formatK(n: number): string {
   return n >= 1000 ? `$${Math.round(n / 1000)}k` : `$${n}`
@@ -61,7 +62,7 @@ export default function SalaryInsights({ jobs }: { jobs: Job[] }) {
           return (
             <Link
               key={insight.category}
-              href={`/category/${insight.category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`}
+              href={`/category/${slugify(insight.category)}`}
               className="block group"
             >
               <div className="flex items-center justify-between mb-1">

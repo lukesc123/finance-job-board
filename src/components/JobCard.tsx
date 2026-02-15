@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
-import { timeAgo, formatSalary, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl } from '@/lib/formatting'
+import { timeAgo, formatSalary, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify } from '@/lib/formatting'
 
 function getPipelineStageBadgeColor(stage: string): string {
   if (stage.includes('Internship')) return 'bg-emerald-50 text-emerald-700 border-emerald-200'
@@ -255,7 +255,7 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
                       e.preventDefault()
                       e.stopPropagation()
                       if (job.company?.name) {
-                        window.location.href = `/companies/${job.company.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`
+                        window.location.href = `/companies/${slugify(job.company.name)}`
                       }
                     }}
                     className="hover:text-navy-700 hover:underline cursor-pointer transition"
@@ -271,7 +271,7 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    const locSlug = job.location.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+                    const locSlug = slugify(job.location)
                     window.location.href = `/location/${locSlug}`
                   }}
                   className="inline-flex items-center gap-1 hover:text-navy-700 hover:underline cursor-pointer transition"

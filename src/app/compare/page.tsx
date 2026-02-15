@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
-import { formatSalary, isGenericApplyUrl } from '@/lib/formatting'
+import { formatSalary, isGenericApplyUrl, slugify } from '@/lib/formatting'
 
 export default function ComparePage() {
   const [compareIds, setCompareIds] = useState<string[]>([])
@@ -96,7 +96,7 @@ export default function ComparePage() {
     {
       label: 'Company',
       values: jobs.map(j => (
-        <Link key={j.id} href={`/companies/${(j.company?.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`} className="font-semibold text-navy-700 hover:text-navy-900 transition underline decoration-navy-200">
+        <Link key={j.id} href={`/companies/${slugify(j.company?.name || '')}`} className="font-semibold text-navy-700 hover:text-navy-900 transition underline decoration-navy-200">
           {j.company?.name || 'N/A'}
         </Link>
       )),
@@ -104,7 +104,7 @@ export default function ComparePage() {
     {
       label: 'Location',
       values: jobs.map(j => (
-        <Link key={j.id} href={`/location/${j.location.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`} className="text-navy-700 hover:text-navy-900 transition underline decoration-navy-200">
+        <Link key={j.id} href={`/location/${slugify(j.location)}`} className="text-navy-700 hover:text-navy-900 transition underline decoration-navy-200">
           {j.location}
         </Link>
       )),
@@ -115,7 +115,7 @@ export default function ComparePage() {
     {
       label: 'Category',
       values: jobs.map(j => (
-        <Link key={j.id} href={`/category/${j.category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`} className="text-navy-700 hover:text-navy-900 transition underline decoration-navy-200">
+        <Link key={j.id} href={`/category/${slugify(j.category)}`} className="text-navy-700 hover:text-navy-900 transition underline decoration-navy-200">
           {j.category}
         </Link>
       )),
