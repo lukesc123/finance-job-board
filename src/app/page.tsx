@@ -149,7 +149,13 @@ function HomePageContent() {
     router.replace(url, { scroll: false })
   }, [router, showSaved])
 
+  const abortRef = useRef<AbortController | null>(null)
+
   const fetchJobs = useCallback(async (filterState: JobFilters) => {
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+
     setLoading(true)
     setError(null)
     try {
@@ -166,11 +172,12 @@ function HomePageContent() {
       if (filterState.company) params.append('company', filterState.company)
       if (filterState.location) params.append('location', filterState.location)
 
-      const response = await fetch(`/api/jobs?${params.toString()}`)
+      const response = await fetch(`/api/jobs?${params.toString()}`, { signal: controller.signal })
       if (!response.ok) throw new Error('Failed to fetch jobs')
       const data = await response.json()
       setJobs(data)
     } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return
       console.error('Error fetching jobs:', err)
       setError('Failed to load jobs. Please try again.')
       setJobs([])
