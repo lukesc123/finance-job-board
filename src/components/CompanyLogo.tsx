@@ -7,6 +7,7 @@ interface CompanyLogoProps {
   className?: string
   imgClassName?: string
   fallbackClassName?: string
+  priority?: boolean
 }
 
 const sizeMap = {
@@ -22,6 +23,7 @@ export default function CompanyLogo({
   className = '',
   imgClassName = '',
   fallbackClassName = 'bg-navy-900 text-white',
+  priority = false,
 }: CompanyLogoProps) {
   const { px, cls } = sizeMap[size]
   const initial = name?.charAt(0).toUpperCase() || '?'
@@ -33,6 +35,7 @@ export default function CompanyLogo({
         alt={`${name} logo`}
         width={px}
         height={px}
+        priority={priority}
         className={`${cls} rounded-lg object-contain border border-navy-100 bg-white flex-shrink-0 ${imgClassName} ${className}`}
       />
     )
