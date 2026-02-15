@@ -75,6 +75,13 @@ export async function GET(request: NextRequest) {
       const jobCity = job.location?.split(',')[0]?.trim().toLowerCase()
       if (sourceCity && jobCity && sourceCity === jobCity) score += 2
 
+      // Salary proximity (within 20% range)
+      if (sourceJob.salary_max && job.salary_max) {
+        const diff = Math.abs(sourceJob.salary_max - job.salary_max) / sourceJob.salary_max
+        if (diff <= 0.2) score += 2
+        else if (diff <= 0.4) score += 1
+      }
+
       return { ...job, _score: score }
     })
 
