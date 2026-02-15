@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { rateLimit, getClientIP } from '@/lib/rateLimit'
 
 export async function GET(request: NextRequest) {
   try {
+    const ip = getClientIP(request)
+    const { limited } = rateLimit(`similar:${ip}`, 60, 60_000)
+    if (limited) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': '60' } }
+      )
+    }
+
     const { searchParams } = new URL(request.url)
     const jobId = searchParams.get('id')
 

@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { requireAdmin } from '@/lib/auth'
+import { rateLimit, getClientIP } from '@/lib/rateLimit'
 
 export async function GET(request: NextRequest) {
   try {
+    const ip = getClientIP(request)
+    const { limited } = rateLimit(`jobs:${ip}`, 120, 60_000)
+    if (limited) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': '60' } }
+      )
+    }
+
     const { searchParams } = new URL(request.url)
 
     // Extract query parameters
@@ -65,7 +75,10 @@ export async function GET(request: NextRequest) {
 
     // Apply license filter (check if licenses_required JSONB array contains the value)
     if (license) {
-      query = query.contains('licenses_required', `["${license}"]`)
+      const sanitized = license.replace(/[^a-zA-Z0-9 /&()-]/g, '')
+      if (sanitized) {
+        query = query.contains('licenses_required', JSON.stringify([sanitized]))
+      }
     }
 
     // Apply salary range filter
