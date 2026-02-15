@@ -332,7 +332,7 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
                 )}
 
                 {/* Posted time */}
-                <span className="text-[11px] text-navy-400 hidden sm:inline">{timePosted}</span>
+                <span className="text-[11px] text-navy-400">{timePosted}</span>
 
                 {/* Quick Apply */}
                 {job.apply_url && (
