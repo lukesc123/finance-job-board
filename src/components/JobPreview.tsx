@@ -1,6 +1,6 @@
 'use client'
 
-import { memo } from 'react'
+import { memo, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
 import { formatSalary, timeAgo, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor, extractHostname } from '@/lib/formatting'
@@ -13,6 +13,24 @@ interface JobPreviewProps {
 
 export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
   const { saved, applied, toggleSave, markApplied } = useJobActions(job?.id)
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  // Focus the panel when a new job is previewed for keyboard accessibility
+  useEffect(() => {
+    if (job && panelRef.current) {
+      panelRef.current.focus()
+    }
+  }, [job?.id])
+
+  // Close preview on Escape key
+  useEffect(() => {
+    if (!job) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [job, onClose])
 
   if (!job) return null
 
@@ -34,7 +52,13 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
   const descParagraphs = (job.description || '').split(/\n{2,}|\r\n{2,}/).filter(Boolean)
 
   return (
-    <div className="flex flex-col h-full bg-white border-l border-navy-200">
+    <div
+      ref={panelRef}
+      tabIndex={-1}
+      role="complementary"
+      aria-label={`Preview: ${job.title} at ${companyName}`}
+      className="flex flex-col h-full bg-white border-l border-navy-200 outline-none"
+    >
       {/* Header */}
       <div className="flex-shrink-0 border-b border-navy-100 px-5 py-4">
         <div className="flex items-start justify-between gap-3">
