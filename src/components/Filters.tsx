@@ -42,8 +42,14 @@ interface FiltersProps {
   locationCounts?: Record<string, number>
 }
 
-const selectClassName =
-  "rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm text-navy-800 transition-all hover:border-navy-300 focus:border-navy-500 focus:outline-none focus:ring-2 focus:ring-navy-500/20 cursor-pointer"
+const selectBase =
+  "rounded-lg border bg-white px-3 py-2 text-sm text-navy-800 transition-all hover:border-navy-300 focus:border-navy-500 focus:outline-none focus:ring-2 focus:ring-navy-500/20 cursor-pointer"
+
+const selectClassName = `${selectBase} border-navy-200`
+
+function activeSelect(hasValue: string | undefined): string {
+  return hasValue ? `${selectBase} border-navy-400 bg-navy-50/50` : selectClassName
+}
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest first' },
@@ -194,7 +200,7 @@ export default function Filters({
               value={filters.category}
               onChange={(e) => handleChange('category', e.target.value)}
               aria-label="Filter by category"
-              className={`${selectClassName} w-full`}
+              className={`${activeSelect(filters.category)} w-full`}
             >
               <option value="">All Categories</option>
               {JOB_CATEGORIES.map((c) => (
@@ -206,7 +212,7 @@ export default function Filters({
               value={filters.company}
               onChange={(e) => handleChange('company', e.target.value)}
               aria-label="Filter by company"
-              className={`${selectClassName} w-full`}
+              className={`${activeSelect(filters.company)} w-full`}
             >
               <option value="">All Companies</option>
               {companies.map((c) => (
@@ -218,7 +224,7 @@ export default function Filters({
               value={filters.location}
               onChange={(e) => handleChange('location', e.target.value)}
               aria-label="Filter by location"
-              className={`${selectClassName} w-full`}
+              className={`${activeSelect(filters.location)} w-full`}
             >
               <option value="">All Locations</option>
               {locations.map((l) => (
@@ -230,7 +236,7 @@ export default function Filters({
               value={filters.job_type}
               onChange={(e) => handleChange('job_type', e.target.value)}
               aria-label="Filter by job type"
-              className={`${selectClassName} w-full`}
+              className={`${activeSelect(filters.job_type)} w-full`}
             >
               <option value="">All Job Types</option>
               {JOB_TYPES.map((t) => (
@@ -245,7 +251,7 @@ export default function Filters({
               value={filters.pipeline_stage}
               onChange={(e) => handleChange('pipeline_stage', e.target.value)}
               aria-label="Filter by pipeline stage"
-              className={`${selectClassName} w-full`}
+              className={`${activeSelect(filters.pipeline_stage)} w-full`}
             >
               <option value="">All Stages</option>
               {PIPELINE_STAGES.map((s) => (
@@ -257,7 +263,7 @@ export default function Filters({
               value={filters.remote_type}
               onChange={(e) => handleChange('remote_type', e.target.value)}
               aria-label="Filter by work style"
-              className={`${selectClassName} w-full`}
+              className={`${activeSelect(filters.remote_type)} w-full`}
             >
               <option value="">All Work Styles</option>
               {REMOTE_TYPES.map((r) => (
@@ -269,7 +275,7 @@ export default function Filters({
               value={filters.license}
               onChange={(e) => handleChange('license', e.target.value)}
               aria-label="Filter by license requirement"
-              className={`${selectClassName} w-full`}
+              className={`${activeSelect(filters.license)} w-full`}
             >
               <option value="">Any License</option>
               {FINANCE_LICENSES.map((l) => (

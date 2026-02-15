@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { requireAdmin } from '@/lib/auth'
+import { rateLimit, getClientIP } from '@/lib/rateLimit'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const ip = getClientIP(request)
+    const { limited } = rateLimit(`companies:${ip}`, 60, 60_000)
+    if (limited) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': '60' } }
+      )
+    }
+
     const { data, error } = await supabaseAdmin
       .from('companies')
       .select('*')
