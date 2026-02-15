@@ -162,7 +162,7 @@ export default function ResourcesPage() {
             >
               <div className="flex items-start gap-3 mb-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy-100 text-navy-600 flex-shrink-0 group-hover:bg-navy-900 group-hover:text-white transition-colors">
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={CATEGORY_ICONS[guide.category] || CATEGORY_ICONS['Career Guide']} />
                   </svg>
                 </div>
@@ -216,7 +216,7 @@ export default function ResourcesPage() {
               className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition"
             >
               Browse Jobs
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
             </Link>

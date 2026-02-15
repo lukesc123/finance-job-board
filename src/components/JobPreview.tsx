@@ -63,7 +63,7 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
               title="Open full page"
               aria-label="Open full job page"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
             </Link>
@@ -72,7 +72,7 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
               className="p-1.5 rounded-lg text-navy-400 hover:text-navy-600 hover:bg-navy-50 transition"
               aria-label="Close preview"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -118,14 +118,14 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
             >
               <span className="flex items-center gap-2 font-bold text-sm">
                 {isGenericApplyUrl(applyUrl) ? `Careers at ${companyName}` : `Apply at ${companyName}`}
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </span>
               <span className="text-[10px] text-emerald-200 group-hover/apply:text-emerald-100 mt-0.5 flex items-center gap-1">
                 {isGenericApplyUrl(applyUrl) && (
                   <span className="inline-flex items-center gap-0.5">
-                    <svg className="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     Careers page
@@ -148,7 +148,7 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
             title={saved ? 'Unsave' : 'Save'}
             aria-label={saved ? 'Unsave job' : 'Save job'}
           >
-            <svg className="h-5 w-5" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-5 w-5" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
             </svg>
           </button>
@@ -156,7 +156,7 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
 
         {applied && (
           <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
-            <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             You applied to this job
@@ -183,7 +183,7 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
         {/* Experience */}
         {job.years_experience_max !== null && job.years_experience_max !== undefined && (
           <div className="mb-4 flex items-center gap-2 text-sm text-navy-600">
-            <svg className="h-4 w-4 text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-4 w-4 text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             {job.years_experience_max === 0 ? 'No experience required' : `Up to ${job.years_experience_max} year${job.years_experience_max > 1 ? 's' : ''} experience`}

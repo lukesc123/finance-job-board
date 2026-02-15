@@ -124,7 +124,7 @@ export default async function LocationsPage() {
           </nav>
           <div className="flex items-center gap-3 mb-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-navy-800">
-              <svg className="h-5 w-5 text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-5 w-5 text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
@@ -198,7 +198,7 @@ export default async function LocationsPage() {
                     className="flex items-center justify-between px-5 py-3 hover:bg-navy-50/50 transition group"
                   >
                     <div className="flex items-center gap-3">
-                      <svg className="h-4 w-4 text-navy-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 text-navy-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
@@ -209,7 +209,7 @@ export default async function LocationsPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-semibold text-navy-600">{loc.jobCount} {loc.jobCount === 1 ? 'job' : 'jobs'}</span>
-                      <svg className="h-4 w-4 text-navy-300 group-hover:text-navy-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 text-navy-300 group-hover:text-navy-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </div>
