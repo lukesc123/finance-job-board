@@ -113,6 +113,7 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
               href={applyUrl}
               target="_blank"
               rel="noopener noreferrer nofollow"
+              aria-label={`${isGenericApplyUrl(applyUrl) ? 'Careers' : 'Apply'} at ${companyName} (opens in new tab)`}
               onClick={handleApplyClick}
               className="inline-flex flex-col items-center rounded-lg bg-emerald-600 px-5 py-2.5 text-white hover:bg-emerald-700 transition flex-1 group/apply"
             >

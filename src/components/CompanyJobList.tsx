@@ -125,6 +125,7 @@ export default function CompanyJobList({
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer nofollow"
+                      aria-label={`${generic ? 'Careers' : 'Apply'} at ${companyName} (opens in new tab)`}
                       onClick={(e) => {
                         e.stopPropagation()
                         trackApplyClick({ id: job.id, title: job.title, company: { name: companyName }, apply_url: job.apply_url })
