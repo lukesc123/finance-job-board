@@ -101,7 +101,7 @@ function HomePageContent() {
     )
     observer.observe(el)
     return () => observer.disconnect()
-  })
+  }, [visibleCount, loading])
 
   useEffect(() => {
     try {
