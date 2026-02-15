@@ -39,10 +39,11 @@ export default function RecentlyViewed() {
         </h2>
         <button
           onClick={() => {
-            localStorage.removeItem('recentlyViewed')
+            try { localStorage.removeItem('recentlyViewed') } catch { /* ignore */ }
             setRecentJobs([])
           }}
           className="text-xs text-navy-400 hover:text-navy-600 transition underline underline-offset-2"
+          aria-label="Clear recently viewed jobs"
         >
           Clear
         </button>

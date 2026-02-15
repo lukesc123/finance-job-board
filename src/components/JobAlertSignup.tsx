@@ -53,7 +53,7 @@ export default function JobAlertSignup() {
 
   const handleDismiss = () => {
     setDismissed(true)
-    localStorage.setItem('jobAlertDismissed', '1')
+    try { localStorage.setItem('jobAlertDismissed', '1') } catch { /* ignore */ }
   }
 
   if (dismissed) return null

@@ -25,7 +25,7 @@ function readList(key: string): string[] {
 }
 
 function writeList(key: string, list: string[], event: string) {
-  localStorage.setItem(key, JSON.stringify(list))
+  try { localStorage.setItem(key, JSON.stringify(list)) } catch { /* ignore */ }
   window.dispatchEvent(new Event(event))
 }
 
