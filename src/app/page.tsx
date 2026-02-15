@@ -3,16 +3,19 @@
 import { useState, useCallback, useEffect, useMemo, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import SearchBar from '@/components/SearchBar'
 import Filters from '@/components/Filters'
 import JobCard from '@/components/JobCard'
 import JobCardSkeleton from '@/components/JobCardSkeleton'
-import JobAlertSignup from '@/components/JobAlertSignup'
-import RecentlyViewed from '@/components/RecentlyViewed'
 import KeyboardNav from '@/components/KeyboardNav'
 import CompareBar from '@/components/CompareBar'
-import SalaryInsights from '@/components/SalaryInsights'
 import JobPreview from '@/components/JobPreview'
+
+// Lazy-load below-the-fold components
+const JobAlertSignup = dynamic(() => import('@/components/JobAlertSignup'))
+const RecentlyViewed = dynamic(() => import('@/components/RecentlyViewed'))
+const SalaryInsights = dynamic(() => import('@/components/SalaryInsights'))
 import { Job, JobFilters } from '@/types'
 import { getPipelineStageDisplay, debounce } from '@/lib/formatting'
 import { JOB_CATEGORIES } from '@/lib/constants'
