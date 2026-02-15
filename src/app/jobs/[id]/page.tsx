@@ -43,8 +43,15 @@ export async function generateMetadata({ params }: JobDetailPageProps): Promise<
     }
   }
 
-  const description = (job.description || '').substring(0, 160).trim() + '...'
-  const title = `${job.title} at ${job.company?.name || 'Company'} | FinanceJobs`
+  const companyName = job.company?.name || 'Company'
+  const salaryMeta = job.salary_min && job.salary_max
+    ? ` ${formatSalary(job.salary_min, job.salary_max)}.`
+    : ''
+  const locationMeta = job.location ? ` in ${job.location}` : ''
+  const rawDesc = (job.description || '').replace(/[#*_\[\]<>]/g, '').replace(/\s+/g, ' ').trim()
+  const snippet = rawDesc.length > 80 ? rawDesc.substring(0, 80).trim() + '...' : rawDesc
+  const description = `${job.title} at ${companyName}${locationMeta}.${salaryMeta}${snippet ? ` ${snippet}` : ''}`
+  const title = `${job.title} at ${companyName} | FinanceJobs`
 
   return {
     title,

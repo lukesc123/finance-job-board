@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 
 /**
@@ -101,15 +101,45 @@ export default function KeyboardNav() {
     )
   }
 
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
+
+  // Auto-focus close button and trap focus within dialog
+  useEffect(() => {
+    closeRef.current?.focus()
+
+    function trapFocus(e: KeyboardEvent) {
+      if (e.key !== 'Tab' || !dialogRef.current) return
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
+    window.addEventListener('keydown', trapFocus)
+    return () => window.removeEventListener('keydown', trapFocus)
+  }, [])
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowHelp(false)} role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
       <div
+        ref={dialogRef}
         className="bg-white rounded-xl shadow-2xl border border-navy-200 p-6 max-w-sm w-full mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-navy-900">Keyboard Shortcuts</h3>
           <button
+            ref={closeRef}
             onClick={() => setShowHelp(false)}
             className="text-navy-400 hover:text-navy-600 transition"
             aria-label="Close shortcuts"
