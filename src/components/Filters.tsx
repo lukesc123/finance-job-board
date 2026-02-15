@@ -151,6 +151,9 @@ export default function Filters({
 
   return (
     <div className="space-y-4">
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {activeFilterCount > 0 ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active` : 'No filters active'}
+      </div>
       {/* Top row: Sort + Mobile Toggle */}
       <div className="flex items-center gap-3">
         <select
