@@ -335,23 +335,38 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
                 <span className="text-[11px] text-navy-400">{timePosted}</span>
 
                 {/* Quick Apply */}
-                {job.apply_url && (
-                  <a
-                    href={job.apply_url.startsWith('http') ? job.apply_url : `https://${job.apply_url}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      trackApplyClick(job)
-                    }}
-                    className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white sm:opacity-0 sm:group-hover:opacity-100 transition-all hover:bg-emerald-700"
-                  >
-                    Apply at {job.company?.name || 'Company'}
-                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
-                )}
+                {job.apply_url && (() => {
+                  const url = job.apply_url!.startsWith('http') ? job.apply_url! : `https://${job.apply_url}`
+                  const generic = isGenericApplyUrl(url)
+                  return (
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        trackApplyClick(job)
+                      }}
+                      className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white sm:opacity-0 sm:group-hover:opacity-100 transition-all hover:bg-emerald-700"
+                    >
+                      {generic ? (
+                        <>
+                          <svg className="h-3 w-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                          Careers at {job.company?.name || 'Company'}
+                        </>
+                      ) : (
+                        <>
+                          Apply at {job.company?.name || 'Company'}
+                        </>
+                      )}
+                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  )
+                })()}
               </div>
             </div>
           </div>

@@ -26,11 +26,18 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState<SortOption>('jobs')
   const [selectedCategory, setSelectedCategory] = useState('')
+  const [selectedLocation, setSelectedLocation] = useState('')
 
   const allCategories = useMemo(() => {
     const cats = new Set<string>()
     companies.forEach((c) => c.categories.forEach((cat) => cats.add(cat)))
     return Array.from(cats).sort()
+  }, [companies])
+
+  const allLocations = useMemo(() => {
+    const locs = new Map<string, number>()
+    companies.forEach((c) => c.locations.forEach((loc) => locs.set(loc, (locs.get(loc) || 0) + 1)))
+    return Array.from(locs.entries()).sort((a, b) => b[1] - a[1]).map(([loc]) => loc)
   }, [companies])
 
   const filtered = useMemo(() => {
@@ -51,6 +58,10 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
       result = result.filter((c) => c.categories.includes(selectedCategory))
     }
 
+    if (selectedLocation) {
+      result = result.filter((c) => c.locations.includes(selectedLocation))
+    }
+
     if (sortBy === 'name_az') {
       result = [...result].sort((a, b) => a.name.localeCompare(b.name))
     } else if (sortBy === 'name_za') {
@@ -60,7 +71,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
     }
 
     return result
-  }, [companies, search, sortBy, selectedCategory])
+  }, [companies, search, sortBy, selectedCategory, selectedLocation])
 
   return (
     <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -88,6 +99,16 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
             </button>
           )}
         </div>
+        <select
+          value={selectedLocation}
+          onChange={(e) => setSelectedLocation(e.target.value)}
+          className="rounded-lg border border-navy-200 bg-white px-3 py-2.5 text-sm text-navy-700 focus:border-navy-400 focus:outline-none"
+        >
+          <option value="">All locations</option>
+          {allLocations.map((loc) => (
+            <option key={loc} value={loc}>{loc}</option>
+          ))}
+        </select>
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as SortOption)}
@@ -131,6 +152,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
         <span className="font-semibold text-navy-900">{filtered.length}</span> {filtered.length === 1 ? 'company' : 'companies'}
         {search && <span className="text-navy-400"> matching &ldquo;{search}&rdquo;</span>}
         {selectedCategory && <span className="text-navy-400"> in {selectedCategory}</span>}
+        {selectedLocation && <span className="text-navy-400"> in {selectedLocation}</span>}
       </p>
 
       {/* Grid */}
@@ -189,7 +211,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                {company.locations.map((loc, i) => (
+                {company.locations.slice(0, 3).map((loc, i, arr) => (
                   <span key={loc}>
                     <Link
                       href={`/location/${slugify(loc)}`}
@@ -197,9 +219,12 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
                     >
                       {loc}
                     </Link>
-                    {i < company.locations.length - 1 && ', '}
+                    {i < arr.length - 1 && ', '}
                   </span>
                 ))}
+                {company.locations.length > 3 && (
+                  <span className="text-navy-300">+{company.locations.length - 3} more</span>
+                )}
               </div>
             )}
 
@@ -250,7 +275,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
           <p className="text-lg font-semibold mb-2">No companies found</p>
           <p className="text-sm">Try a different search term or clear your filters.</p>
           <button
-            onClick={() => { setSearch(''); setSelectedCategory('') }}
+            onClick={() => { setSearch(''); setSelectedCategory(''); setSelectedLocation('') }}
             className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white hover:bg-navy-800 transition"
           >
             Clear filters
