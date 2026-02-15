@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { timeAgo, formatSalary, formatDate, isGenericApplyUrl, slugify } from '@/lib/formatting'
+import { timeAgo, formatSalary, formatDate, isGenericApplyUrl, slugify, getPipelineStageBadgeColor } from '@/lib/formatting'
 import { Job } from '@/types'
 import SimilarJobs from '@/components/SimilarJobs'
 import JobDetailActions from '@/components/JobDetailActions'
@@ -15,13 +15,6 @@ interface JobDetailPageProps {
   params: Promise<{ id: string }>
 }
 
-function getPipelineStageBadgeColor(stage: string): string {
-  if (stage.includes('Internship')) return 'bg-emerald-50 text-emerald-700 border-emerald-200'
-  if (stage === 'New Grad') return 'bg-blue-50 text-blue-700 border-blue-200'
-  if (stage === 'No Experience Required') return 'bg-violet-50 text-violet-700 border-violet-200'
-  if (stage === 'Early Career') return 'bg-amber-50 text-amber-700 border-amber-200'
-  return 'bg-navy-50 text-navy-700 border-navy-200'
-}
 
 async function getJobData(id: string): Promise<Job | null> {
   try {
