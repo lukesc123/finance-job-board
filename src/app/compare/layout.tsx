@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Compare Jobs | FinanceJobs',
-  description: 'Compare entry-level finance jobs side by side. Evaluate salary, location, benefits, and requirements to find the best fit for your career.',
+  description: 'Compare salary, location, and details across multiple finance job listings side by side.',
   robots: { index: false },
 }
 
