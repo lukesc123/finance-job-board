@@ -102,7 +102,7 @@ export default function KeyboardNav() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowHelp(false)}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowHelp(false)} role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
       <div
         className="bg-white rounded-xl shadow-2xl border border-navy-200 p-6 max-w-sm w-full mx-4"
         onClick={(e) => e.stopPropagation()}
@@ -112,6 +112,7 @@ export default function KeyboardNav() {
           <button
             onClick={() => setShowHelp(false)}
             className="text-navy-400 hover:text-navy-600 transition"
+            aria-label="Close shortcuts"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
