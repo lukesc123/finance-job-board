@@ -14,7 +14,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
   const { slug } = params
 
   const { data: companies } = await supabaseAdmin.from('companies').select('*')
-  const company = (companies || []).find((c: any) => slugify(c.name) === slug)
+  const company = (companies || []).find((c: { name: string }) => slugify(c.name) === slug)
 
   if (!company) {
     return new ImageResponse(
@@ -34,7 +34,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
     .eq('is_active', true)
 
   const jobCount = jobs?.length || 0
-  const categories = [...new Set((jobs || []).map((j: any) => j.category))]
+  const categories = [...new Set((jobs || []).map((j: { category: string }) => j.category))]
 
   return new ImageResponse(
     (

@@ -11,18 +11,20 @@ export default function SimilarJobs({ jobId }: { jobId: string }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const controller = new AbortController()
     async function fetchSimilar() {
       try {
-        const res = await fetch(`/api/similar-jobs?id=${jobId}`)
+        const res = await fetch(`/api/similar-jobs?id=${jobId}`, { signal: controller.signal })
         const data = await res.json()
         if (Array.isArray(data)) setJobs(data)
-      } catch {
-        // Silently fail
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return
       } finally {
         setLoading(false)
       }
     }
     fetchSimilar()
+    return () => controller.abort()
   }, [jobId])
 
   if (loading) {

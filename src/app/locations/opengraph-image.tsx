@@ -12,7 +12,7 @@ export default async function Image() {
     .select('location')
     .eq('is_active', true)
 
-  const locations = [...new Set((jobs || []).map((j: any) => j.location as string))].filter(Boolean)
+  const locations = [...new Set((jobs || []).map((j: { location: string }) => j.location))].filter(Boolean)
   const jobCount = jobs?.length || 0
   const cityCount = locations.length
 

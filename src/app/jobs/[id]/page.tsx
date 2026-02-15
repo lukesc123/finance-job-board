@@ -58,6 +58,7 @@ export async function generateMetadata({ params }: JobDetailPageProps): Promise<
     title,
     description,
     openGraph: { title, description, type: 'website' },
+    alternates: { canonical: `${SITE_URL}/jobs/${id}` },
   }
 }
 

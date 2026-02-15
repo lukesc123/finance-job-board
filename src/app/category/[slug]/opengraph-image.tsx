@@ -37,7 +37,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
     .eq('is_active', true)
 
   const jobCount = jobs?.length || 0
-  const companyCount = new Set((jobs || []).map((j: any) => j.company_id)).size
+  const companyCount = new Set((jobs || []).map((j: { company_id: string }) => j.company_id)).size
 
   return new ImageResponse(
     (

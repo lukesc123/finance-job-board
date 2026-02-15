@@ -93,7 +93,7 @@ async function getStats() {
     .select('category')
     .eq('is_active', true)
 
-  const uniqueCategories = new Set((categories || []).map((j: any) => j.category))
+  const uniqueCategories = new Set((categories || []).map((j: { category: string }) => j.category))
 
   return {
     jobs: jobCount || 0,

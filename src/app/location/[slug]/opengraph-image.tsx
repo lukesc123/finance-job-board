@@ -30,12 +30,12 @@ export default async function Image({ params }: { params: { slug: string } }) {
     )
   }
 
-  const locations = [...new Set(allJobs.map((j: any) => j.location as string))].filter(Boolean)
+  const locations = [...new Set(allJobs.map((j: { location: string; company_id: string }) => j.location))].filter(Boolean)
   const location = locations.find((loc) => slugify(loc) === slug) || slug
 
-  const locationJobs = allJobs.filter((j: any) => slugify(j.location) === slug)
+  const locationJobs = allJobs.filter((j: { location: string; company_id: string }) => slugify(j.location) === slug)
   const jobCount = locationJobs.length
-  const companyCount = new Set(locationJobs.map((j: any) => j.company_id)).size
+  const companyCount = new Set(locationJobs.map((j: { location: string; company_id: string }) => j.company_id)).size
 
   return new ImageResponse(
     (

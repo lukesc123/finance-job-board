@@ -12,7 +12,7 @@ export default async function Image() {
     .select('category')
     .eq('is_active', true)
 
-  const categories = [...new Set((jobs || []).map((j: any) => j.category as string))].filter(Boolean)
+  const categories = [...new Set((jobs || []).map((j: { category: string }) => j.category))].filter(Boolean)
   const jobCount = jobs?.length || 0
 
   return new ImageResponse(

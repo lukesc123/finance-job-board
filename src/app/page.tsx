@@ -448,7 +448,7 @@ function HomePageContent() {
               <span className="text-sm text-navy-500">Loading...</span>
             </div>
           ) : (
-            <p className="text-sm text-navy-600">
+            <p className="text-sm text-navy-600" aria-live="polite" aria-atomic="true">
               <span className="font-semibold text-navy-900">{sortedJobs.length}</span>{' '}
               {sortedJobs.length === 1 ? 'job' : 'jobs'}
               {sortedJobs.length > 0 && <span className="text-navy-400"> sorted by {getSortLabel()}</span>}
