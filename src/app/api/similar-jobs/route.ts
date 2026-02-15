@@ -21,13 +21,36 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
 
-    // Fetch candidate jobs (active, excluding current)
-    const { data: candidates, error } = await supabaseAdmin
+    // Fetch candidate jobs: prefer same category + pipeline stage, fall back to broader pool
+    const { data: sameCategoryCandidates, error: catErr } = await supabaseAdmin
       .from('jobs')
       .select('*, company:companies(*)')
       .eq('is_active', true)
+      .eq('category', sourceJob.category)
       .neq('id', jobId)
-      .limit(100)
+      .order('posted_date', { ascending: false })
+      .limit(50)
+
+    if (catErr) throw catErr
+
+    // If few same-category results, fetch more from same pipeline stage
+    let candidates = sameCategoryCandidates || []
+    if (candidates.length < 8) {
+      const existingIds = new Set(candidates.map(j => j.id))
+      const { data: stageCandidates, error: stageErr } = await supabaseAdmin
+        .from('jobs')
+        .select('*, company:companies(*)')
+        .eq('is_active', true)
+        .eq('pipeline_stage', sourceJob.pipeline_stage)
+        .neq('id', jobId)
+        .order('posted_date', { ascending: false })
+        .limit(30)
+      if (stageErr) throw stageErr
+      const extra = (stageCandidates || []).filter(j => !existingIds.has(j.id))
+      candidates = [...candidates, ...extra]
+    }
+
+    const error = null
 
     if (error) throw error
 
