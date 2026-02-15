@@ -18,7 +18,7 @@ export default function Navbar() {
   if (pathname?.startsWith('/admin')) return null
 
   return (
-    <nav className="sticky top-0 z-40 border-b border-navy-200/60 bg-white/80 backdrop-blur-xl">
+    <nav className="sticky top-0 z-40 border-b border-navy-200/60 bg-white/80 backdrop-blur-xl" aria-label="Main navigation">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3.5 sm:px-6">
         <Link
           href="/"
