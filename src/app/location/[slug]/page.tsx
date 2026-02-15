@@ -31,7 +31,7 @@ async function getAllLocations(): Promise<string[]> {
     .eq('is_active', true)
 
   if (!data) return []
-  return [...new Set(data.map((j: any) => j.location as string))].filter(Boolean).sort()
+  return [...new Set(data.map((j: { location: string }) => j.location))].filter(Boolean).sort()
 }
 
 async function getLocationJobs(locationSlug: string): Promise<{ location: string; jobs: LocationJob[] } | null> {
@@ -46,7 +46,8 @@ async function getLocationJobs(locationSlug: string): Promise<{ location: string
     .eq('is_active', true)
     .order('posted_date', { ascending: false })
 
-  const jobs = ((data || []) as any[]).map((j) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const jobs = ((data || []) as any[]).map((j: any) => ({
     ...j,
     company: Array.isArray(j.company) ? j.company[0] || null : j.company,
   })) as LocationJob[]

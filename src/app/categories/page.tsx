@@ -62,8 +62,8 @@ async function getCategoriesData(): Promise<CategoryData[]> {
 
   const catMap = new Map<string, { jobs: number; companies: Set<string>; locations: Set<string>; salaries: number[] }>()
 
-  for (const job of jobs as any[]) {
-    const cat = job.category as string
+  for (const job of jobs as Array<{ category: string; location: string; salary_max: number | null; company: { name: string } | { name: string }[] | null }>) {
+    const cat = job.category
     if (!cat) continue
     if (!catMap.has(cat)) {
       catMap.set(cat, { jobs: 0, companies: new Set(), locations: new Set(), salaries: [] })

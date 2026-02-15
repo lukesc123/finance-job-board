@@ -9,7 +9,12 @@ export default function AdminPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const token = localStorage.getItem('admin_token')
+    let token: string | null = null
+    try {
+      token = localStorage.getItem('admin_token')
+    } catch {
+      // localStorage unavailable (private browsing)
+    }
     if (!token) {
       router.push('/admin/login')
       return

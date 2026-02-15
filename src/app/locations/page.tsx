@@ -24,8 +24,8 @@ async function getLocationsData(): Promise<LocationData[]> {
 
   const locMap = new Map<string, { jobs: number; companies: Set<string>; categories: Set<string> }>()
 
-  for (const job of jobs as any[]) {
-    const loc = job.location as string
+  for (const job of jobs as Array<{ location: string; category: string; company: { name: string } | { name: string }[] | null }>) {
+    const loc = job.location
     if (!loc) continue
     if (!locMap.has(loc)) {
       locMap.set(loc, { jobs: 0, companies: new Set(), categories: new Set() })

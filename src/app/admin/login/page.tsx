@@ -28,9 +28,15 @@ export default function AdminLoginPage() {
       }
 
       const { token } = await res.json()
-      localStorage.setItem('admin_token', token)
+      try {
+        localStorage.setItem('admin_token', token)
+      } catch {
+        setError('Unable to save login token. Check browser privacy settings.')
+        setLoading(false)
+        return
+      }
       router.push('/admin')
-    } catch (err) {
+    } catch {
       setError('Something went wrong. Please try again.')
       setLoading(false)
     }
