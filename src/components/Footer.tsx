@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { slugify } from '@/lib/formatting'
+import { CONTACT_EMAIL } from '@/lib/constants'
 
 const JOB_CATEGORIES = [
   'Investment Banking',
@@ -132,7 +133,7 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-4 text-xs text-navy-500">
               <span>Job listings sourced from company career pages.</span>
-              <a href="mailto:luke.schindler@me.com" className="hover:text-navy-300 transition">Contact</a>
+              <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-navy-300 transition">Contact</a>
             </div>
           </div>
         </div>

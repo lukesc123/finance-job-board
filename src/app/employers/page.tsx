@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { SITE_URL } from "@/lib/constants"
+import { SITE_URL, CONTACT_EMAIL } from "@/lib/constants"
 
 export const revalidate = 300
 
@@ -139,7 +139,7 @@ export default async function EmployersPage() {
             Connect directly with candidates actively seeking finance and accounting careers. Every listing links to your career page.
           </p>
           <a
-            href="mailto:luke.schindler@me.com?subject=Employer%20Inquiry%20-%20FinanceJobs"
+            href={`mailto:${CONTACT_EMAIL}?subject=Employer%20Inquiry%20-%20FinanceJobs`}
             className="inline-flex items-center gap-2 rounded-lg bg-white text-navy-900 px-6 py-3 text-sm font-semibold hover:bg-navy-100 transition shadow-sm"
           >
             Get Started
@@ -228,7 +228,7 @@ export default async function EmployersPage() {
             Get in touch to post your opportunities and connect with talented entry-level finance professionals.
           </p>
           <a
-            href="mailto:luke.schindler@me.com?subject=Employer%20Inquiry%20-%20FinanceJobs"
+            href={`mailto:${CONTACT_EMAIL}?subject=Employer%20Inquiry%20-%20FinanceJobs`}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-navy-900 px-8 py-3 text-sm font-semibold text-white hover:bg-navy-800 transition shadow-sm"
           >
             Contact Us
@@ -236,7 +236,7 @@ export default async function EmployersPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
           </a>
-          <p className="mt-3 text-sm text-navy-500">luke.schindler@me.com</p>
+          <p className="mt-3 text-sm text-navy-500">{CONTACT_EMAIL}</p>
         </div>
       </section>
     </div>

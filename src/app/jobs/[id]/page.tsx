@@ -20,7 +20,7 @@ const SimilarJobs = dynamic(() => import('@/components/SimilarJobs'), {
 import JobDetailActions from '@/components/JobDetailActions'
 import TrackView from '@/components/TrackView'
 import JobDescription from '@/components/JobDescription'
-import { SITE_URL } from "@/lib/constants"
+import { SITE_URL, CONTACT_EMAIL } from "@/lib/constants"
 
 export const revalidate = 300
 
@@ -456,7 +456,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 <p>Posted {timeAgo(job.posted_date)}</p>
                 {job.last_verified_at && <p>Verified {timeAgo(job.last_verified_at)}</p>}
                 <a
-                  href={`mailto:luke.schindler@me.com?subject=${encodeURIComponent(`Issue with listing: ${job.title} at ${job.company?.name || 'Company'}`)}&body=${encodeURIComponent(`Job URL: ${SITE_URL}/jobs/${job.id}\n\nPlease describe the issue:\n`)}`}
+                  href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Issue with listing: ${job.title} at ${job.company?.name || 'Company'}`)}&body=${encodeURIComponent(`Job URL: ${SITE_URL}/jobs/${job.id}\n\nPlease describe the issue:\n`)}`}
                   className="text-xs text-navy-400 hover:text-navy-600 transition underline underline-offset-2 inline-flex items-center gap-1"
                 >
                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

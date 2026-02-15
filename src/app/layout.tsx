@@ -3,7 +3,7 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import ScrollToTop from '@/components/ScrollToTop'
-import { SITE_URL } from "@/lib/constants"
+import { SITE_URL, CONTACT_EMAIL } from "@/lib/constants"
 
 
 export const viewport: Viewport = {
@@ -61,7 +61,7 @@ const organizationJsonLd = {
   description: 'Curated entry-level finance and accounting jobs sourced directly from company career pages.',
   contactPoint: {
     '@type': 'ContactPoint',
-    email: 'luke.schindler@me.com',
+    email: CONTACT_EMAIL,
     contactType: 'customer service',
   },
 }
