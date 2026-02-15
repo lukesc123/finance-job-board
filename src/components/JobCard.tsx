@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
 import { timeAgo, formatSalary, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify } from '@/lib/formatting'
@@ -29,7 +29,7 @@ function isNewJob(postedDate: string): boolean {
   return diffHours <= 48
 }
 
-function HighlightText({ text, highlight }: { text: string; highlight: string }) {
+const HighlightText = memo(function HighlightText({ text, highlight }: { text: string; highlight: string }) {
   if (!highlight || highlight.length < 2) return <>{text}</>
   const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
   const parts = text.split(regex)
@@ -44,7 +44,7 @@ function HighlightText({ text, highlight }: { text: string; highlight: string })
       )}
     </>
   )
-}
+})
 
 interface JobCardProps {
   job: Job
