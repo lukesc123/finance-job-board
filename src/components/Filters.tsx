@@ -10,6 +10,26 @@ import {
   FINANCE_LICENSES,
 } from '@/types'
 
+const SALARY_MIN_OPTIONS = [
+  { value: '40000', label: '$40K+' },
+  { value: '50000', label: '$50K+' },
+  { value: '60000', label: '$60K+' },
+  { value: '70000', label: '$70K+' },
+  { value: '80000', label: '$80K+' },
+  { value: '100000', label: '$100K+' },
+]
+
+const SALARY_MAX_OPTIONS = [
+  { value: '60000', label: '$60K' },
+  { value: '80000', label: '$80K' },
+  { value: '100000', label: '$100K' },
+  { value: '120000', label: '$120K' },
+  { value: '150000', label: '$150K' },
+  { value: '200000', label: '$200K' },
+]
+
+const SM_BREAKPOINT = 640
+
 interface FiltersProps {
   filters: JobFilters
   onFilterChange: (filters: JobFilters) => void
@@ -48,7 +68,7 @@ export default function Filters({
 
   useEffect(() => {
     const handleResize = () => {
-      setFiltersOpen(window.innerWidth >= 640)
+      setFiltersOpen(window.innerWidth >= SM_BREAKPOINT)
     }
     handleResize()
     window.addEventListener('resize', handleResize)
@@ -279,12 +299,9 @@ export default function Filters({
               className={`${selectClassName}`}
             >
               <option value="">No min</option>
-              <option value="40000">$40K+</option>
-              <option value="50000">$50K+</option>
-              <option value="60000">$60K+</option>
-              <option value="70000">$70K+</option>
-              <option value="80000">$80K+</option>
-              <option value="100000">$100K+</option>
+              {SALARY_MIN_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
             </select>
             <span className="text-navy-300">to</span>
             <select
@@ -294,12 +311,9 @@ export default function Filters({
               className={`${selectClassName}`}
             >
               <option value="">No max</option>
-              <option value="60000">$60K</option>
-              <option value="80000">$80K</option>
-              <option value="100000">$100K</option>
-              <option value="120000">$120K</option>
-              <option value="150000">$150K</option>
-              <option value="200000">$200K</option>
+              {SALARY_MAX_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
             </select>
           </div>
         </div>
