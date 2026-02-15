@@ -60,10 +60,6 @@ export async function GET(request: NextRequest) {
       candidates = [...candidates, ...extra]
     }
 
-    const error = null
-
-    if (error) throw error
-
     // Score candidates by similarity
     const scored = (candidates || []).map((job) => {
       let score = 0

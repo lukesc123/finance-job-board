@@ -25,7 +25,8 @@ export default async function Image({ params }: { params: Promise<{ id: string }
 
     if (data) {
       title = data.title || 'Untitled'
-      company = (data.company as any)?.name || ''
+      const co = Array.isArray(data.company) ? data.company[0] : data.company
+      company = (co as { name?: string } | null)?.name || ''
       location = data.location || ''
       salary = formatSalary(data.salary_min, data.salary_max) || ''
       stage = data.pipeline_stage || ''

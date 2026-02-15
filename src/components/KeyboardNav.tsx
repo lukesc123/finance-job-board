@@ -17,6 +17,8 @@ export default function KeyboardNav() {
   const router = useRouter()
   const [focusIndex, setFocusIndex] = useState(-1)
   const [showHelp, setShowHelp] = useState(false)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
 
   const getJobCards = useCallback(() => {
     return Array.from(document.querySelectorAll<HTMLElement>('[data-job-card]'))
@@ -88,24 +90,10 @@ export default function KeyboardNav() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [focusIndex, getJobCards, scrollToCard, router])
 
-  if (!showHelp) {
-    return (
-      <button
-        onClick={() => setShowHelp(true)}
-        className="fixed bottom-6 left-6 z-50 hidden sm:flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900/80 text-white text-xs font-mono hover:bg-navy-800 transition-all shadow-lg backdrop-blur-sm"
-        aria-label="Keyboard shortcuts"
-        title="Press ? for keyboard shortcuts"
-      >
-        ?
-      </button>
-    )
-  }
-
-  const dialogRef = useRef<HTMLDivElement>(null)
-  const closeRef = useRef<HTMLButtonElement>(null)
-
   // Auto-focus close button and trap focus within dialog
   useEffect(() => {
+    if (!showHelp) return
+
     closeRef.current?.focus()
 
     function trapFocus(e: KeyboardEvent) {
@@ -127,7 +115,20 @@ export default function KeyboardNav() {
 
     window.addEventListener('keydown', trapFocus)
     return () => window.removeEventListener('keydown', trapFocus)
-  }, [])
+  }, [showHelp])
+
+  if (!showHelp) {
+    return (
+      <button
+        onClick={() => setShowHelp(true)}
+        className="fixed bottom-6 left-6 z-50 hidden sm:flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900/80 text-white text-xs font-mono hover:bg-navy-800 transition-all shadow-lg backdrop-blur-sm"
+        aria-label="Keyboard shortcuts"
+        title="Press ? for keyboard shortcuts"
+      >
+        ?
+      </button>
+    )
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowHelp(false)} role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
