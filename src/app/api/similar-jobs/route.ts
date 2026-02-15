@@ -16,8 +16,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const jobId = searchParams.get('id')
 
-    if (!jobId) {
-      return NextResponse.json({ error: 'Job ID required' }, { status: 400 })
+    if (!jobId || !/^[a-f0-9-]{36}$/i.test(jobId)) {
+      return NextResponse.json({ error: 'Valid Job ID required' }, { status: 400 })
     }
 
     // Fetch the source job
