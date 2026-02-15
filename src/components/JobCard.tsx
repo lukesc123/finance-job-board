@@ -2,6 +2,7 @@
 
 import { memo } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Job } from '@/types'
 import CompanyLogo from '@/components/CompanyLogo'
 import { timeAgo, formatSalary, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor, getPipelineStageAccent } from '@/lib/formatting'
@@ -40,6 +41,7 @@ interface JobCardProps {
 }
 
 export default function JobCard({ job, searchQuery = '', onPreview, isActive = false }: JobCardProps) {
+  const router = useRouter()
   const salary = formatSalary(job.salary_min, job.salary_max)
   const timePosted = timeAgo(job.posted_date)
   const isNew = isNewJob(job.posted_date)
@@ -144,7 +146,7 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
                       e.preventDefault()
                       e.stopPropagation()
                       if (job.company?.name) {
-                        window.location.href = `/companies/${slugify(job.company.name)}`
+                        router.push(`/companies/${slugify(job.company.name)}`)
                       }
                     }}
                     className="hover:text-navy-700 hover:underline cursor-pointer transition"
@@ -160,8 +162,7 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    const locSlug = slugify(job.location)
-                    window.location.href = `/location/${locSlug}`
+                    router.push(`/location/${slugify(job.location)}`)
                   }}
                   className="inline-flex items-center gap-1 hover:text-navy-700 hover:underline cursor-pointer transition"
                 >

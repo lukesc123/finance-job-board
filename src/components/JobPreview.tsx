@@ -5,7 +5,6 @@ import { Job } from '@/types'
 import { formatSalary, timeAgo, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor } from '@/lib/formatting'
 import { useJobActions, trackApplyClick } from '@/hooks/useJobActions'
 
-
 interface JobPreviewProps {
   job: Job | null
   onClose: () => void
@@ -61,6 +60,7 @@ export default function JobPreview({ job, onClose }: JobPreviewProps) {
               href={`/jobs/${job.id}`}
               className="p-1.5 rounded-lg text-navy-400 hover:text-navy-600 hover:bg-navy-50 transition"
               title="Open full page"
+              aria-label="Open full job page"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -69,6 +69,7 @@ export default function JobPreview({ job, onClose }: JobPreviewProps) {
             <button
               onClick={onClose}
               className="p-1.5 rounded-lg text-navy-400 hover:text-navy-600 hover:bg-navy-50 transition"
+              aria-label="Close preview"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -144,6 +145,7 @@ export default function JobPreview({ job, onClose }: JobPreviewProps) {
                 : 'border-navy-200 text-navy-400 hover:text-navy-600 hover:border-navy-300'
             }`}
             title={saved ? 'Unsave' : 'Save'}
+            aria-label={saved ? 'Unsave job' : 'Save job'}
           >
             <svg className="h-5 w-5" fill={saved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
