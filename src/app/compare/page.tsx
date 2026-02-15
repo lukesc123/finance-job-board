@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
-import { formatSalary, isGenericApplyUrl, slugify } from '@/lib/formatting'
+import { formatSalary, isGenericApplyUrl, slugify, extractHostname, timeAgo } from '@/lib/formatting'
 import { useCompareIds } from '@/hooks/useJobActions'
 
 export default function ComparePage() {
   const { ids: compareIds, remove: removeJob, clearAll: clearCompare } = useCompareIds()
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     async function fetchJobs() {
@@ -19,16 +20,19 @@ export default function ComparePage() {
         return
       }
       setLoading(true)
+      setError(false)
       try {
         const params = new URLSearchParams()
         compareIds.forEach(id => params.append('ids', id))
         const response = await fetch(`/api/jobs?${params.toString()}`)
         if (!response.ok) throw new Error('Failed')
         const fetchedJobs: Job[] = await response.json()
-        // Maintain the order from compareIds
         const matched = compareIds.map(id => fetchedJobs.find(j => j.id === id)).filter(Boolean) as Job[]
         setJobs(matched)
-      } catch { setJobs([]) }
+      } catch {
+        setJobs([])
+        setError(true)
+      }
       setLoading(false)
     }
     fetchJobs()
@@ -43,6 +47,21 @@ export default function ComparePage() {
     return (
       <div className="min-h-screen bg-navy-50 flex items-center justify-center">
         <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-navy-300 border-t-navy-600" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-navy-50">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-24 text-center">
+          <div className="rounded-xl bg-white border border-red-200 p-10 shadow-sm">
+            <p className="text-sm text-red-600 mb-4">Failed to load comparison data.</p>
+            <button onClick={() => window.location.reload()} className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition">
+              Retry
+            </button>
+          </div>
+        </div>
       </div>
     )
   }
@@ -88,6 +107,7 @@ export default function ComparePage() {
         </Link>
       )),
     },
+    { label: 'Posted', values: jobs.map(j => timeAgo(j.posted_date)) },
     { label: 'Work Style', values: jobs.map(j => j.remote_type) },
     { label: 'Job Type', values: jobs.map(j => j.job_type) },
     { label: 'Stage', values: jobs.map(j => j.pipeline_stage) },
@@ -121,6 +141,14 @@ export default function ComparePage() {
         if (j.years_experience_max === null || j.years_experience_max === undefined) return 'Not specified'
         if (j.years_experience_max === 0) return 'No experience required'
         return `Up to ${j.years_experience_max} year${j.years_experience_max > 1 ? 's' : ''}`
+      }),
+    },
+    {
+      label: 'Description',
+      values: jobs.map(j => {
+        const desc = (j.description || '').replace(/[#*_\[\]<>]/g, '').replace(/\s+/g, ' ').trim()
+        if (!desc) return <span className="text-navy-400">No description</span>
+        return <span className="line-clamp-4 text-xs leading-relaxed">{desc.substring(0, 200)}{desc.length > 200 ? '...' : ''}</span>
       }),
     },
   ]
