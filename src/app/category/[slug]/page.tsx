@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { JOB_CATEGORIES, type JobCategory } from '@/types'
-import { timeAgo, formatSalary, slugify, stageColors } from '@/lib/formatting'
+import { timeAgo, formatSalary, slugify, stageColors, isGenericApplyUrl } from '@/lib/formatting'
 
 export const revalidate = 300
 
@@ -42,13 +42,14 @@ interface CategoryJob {
   pipeline_stage: string
   licenses_required: string[]
   posted_date: string
+  apply_url: string | null
   company: { name: string; logo_url: string | null } | null
 }
 
 async function getCategoryJobs(category: JobCategory): Promise<CategoryJob[]> {
   const { data } = await supabaseAdmin
     .from('jobs')
-    .select('id, title, category, location, remote_type, salary_min, salary_max, job_type, pipeline_stage, licenses_required, posted_date, company:company_id(name, logo_url)')
+    .select('id, title, category, location, remote_type, salary_min, salary_max, job_type, pipeline_stage, licenses_required, posted_date, apply_url, company:company_id(name, logo_url)')
     .eq('category', category)
     .eq('is_active', true)
     .order('posted_date', { ascending: false })
@@ -246,6 +247,24 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                       {lic}
                     </span>
                   ))}
+                  {job.apply_url && (() => {
+                    const url = job.apply_url!.startsWith('http') ? job.apply_url! : `https://${job.apply_url}`
+                    const generic = isGenericApplyUrl(url)
+                    return (
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="ml-auto inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-emerald-700 transition"
+                      >
+                        {generic ? `Careers at ${job.company?.name || 'Company'}` : `Apply at ${job.company?.name || 'Company'}`}
+                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    )
+                  })()}
                 </div>
               </Link>
             )
