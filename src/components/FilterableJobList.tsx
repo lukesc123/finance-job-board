@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { stageColors, timeAgo, formatSalary, isGenericApplyUrl } from '@/lib/formatting'
+import { trackApplyClick } from '@/hooks/useJobActions'
 import CompanyLogo from '@/components/CompanyLogo'
 
 interface FilterableJob {
@@ -167,7 +168,10 @@ export default function FilterableJobList({
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        trackApplyClick({ id: job.id, title: job.title, company: job.company, apply_url: job.apply_url })
+                      }}
                       className="ml-auto inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-emerald-700 transition"
                     >
                       {generic ? `Careers at ${job.company?.name || 'Company'}` : `Apply at ${job.company?.name || 'Company'}`}
