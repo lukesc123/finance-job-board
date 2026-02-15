@@ -111,7 +111,7 @@ export default function JobPreview({ job, onClose }: JobPreviewProps) {
             <a
               href={applyUrl}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer nofollow"
               onClick={handleApplyClick}
               className="inline-flex flex-col items-center rounded-lg bg-emerald-600 px-5 py-2.5 text-white hover:bg-emerald-700 transition flex-1 group/apply"
             >

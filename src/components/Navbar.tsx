@@ -15,6 +15,16 @@ export default function Navbar() {
     setMobileMenuOpen(false)
   }, [pathname])
 
+  // Close mobile menu on Escape key
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false)
+    }
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [mobileMenuOpen])
+
   if (pathname?.startsWith('/admin')) return null
 
   return (

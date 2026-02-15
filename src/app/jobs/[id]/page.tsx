@@ -203,7 +203,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                     <a
                       href={job.company.website}
                       target="_blank"
-                      rel="noopener noreferrer"
+                      rel="noopener noreferrer nofollow"
                       className="text-navy-400 hover:text-navy-600 transition"
                       title={`Visit ${job.company.name} website`}
                     >
@@ -221,7 +221,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                   <a
                     href={applyUrl}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="noopener noreferrer nofollow"
                     className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
                   >
                     {isGenericApplyUrl(applyUrl) ? `Careers at ${job.company?.name || 'Company'}` : `Apply at ${job.company?.name || 'Company'}`}
@@ -382,7 +382,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                     <a
                       href={job.company.careers_url}
                       target="_blank"
-                      rel="noopener noreferrer"
+                      rel="noopener noreferrer nofollow"
                       className="inline-flex items-center gap-1 text-sm font-medium text-navy-400 hover:text-navy-600 transition"
                     >
                       {job.company.name} Careers
@@ -459,7 +459,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                   <a
                     href={applyUrl}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="noopener noreferrer nofollow"
                     className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-emerald-600 px-8 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
                   >
                     {isGenericApplyUrl(applyUrl) ? `Careers at ${job.company?.name || 'Company'}` : `Apply at ${job.company?.name || 'Company'}`}
@@ -497,7 +497,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           <a
             href={applyUrl}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener noreferrer nofollow"
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
           >
             {isGenericApplyUrl(applyUrl) ? (

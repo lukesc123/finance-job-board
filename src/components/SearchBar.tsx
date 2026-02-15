@@ -181,6 +181,7 @@ export default function SearchBar({
         aria-expanded={showSuggestions}
         aria-autocomplete="list"
         aria-controls="search-suggestions"
+        aria-activedescendant={selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined}
       />
       <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
         {query ? (
@@ -210,6 +211,7 @@ export default function SearchBar({
           {suggestions.map((s, i) => (
             <button
               key={`${s.type}-${s.value}`}
+              id={`suggestion-${i}`}
               role="option"
               aria-selected={i === selectedIndex}
               onClick={() => handleSelectSuggestion(s)}

@@ -170,7 +170,7 @@ export default function FilterableJobList({
                     <a
                       href={url}
                       target="_blank"
-                      rel="noopener noreferrer"
+                      rel="noopener noreferrer nofollow"
                       onClick={(e) => {
                         e.stopPropagation()
                         trackApplyClick({ id: job.id, title: job.title, company: job.company, apply_url: job.apply_url })

@@ -77,12 +77,12 @@ export default function Footer() {
                 <Link href="/employers" className="text-sm text-navy-400 hover:text-white transition">For Employers</Link>
               </li>
               <li>
-                <a href="https://www.finra.org/registration-exams-ce" target="_blank" rel="noopener noreferrer" className="text-sm text-navy-400 hover:text-white transition">
+                <a href="https://www.finra.org/registration-exams-ce" target="_blank" rel="noopener noreferrer nofollow" className="text-sm text-navy-400 hover:text-white transition">
                   FINRA License Info
                 </a>
               </li>
               <li>
-                <a href="https://www.aicpa-cima.com/resources/landing/cpa-exam" target="_blank" rel="noopener noreferrer" className="text-sm text-navy-400 hover:text-white transition">
+                <a href="https://www.aicpa-cima.com/resources/landing/cpa-exam" target="_blank" rel="noopener noreferrer nofollow" className="text-sm text-navy-400 hover:text-white transition">
                   CPA Exam Guide
                 </a>
               </li>

@@ -144,7 +144,7 @@ export default function ComparePage() {
         <div className="rounded-xl border border-navy-200 bg-white overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[600px]">
-              {/* Header with job titles */}
+              <caption className="sr-only">Side-by-side comparison of {jobs.length} job listings</caption>
               <thead>
                 <tr className="border-b border-navy-200 bg-navy-50/50">
                   <th className="p-4 text-left text-xs font-semibold text-navy-400 uppercase tracking-wider w-32">Field</th>
@@ -192,7 +192,7 @@ export default function ComparePage() {
                           <a
                             href={url}
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel="noopener noreferrer nofollow"
                             className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition"
                           >
                             {generic ? `Careers at ${job.company?.name}` : `Apply at ${job.company?.name}`}

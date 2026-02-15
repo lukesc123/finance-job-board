@@ -232,7 +232,7 @@ export default function JobCard({ job, searchQuery = '', onPreview, isActive = f
                     <a
                       href={url}
                       target="_blank"
-                      rel="noopener noreferrer"
+                      rel="noopener noreferrer nofollow"
                       onClick={(e) => {
                         e.stopPropagation()
                         handleApplyClick(job)

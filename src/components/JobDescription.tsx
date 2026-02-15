@@ -22,7 +22,7 @@ function linkify(text: string): (string | React.ReactElement)[] {
           key={i}
           href={part}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener noreferrer nofollow"
           className="text-navy-600 underline decoration-navy-300 hover:text-navy-800 hover:decoration-navy-500 transition"
         >
           {part.length > 60 ? part.substring(0, 57) + '...' : part}

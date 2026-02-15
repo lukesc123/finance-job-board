@@ -92,7 +92,7 @@ export default function JobDetailActions({ jobId, jobTitle, companyName, postedD
         <a
           href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(jobTitle + ' at ' + companyName)}&url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener noreferrer nofollow"
           className={`${btnBase} border-navy-200 bg-white text-navy-600 hover:bg-navy-50 hover:border-navy-300`}
           aria-label="Share on Twitter"
         >
@@ -105,7 +105,7 @@ export default function JobDetailActions({ jobId, jobTitle, companyName, postedD
         <a
           href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener noreferrer nofollow"
           className={`${btnBase} border-navy-200 bg-white text-navy-600 hover:bg-navy-50 hover:border-navy-300`}
           aria-label="Share on LinkedIn"
         >
