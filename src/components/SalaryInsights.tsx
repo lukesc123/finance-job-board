@@ -39,7 +39,7 @@ export default memo(function SalaryInsights({ jobs }: { jobs: Job[] }) {
   const shown = expanded ? insights : insights.slice(0, 5)
 
   return (
-    <div className="rounded-xl border border-navy-200 bg-white p-5 mb-5">
+    <div className="rounded-xl border border-navy-200 bg-white p-5 mb-5" role="region" aria-label="Salary insights by category">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-bold text-navy-900 text-sm flex items-center gap-2">
           <svg className="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -70,7 +70,11 @@ export default memo(function SalaryInsights({ jobs }: { jobs: Job[] }) {
                   {formatSalaryShort(insight.avgMin)} - {formatSalaryShort(insight.avgMax)}
                 </span>
               </div>
-              <div className="h-2 bg-navy-100 rounded-full overflow-hidden relative">
+              <div
+                className="h-2 bg-navy-100 rounded-full overflow-hidden relative"
+                role="img"
+                aria-label={`Salary range ${formatSalaryShort(insight.avgMin)} to ${formatSalaryShort(insight.avgMax)}`}
+              >
                 <div
                   className="absolute h-full bg-emerald-400 rounded-full group-hover:bg-emerald-500 transition-colors"
                   style={{ left: `${barLeft}%`, width: `${Math.max(barWidth, 2)}%` }}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, memo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import Link from 'next/link'
 import { stageColors, timeAgo, formatSalary, isGenericApplyUrl } from '@/lib/formatting'
 import { trackApplyClick } from '@/hooks/useJobActions'
@@ -37,14 +37,14 @@ export default memo(function FilterableJobList({
 }: FilterableJobListProps) {
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
 
-  const filterValues = [...new Set(
+  const filterValues = useMemo(() => [...new Set(
     jobs.map((j) => {
       if (filterBy === 'category') return j.category
       if (filterBy === 'stage') return j.pipeline_stage
       if (filterBy === 'company') return j.company?.name || ''
       return ''
     }).filter(Boolean)
-  )].sort()
+  )].sort(), [jobs, filterBy])
 
   const filtered = activeFilter
     ? jobs.filter((j) => {
@@ -70,6 +70,7 @@ export default memo(function FilterableJobList({
         <div className="flex flex-wrap gap-2 mb-5">
           <button
             onClick={() => setActiveFilter(null)}
+            aria-pressed={activeFilter === null}
             className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
               activeFilter === null
                 ? 'bg-navy-900 border-navy-900 text-white'
@@ -90,6 +91,7 @@ export default memo(function FilterableJobList({
               <button
                 key={val}
                 onClick={() => setActiveFilter(isActive ? null : val)}
+                aria-pressed={isActive}
                 className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
                   isActive
                     ? 'bg-navy-900 border-navy-900 text-white'

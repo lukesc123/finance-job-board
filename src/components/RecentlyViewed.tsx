@@ -48,7 +48,7 @@ export default memo(function RecentlyViewed() {
           Clear
         </button>
       </div>
-      <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-1 px-1">
+      <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-1 px-1" role="region" aria-label="Recently viewed jobs">
         {recentJobs.map((job) => (
           <Link
             key={job.id}

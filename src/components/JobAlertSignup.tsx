@@ -10,6 +10,7 @@ export default memo(function JobAlertSignup() {
   const [loading, setLoading] = useState(false)
   const [showCategories, setShowCategories] = useState(false)
   const [dismissed, setDismissed] = useState(false)
+  const [emailError, setEmailError] = useState('')
 
   useEffect(() => {
     try {
@@ -25,9 +26,16 @@ export default memo(function JobAlertSignup() {
     )
   }
 
+  const validateEmail = (value: string) => {
+    if (!value) { setEmailError(''); return false }
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+    setEmailError(valid ? '' : 'Please enter a valid email address')
+    return valid
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
+    if (!email || !validateEmail(email)) return
     setLoading(true)
     const alertData = {
       email,
@@ -114,6 +122,7 @@ export default memo(function JobAlertSignup() {
                   key={cat}
                   type="button"
                   onClick={() => toggleCategory(cat)}
+                  aria-pressed={selectedCategories.includes(cat)}
                   className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedCategories.includes(cat)
                       ? 'bg-amber-500 text-navy-900'
@@ -127,29 +136,35 @@ export default memo(function JobAlertSignup() {
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="flex gap-2 w-full">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="your@email.com"
-            required
-            autoComplete="email"
-            aria-label="Email address for job alerts"
-            className="flex-1 rounded-lg border border-navy-600 bg-navy-800/50 px-3.5 py-2.5 text-sm text-white placeholder-navy-400 focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-400"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex-shrink-0 rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-navy-900 hover:bg-amber-400 transition disabled:opacity-70"
-          >
-            {loading ? (
-              <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-            ) : 'Subscribe'}
-          </button>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-1.5 w-full">
+          <div className="flex gap-2">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); if (emailError) validateEmail(e.target.value) }}
+              onBlur={(e) => validateEmail(e.target.value)}
+              placeholder="your@email.com"
+              required
+              autoComplete="email"
+              aria-label="Email address for job alerts"
+              aria-invalid={emailError ? 'true' : undefined}
+              aria-describedby={emailError ? 'email-error' : undefined}
+              className={`flex-1 rounded-lg border bg-navy-800/50 px-3.5 py-2.5 text-sm text-white placeholder-navy-400 focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-400 ${emailError ? 'border-red-400' : 'border-navy-600'}`}
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-shrink-0 rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-navy-900 hover:bg-amber-400 transition disabled:opacity-70"
+            >
+              {loading ? (
+                <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              ) : 'Subscribe'}
+            </button>
+          </div>
+          {emailError && <p id="email-error" className="text-xs text-red-300" role="alert">{emailError}</p>}
         </form>
       </div>
     </div>
