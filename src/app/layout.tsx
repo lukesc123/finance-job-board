@@ -57,7 +57,7 @@ const organizationJsonLd = {
   '@type': 'Organization',
   name: 'FinanceJobs',
   url: SITE_URL,
-  logo: `${SITE_URL}/icon.png`,
+  logo: `${SITE_URL}/icon`,
   description: 'Curated entry-level finance and accounting jobs sourced directly from company career pages.',
   contactPoint: {
     '@type': 'ContactPoint',
@@ -91,7 +91,6 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="alternate" type="application/rss+xml" title="FinanceJobs RSS Feed" href="/feed.xml" />
-        <link rel="icon" href="/icon.png" type="image/png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://bqmafeveiheljhftrfkq.supabase.co" />

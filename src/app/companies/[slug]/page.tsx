@@ -40,7 +40,7 @@ async function getCompanyBySlug(slug: string): Promise<{ company: CompanyDetail;
     .select('id, name, website, careers_url, logo_url, description')
   if (!companies) return null
 
-  const company = companies.find((c: any) => slugify(c.name) === slug)
+  const company = (companies as CompanyDetail[]).find((c) => slugify(c.name) === slug)
   if (!company) return null
 
   const { data: jobs } = await supabaseAdmin
@@ -78,7 +78,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export async function generateStaticParams() {
   const { data: companies } = await supabaseAdmin.from('companies').select('name')
-  return (companies || []).map((c: any) => ({ slug: slugify(c.name) }))
+  return (companies || []).map((c: { name: string }) => ({ slug: slugify(c.name) }))
 }
 
 export default async function CompanyDetailPage({ params }: { params: Promise<{ slug: string }> }) {
