@@ -374,8 +374,14 @@ function HomePageContent() {
       <section className={`mx-auto px-4 sm:px-6 lg:px-8 py-8 ${previewJob && isDesktop ? 'max-w-[1400px]' : 'max-w-5xl'}`}>
         {/* Error Banner */}
         {error && (
-          <div className="mb-6 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
+          <div className="mb-6 rounded-lg bg-red-50 border border-red-200 px-4 py-3 flex items-center justify-between gap-3">
             <p className="text-sm text-red-700">{error}</p>
+            <button
+              onClick={() => { setError(null); fetchJobs(filters) }}
+              className="flex-shrink-0 rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 transition"
+            >
+              Retry
+            </button>
           </div>
         )}
 

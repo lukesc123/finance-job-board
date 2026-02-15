@@ -9,24 +9,7 @@ import {
   REMOTE_TYPES,
   FINANCE_LICENSES,
 } from '@/types'
-
-const SALARY_MIN_OPTIONS = [
-  { value: '40000', label: '$40K+' },
-  { value: '50000', label: '$50K+' },
-  { value: '60000', label: '$60K+' },
-  { value: '70000', label: '$70K+' },
-  { value: '80000', label: '$80K+' },
-  { value: '100000', label: '$100K+' },
-]
-
-const SALARY_MAX_OPTIONS = [
-  { value: '60000', label: '$60K' },
-  { value: '80000', label: '$80K' },
-  { value: '100000', label: '$100K' },
-  { value: '120000', label: '$120K' },
-  { value: '150000', label: '$150K' },
-  { value: '200000', label: '$200K' },
-]
+import { SALARY_MIN_OPTIONS, SALARY_MAX_OPTIONS } from '@/lib/constants'
 
 const SM_BREAKPOINT = 640
 

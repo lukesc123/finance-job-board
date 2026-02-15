@@ -141,7 +141,8 @@ export default memo(function JobCard({ job, searchQuery = '', onPreview, isActiv
                   <HighlightText text={job.title} highlight={searchQuery} />
                 </h3>
                 <p className="text-sm text-navy-500 mt-0.5">
-                  <span
+                  <button
+                    type="button"
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
@@ -149,29 +150,32 @@ export default memo(function JobCard({ job, searchQuery = '', onPreview, isActiv
                         router.push(`/companies/${slugify(job.company.name)}`)
                       }
                     }}
-                    className="hover:text-navy-700 hover:underline cursor-pointer transition"
+                    className="hover:text-navy-700 hover:underline cursor-pointer transition text-inherit"
+                    aria-label={`View all jobs at ${job.company?.name || 'this company'}`}
                   >
                     <HighlightText text={job.company?.name || ''} highlight={searchQuery} />
-                  </span>
+                  </button>
                 </p>
               </div>
 
               {/* Metadata Row */}
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-navy-500">
-                <span
+                <button
+                  type="button"
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
                     router.push(`/location/${slugify(job.location)}`)
                   }}
-                  className="inline-flex items-center gap-1 hover:text-navy-700 hover:underline cursor-pointer transition"
+                  className="inline-flex items-center gap-1 hover:text-navy-700 hover:underline cursor-pointer transition text-inherit"
+                  aria-label={`View all jobs in ${job.location}`}
                 >
                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <HighlightText text={job.location} highlight={searchQuery} />
-                </span>
+                </button>
                 <span className="text-navy-200">|</span>
                 <span>{job.remote_type}</span>
                 <span className="text-navy-200">|</span>
