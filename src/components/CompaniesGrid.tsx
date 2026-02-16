@@ -126,6 +126,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
       <div className="flex flex-wrap gap-1.5 mb-5">
         <button
           onClick={() => setSelectedCategory('')}
+          aria-pressed={!selectedCategory}
           className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
             !selectedCategory
               ? 'bg-navy-900 text-white'
@@ -138,6 +139,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
           <button
             key={cat}
             onClick={() => setSelectedCategory(selectedCategory === cat ? '' : cat)}
+            aria-pressed={selectedCategory === cat}
             className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
               selectedCategory === cat
                 ? 'bg-navy-900 text-white'

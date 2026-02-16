@@ -2,7 +2,7 @@
 
 export default function JobCardSkeleton() {
   return (
-    <div className="rounded-xl border border-l-4 border-navy-100 border-l-navy-200 bg-white p-4 sm:p-5 animate-pulse">
+    <div className="rounded-xl border border-l-4 border-navy-100 border-l-navy-200 bg-white p-4 sm:p-5 animate-pulse" role="status" aria-label="Loading job listing">
       <div className="flex gap-3.5">
         <div className="h-11 w-11 rounded-lg bg-navy-100 flex-shrink-0" />
         <div className="flex-1 space-y-3">

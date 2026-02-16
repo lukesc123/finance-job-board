@@ -49,7 +49,7 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
   }
 
   // Clean description into paragraphs
-  const descParagraphs = (job.description || '').split(/\n{2,}|\r\n{2,}/).filter(Boolean)
+  const descParagraphs = (job.description || '').split(/(?:\r?\n){2,}/).filter(Boolean)
 
   return (
     <div

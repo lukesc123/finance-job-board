@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, memo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import Link from 'next/link'
 import { stageColors, timeAgo, formatSalary, isGenericApplyUrl } from '@/lib/formatting'
 import { trackApplyClick } from '@/hooks/useJobActions'
@@ -27,8 +27,15 @@ export default memo(function CompanyJobList({
   jobs: CompanyJob[]
   companyName: string
 }) {
-  const categories = [...new Set(jobs.map((j) => j.category))].sort()
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
+
+  const categories = useMemo(() => [...new Set(jobs.map((j) => j.category))].sort(), [jobs])
+
+  const categoryCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const j of jobs) counts.set(j.category, (counts.get(j.category) || 0) + 1)
+    return counts
+  }, [jobs])
 
   const filtered = activeCategory
     ? jobs.filter((j) => j.category === activeCategory)
@@ -49,6 +56,7 @@ export default memo(function CompanyJobList({
         <div className="flex flex-wrap gap-2 mb-5">
           <button
             onClick={() => setActiveCategory(null)}
+            aria-pressed={activeCategory === null}
             className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
               activeCategory === null
                 ? 'bg-navy-900 border-navy-900 text-white'
@@ -63,13 +71,14 @@ export default memo(function CompanyJobList({
               onClick={() =>
                 setActiveCategory(activeCategory === cat ? null : cat)
               }
+              aria-pressed={activeCategory === cat}
               className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
                 activeCategory === cat
                   ? 'bg-navy-900 border-navy-900 text-white'
                   : 'bg-white border-navy-200 text-navy-600 hover:bg-navy-50 hover:border-navy-300'
               }`}
             >
-              {cat} ({jobs.filter((j) => j.category === cat).length})
+              {cat} ({categoryCounts.get(cat) || 0})
             </button>
           ))}
         </div>
