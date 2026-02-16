@@ -12,19 +12,7 @@ export function timeAgoFromTimestamp(timestamp: number): string {
 }
 
 export function timeAgo(date: string): string {
-  const now = new Date()
-  const then = new Date(date)
-  const seconds = Math.floor((now.getTime() - then.getTime()) / 1000)
-
-  if (seconds < 60) return 'just now'
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.floor(hours / 24)
-  if (days < 30) return `${days}d ago`
-  const months = Math.floor(days / 30)
-  return `${months}mo ago`
+  return timeAgoFromTimestamp(new Date(date).getTime())
 }
 
 export function formatSalaryShort(n: number): string {
@@ -120,8 +108,14 @@ export function isGenericApplyUrl(url: string): boolean {
       if (pattern.test(path)) return true
     }
 
-    // Workday campus/search pages
-    if (host.includes('myworkdayjobs.com') && !path.match(/\/job\/\d/)) return true
+    // Workday campus/search pages (specific jobs have /job/ with alphanumeric ID)
+    if (host.includes('myworkdayjobs.com') && !path.match(/\/job\/\w+/)) return true
+
+    // Greenhouse job board landing pages (specific jobs have /jobs/<id>)
+    if (host.includes('greenhouse.io') && !path.match(/\/jobs\/\d+/)) return true
+
+    // Lever job listings (specific jobs have /jobs/<id>)
+    if (host.includes('lever.co') && !path.match(/\/[a-f0-9-]{36}/)) return true
 
     // Goldman higher.gs.com roles listing (not a specific role)
     if (host === 'higher.gs.com' && path === '/roles') return true

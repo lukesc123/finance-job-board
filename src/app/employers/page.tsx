@@ -85,25 +85,25 @@ const FAQ = [
 ]
 
 async function getStats() {
-  const { count: jobCount } = await supabaseAdmin
-    .from('jobs')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_active', true)
+  const [jobRes, companyRes, categoryRes] = await Promise.all([
+    supabaseAdmin
+      .from('jobs')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true),
+    supabaseAdmin
+      .from('companies')
+      .select('id'),
+    supabaseAdmin
+      .from('jobs')
+      .select('category')
+      .eq('is_active', true),
+  ])
 
-  const { data: companies } = await supabaseAdmin
-    .from('companies')
-    .select('id')
-
-  const { data: categories } = await supabaseAdmin
-    .from('jobs')
-    .select('category')
-    .eq('is_active', true)
-
-  const uniqueCategories = new Set((categories || []).map((j: { category: string }) => j.category))
+  const uniqueCategories = new Set((categoryRes.data || []).map((j: { category: string }) => j.category))
 
   return {
-    jobs: jobCount || 0,
-    companies: companies?.length || 0,
+    jobs: jobRes.count || 0,
+    companies: companyRes.data?.length || 0,
     categories: uniqueCategories.size,
   }
 }
