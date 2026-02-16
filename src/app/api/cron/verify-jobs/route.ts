@@ -4,17 +4,138 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 /**
  * GET /api/cron/verify-jobs
  * Automated cron job that runs daily to:
- * 1. Check all active job URLs for dead links (404, 410, redirect to generic pages)
- * 2. Flag dead jobs with removal_detected_at
- * 3. Deactivate jobs that have been flagged for 3+ days (grace period)
- * 4. Log summary for monitoring
+ * 1. Deactivate jobs flagged for 3+ days (grace period)
+ * 2. Content-aware verification of all active job URLs
+ *    - Full GET requests to read page body
+ *    - Detects soft 404s ("page doesn't exist", "job no longer available")
+ *    - Detects redirects to error/404/generic career pages
+ * 3. Flag dead jobs with removal_detected_at
+ * 4. Update last_verified_at for alive jobs
  *
  * Runs on Vercel Cron - scheduled daily at 3am UTC
  */
-export const maxDuration = 300 // 5 minutes for Pro, 60 for Hobby
+export const maxDuration = 300
+
+// Patterns that indicate a job page is dead even with HTTP 200
+const SOFT_404_PATTERNS = [
+  /page\s+(you\s+are\s+looking\s+for\s+)?does\s*n.t\s+exist/i,
+  /page\s+not\s+found/i,
+  /job\s+(has\s+been\s+|was\s+)?(removed|closed|expired|filled|deleted)/i,
+  /job\s+(is\s+)?no\s+longer\s+(available|open|active|posted)/i,
+  /position\s+(has\s+been\s+|was\s+)?(filled|closed|removed|expired)/i,
+  /position\s+(is\s+)?no\s+longer\s+(available|open|active)/i,
+  /this\s+(job|position|role|listing|posting)\s+(has\s+been\s+|was\s+|is\s+)?(removed|closed|expired|filled|no longer)/i,
+  /sorry.*?(couldn.t|could\s+not|unable\s+to)\s+find/i,
+  /the\s+requested\s+(page|url|resource)\s+(was\s+not\s+found|does\s*n.t\s+exist|could\s+not\s+be\s+found)/i,
+  /404\s*[-:]?\s*(not\s+found|error|page)/i,
+  /error[:\s]+not\s+found/i,
+  /we\s+couldn.t\s+find\s+(the|that|this)\s+(page|job|position|listing)/i,
+  /this\s+link\s+(may\s+be\s+|is\s+)?(broken|expired|invalid)/i,
+  /search\s+for\s+jobs/i,
+]
+
+const DEAD_REDIRECT_PATTERNS = [
+  /\/404/i,
+  /\/not[-_]?found/i,
+  /\/error/i,
+  /\?error=true/i,
+  /\/careers?\/?$/i,
+  /\/search[-_]?jobs\/?$/i,
+  /\/job[-_]?search\/?$/i,
+]
+
+function isGenericRedirect(originalUrl: string, finalUrl: string): boolean {
+  if (!finalUrl || finalUrl === originalUrl) return false
+  try {
+    const originalPath = new URL(originalUrl).pathname
+    const finalPath = new URL(finalUrl).pathname
+    if (finalPath === originalPath) return false
+    return DEAD_REDIRECT_PATTERNS.some(p => p.test(finalUrl)) || finalPath === '/'
+  } catch {
+    return false
+  }
+}
+
+function isSoft404(html: string): boolean {
+  const hasJobDescription = html.toLowerCase().includes('responsibilities') ||
+    html.toLowerCase().includes('qualifications') ||
+    html.toLowerCase().includes('requirements') ||
+    html.toLowerCase().includes('job description') ||
+    html.toLowerCase().includes('apply now') ||
+    html.toLowerCase().includes('apply for this') ||
+    html.toLowerCase().includes('submit application')
+
+  for (const pattern of SOFT_404_PATTERNS) {
+    if (pattern.test(html)) {
+      if (pattern.source.includes('search\\s+for\\s+jobs') && hasJobDescription) {
+        continue
+      }
+      return true
+    }
+  }
+  return false
+}
+
+async function checkJob(url: string): Promise<{ status: 'alive' | 'dead' | 'soft-404' | 'redirect' | 'error' | 'timeout' }> {
+  try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 15000)
+
+    const resp = await fetch(url, {
+      method: 'GET',
+      redirect: 'follow',
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+    })
+
+    clearTimeout(timeoutId)
+
+    if (resp.status === 404 || resp.status === 410) {
+      return { status: 'dead' }
+    }
+
+    if (resp.status >= 200 && resp.status < 400) {
+      // Check redirect patterns
+      if (isGenericRedirect(url, resp.url || '')) {
+        return { status: 'dead' }
+      }
+
+      // Read body for soft 404 detection
+      try {
+        const body = await resp.text()
+        const snippet = body.substring(0, 50000)
+        if (isSoft404(snippet)) {
+          return { status: 'soft-404' }
+        }
+      } catch { /* fall through */ }
+
+      // Check non-dead redirects
+      const finalUrl = resp.url || ''
+      try {
+        const originalPath = new URL(url).pathname
+        const finalPath = finalUrl ? new URL(finalUrl).pathname : ''
+        if (finalUrl && finalPath !== originalPath) {
+          return { status: 'redirect' }
+        }
+      } catch { /* ignore */ }
+
+      return { status: 'alive' }
+    }
+
+    return { status: 'error' }
+  } catch (err: unknown) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      return { status: 'timeout' }
+    }
+    return { status: 'error' }
+  }
+}
 
 export async function GET(request: Request) {
-  // Verify cron secret
   const authHeader = request.headers.get('authorization')
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -24,7 +145,7 @@ export async function GET(request: Request) {
   const log: string[] = []
 
   try {
-    // Step 1: Deactivate jobs flagged 3+ days ago (grace period expired)
+    // Step 1: Deactivate jobs flagged 3+ days ago
     const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
     const { data: expiredJobs, error: expireErr } = await supabaseAdmin
       .from('jobs')
@@ -39,12 +160,12 @@ export async function GET(request: Request) {
       log.push(`Deactivated ${expiredJobs?.length || 0} jobs (flagged 3+ days ago)`)
     }
 
-    // Step 2: Fetch all active jobs to verify
+    // Step 2: Fetch all active unflagged jobs
     const { data: jobs, error: fetchErr } = await supabaseAdmin
       .from('jobs')
-      .select('id, title, apply_url, source_url, removal_detected_at, company:companies(name)')
+      .select('id, title, apply_url, removal_detected_at, company:companies(name)')
       .eq('is_active', true)
-      .is('removal_detected_at', null) // Only check unflagged jobs
+      .is('removal_detected_at', null)
       .order('posted_date', { ascending: false })
 
     if (fetchErr) throw fetchErr
@@ -52,88 +173,32 @@ export async function GET(request: Request) {
     const jobsToCheck = jobs || []
     log.push(`Checking ${jobsToCheck.length} active unflagged jobs`)
 
-    // Step 3: Verify URLs in batches
-    const batchSize = 10
+    // Step 3: Content-aware URL verification in batches
+    const batchSize = 5
     const deadIds: string[] = []
     const aliveIds: string[] = []
-    let alive = 0
-    let dead = 0
-    let redirect = 0
-    let errorCount = 0
-    let timeout = 0
+    let alive = 0, dead = 0, soft404 = 0, redirect = 0, errorCount = 0, timeout = 0
 
     for (let i = 0; i < jobsToCheck.length; i += batchSize) {
       const batch = jobsToCheck.slice(i, i + batchSize)
-      const checks = batch.map(async (job: Record<string, unknown>) => {
-        const jobId = job.id as string
-        const applyUrl = (job.apply_url as string) || ''
-        if (!applyUrl) return { id: jobId, status: 'error' as const }
+      const results = await Promise.all(
+        batch.map(async (job: Record<string, unknown>) => {
+          const jobId = job.id as string
+          const applyUrl = (job.apply_url as string) || ''
+          if (!applyUrl) return { id: jobId, status: 'error' as const }
+          const url = applyUrl.startsWith('http') ? applyUrl : `https://${applyUrl}`
+          const result = await checkJob(url)
+          return { id: jobId, ...result }
+        })
+      )
 
-        const url = applyUrl.startsWith('http') ? applyUrl : `https://${applyUrl}`
-
-        try {
-          const controller = new AbortController()
-          const timeoutId = setTimeout(() => controller.abort(), 12000)
-
-          let resp: Response
-          try {
-            resp = await fetch(url, {
-              method: 'HEAD',
-              redirect: 'follow',
-              signal: controller.signal,
-              headers: {
-                'User-Agent': 'Mozilla/5.0 (compatible; EntryLevelFinanceJobs/1.0; +https://finance-job-board.vercel.app)',
-              },
-            })
-          } catch {
-            resp = await fetch(url, {
-              method: 'GET',
-              redirect: 'follow',
-              signal: controller.signal,
-              headers: {
-                'User-Agent': 'Mozilla/5.0 (compatible; EntryLevelFinanceJobs/1.0; +https://finance-job-board.vercel.app)',
-              },
-            })
-          }
-
-          clearTimeout(timeoutId)
-
-          if (resp.status >= 200 && resp.status < 400) {
-            const finalUrl = resp.url || ''
-            const originalPath = new URL(url).pathname
-            const finalPath = finalUrl ? new URL(finalUrl).pathname : ''
-
-            if (finalUrl && finalPath !== originalPath) {
-              const isRedirectToGeneric =
-                finalPath === '/' ||
-                /\/careers?\/?$/i.test(finalPath) ||
-                /\/search-jobs\/?$/i.test(finalPath) ||
-                /\/job-search\/?$/i.test(finalPath) ||
-                /\/404\/?$/i.test(finalPath) ||
-                /\/not-found\/?$/i.test(finalPath)
-
-              if (isRedirectToGeneric) {
-                return { id: jobId, status: 'dead' as const }
-              }
-              return { id: jobId, status: 'redirect' as const }
-            }
-            return { id: jobId, status: 'alive' as const }
-          } else if (resp.status === 404 || resp.status === 410) {
-            return { id: jobId, status: 'dead' as const }
-          }
-          return { id: jobId, status: 'error' as const }
-        } catch (err: unknown) {
-          if (err instanceof DOMException && err.name === 'AbortError') {
-            return { id: jobId, status: 'timeout' as const }
-          }
-          return { id: jobId, status: 'error' as const }
-        }
-      })
-
-      const results = await Promise.all(checks)
       for (const r of results) {
         if (r.status === 'alive') { alive++; aliveIds.push(r.id) }
-        else if (r.status === 'dead') { dead++; deadIds.push(r.id) }
+        else if (r.status === 'dead' || r.status === 'soft-404') {
+          if (r.status === 'soft-404') soft404++
+          else dead++
+          deadIds.push(r.id)
+        }
         else if (r.status === 'redirect') { redirect++; aliveIds.push(r.id) }
         else if (r.status === 'error') errorCount++
         else if (r.status === 'timeout') timeout++
@@ -142,7 +207,7 @@ export async function GET(request: Request) {
 
     const now = new Date().toISOString()
 
-    // Step 4: Flag dead jobs with removal_detected_at
+    // Step 4: Flag dead jobs
     if (deadIds.length > 0) {
       for (const id of deadIds) {
         await supabaseAdmin
@@ -152,9 +217,8 @@ export async function GET(request: Request) {
       }
     }
 
-    // Step 5: Update last_verified_at for alive/redirect jobs (batch update)
+    // Step 5: Update last_verified_at for alive jobs
     if (aliveIds.length > 0) {
-      // Update in chunks of 50 to stay within Supabase limits
       for (let i = 0; i < aliveIds.length; i += 50) {
         const chunk = aliveIds.slice(i, i + 50)
         await supabaseAdmin
@@ -166,12 +230,13 @@ export async function GET(request: Request) {
 
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
     log.push(`Verification complete in ${elapsed}s`)
-    log.push(`Results: ${alive} alive, ${dead} dead (flagged), ${redirect} redirect, ${errorCount} error, ${timeout} timeout`)
+    log.push(`Results: ${alive} alive, ${dead} dead, ${soft404} soft-404, ${redirect} redirect, ${errorCount} error, ${timeout} timeout`)
 
     const summary = {
       checked: jobsToCheck.length,
       alive,
       dead,
+      soft_404: soft404,
       redirect,
       error: errorCount,
       timeout,
@@ -182,11 +247,7 @@ export async function GET(request: Request) {
 
     console.log('[Cron: verify-jobs]', JSON.stringify(summary))
 
-    return NextResponse.json({
-      success: true,
-      summary,
-      log,
-    })
+    return NextResponse.json({ success: true, summary, log })
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'Unknown error'
     console.error('[Cron: verify-jobs] Fatal error:', msg)
