@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { requireAdmin } from '@/lib/auth'
 import { rateLimit, getClientIP } from '@/lib/rateLimit'
-import { FINANCE_LICENSES, type FinanceLicense } from '@/types'
+import { FINANCE_LICENSES, JOB_CATEGORIES, JOB_TYPES, PIPELINE_STAGES, REMOTE_TYPES, type FinanceLicense } from '@/types'
 
 export async function GET(request: NextRequest) {
   try {
@@ -179,11 +179,59 @@ export async function GET(request: NextRequest) {
   }
 }
 
+function validateJobBody(body: Record<string, unknown>): string | null {
+  if (!body.title || typeof body.title !== 'string' || body.title.trim().length < 2) {
+    return 'title is required (min 2 characters)'
+  }
+  if (!body.company_id || typeof body.company_id !== 'string') {
+    return 'company_id is required'
+  }
+  if (!body.category || !(JOB_CATEGORIES as readonly string[]).includes(body.category as string)) {
+    return `category must be one of: ${JOB_CATEGORIES.join(', ')}`
+  }
+  if (!body.location || typeof body.location !== 'string' || body.location.trim().length < 2) {
+    return 'location is required (min 2 characters)'
+  }
+  if (body.remote_type && !(REMOTE_TYPES as readonly string[]).includes(body.remote_type as string)) {
+    return `remote_type must be one of: ${REMOTE_TYPES.join(', ')}`
+  }
+  if (body.job_type && !(JOB_TYPES as readonly string[]).includes(body.job_type as string)) {
+    return `job_type must be one of: ${JOB_TYPES.join(', ')}`
+  }
+  if (body.pipeline_stage && !(PIPELINE_STAGES as readonly string[]).includes(body.pipeline_stage as string)) {
+    return `pipeline_stage must be one of: ${PIPELINE_STAGES.join(', ')}`
+  }
+  if (body.apply_url && typeof body.apply_url === 'string') {
+    try {
+      const url = body.apply_url.startsWith('http') ? body.apply_url : `https://${body.apply_url}`
+      new URL(url)
+    } catch {
+      return 'apply_url must be a valid URL'
+    }
+  }
+  if (body.salary_min != null && (isNaN(Number(body.salary_min)) || Number(body.salary_min) < 0)) {
+    return 'salary_min must be a non-negative number'
+  }
+  if (body.salary_max != null && (isNaN(Number(body.salary_max)) || Number(body.salary_max) < 0)) {
+    return 'salary_max must be a non-negative number'
+  }
+  if (body.salary_min != null && body.salary_max != null && Number(body.salary_min) > Number(body.salary_max)) {
+    return 'salary_min cannot exceed salary_max'
+  }
+  return null
+}
+
 export async function POST(request: NextRequest) {
   try {
     requireAdmin(request)
 
     const body = await request.json()
+
+    const validationError = validateJobBody(body)
+    if (validationError) {
+      return NextResponse.json({ error: validationError }, { status: 400 })
+    }
+
     const id = crypto.randomUUID()
     const now = new Date().toISOString()
 
@@ -240,6 +288,16 @@ export async function PUT(request: NextRequest) {
     requireAdmin(request)
 
     const body = await request.json()
+
+    if (!body.id || typeof body.id !== 'string') {
+      return NextResponse.json({ error: 'id is required' }, { status: 400 })
+    }
+
+    const validationError = validateJobBody(body)
+    if (validationError) {
+      return NextResponse.json({ error: validationError }, { status: 400 })
+    }
+
     const now = new Date().toISOString()
 
     const { data, error } = await supabaseAdmin
