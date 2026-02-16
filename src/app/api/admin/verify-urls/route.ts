@@ -15,8 +15,16 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 export const maxDuration = 60 // Allow up to 60s for Vercel
 
 export async function GET(request: NextRequest) {
+  // Basic admin auth - require CRON_SECRET as Bearer token or query param
+  const authHeader = request.headers.get('authorization')
+  const { searchParams } = new URL(request.url)
+  const keyParam = searchParams.get('key')
+  const cronSecret = process.env.CRON_SECRET
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}` && keyParam !== cronSecret) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
-    const { searchParams } = new URL(request.url)
     const companyFilter = searchParams.get('company')
     const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 200)
     const offset = parseInt(searchParams.get('offset') || '0')

@@ -8,6 +8,13 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
  * No auth required for now (should add requireAdmin in production).
  */
 export async function POST(request: NextRequest) {
+  // Basic admin auth
+  const authHeader = request.headers.get('authorization')
+  const cronSecret = process.env.CRON_SECRET
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const body = await request.json()
     const ids: string[] = body.ids

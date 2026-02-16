@@ -55,6 +55,7 @@ export async function GET(request: Request) {
     // Step 3: Verify URLs in batches
     const batchSize = 10
     const deadIds: string[] = []
+    const aliveIds: string[] = []
     let alive = 0
     let dead = 0
     let redirect = 0
@@ -64,8 +65,9 @@ export async function GET(request: Request) {
     for (let i = 0; i < jobsToCheck.length; i += batchSize) {
       const batch = jobsToCheck.slice(i, i + batchSize)
       const checks = batch.map(async (job: Record<string, unknown>) => {
+        const jobId = job.id as string
         const applyUrl = (job.apply_url as string) || ''
-        if (!applyUrl) return 'error'
+        if (!applyUrl) return { id: jobId, status: 'error' as const }
 
         const url = applyUrl.startsWith('http') ? applyUrl : `https://${applyUrl}`
 
@@ -111,43 +113,54 @@ export async function GET(request: Request) {
                 /\/not-found\/?$/i.test(finalPath)
 
               if (isRedirectToGeneric) {
-                deadIds.push(job.id as string)
-                return 'dead'
+                return { id: jobId, status: 'dead' as const }
               }
-              return 'redirect'
+              return { id: jobId, status: 'redirect' as const }
             }
-            return 'alive'
+            return { id: jobId, status: 'alive' as const }
           } else if (resp.status === 404 || resp.status === 410) {
-            deadIds.push(job.id as string)
-            return 'dead'
+            return { id: jobId, status: 'dead' as const }
           }
-          return 'error'
+          return { id: jobId, status: 'error' as const }
         } catch (err: unknown) {
           if (err instanceof DOMException && err.name === 'AbortError') {
-            return 'timeout'
+            return { id: jobId, status: 'timeout' as const }
           }
-          return 'error'
+          return { id: jobId, status: 'error' as const }
         }
       })
 
       const results = await Promise.all(checks)
       for (const r of results) {
-        if (r === 'alive') alive++
-        else if (r === 'dead') dead++
-        else if (r === 'redirect') redirect++
-        else if (r === 'error') errorCount++
-        else if (r === 'timeout') timeout++
+        if (r.status === 'alive') { alive++; aliveIds.push(r.id) }
+        else if (r.status === 'dead') { dead++; deadIds.push(r.id) }
+        else if (r.status === 'redirect') { redirect++; aliveIds.push(r.id) }
+        else if (r.status === 'error') errorCount++
+        else if (r.status === 'timeout') timeout++
       }
     }
 
+    const now = new Date().toISOString()
+
     // Step 4: Flag dead jobs with removal_detected_at
     if (deadIds.length > 0) {
-      const now = new Date().toISOString()
       for (const id of deadIds) {
         await supabaseAdmin
           .from('jobs')
           .update({ removal_detected_at: now, updated_at: now })
           .eq('id', id)
+      }
+    }
+
+    // Step 5: Update last_verified_at for alive/redirect jobs (batch update)
+    if (aliveIds.length > 0) {
+      // Update in chunks of 50 to stay within Supabase limits
+      for (let i = 0; i < aliveIds.length; i += 50) {
+        const chunk = aliveIds.slice(i, i + 50)
+        await supabaseAdmin
+          .from('jobs')
+          .update({ last_verified_at: now, updated_at: now })
+          .in('id', chunk)
       }
     }
 
