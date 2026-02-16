@@ -21,7 +21,7 @@ interface LocationJob {
   licenses_required: string[]
   posted_date: string
   apply_url: string | null
-  company: { name: string; logo_url: string | null } | null
+  company: { name: string; logo_url: string | null; website?: string | null } | null
 }
 
 async function getAllLocations(): Promise<string[]> {
@@ -41,13 +41,13 @@ async function getLocationJobs(locationSlug: string): Promise<{ location: string
 
   const { data } = await supabaseAdmin
     .from('jobs')
-    .select('id, title, category, location, remote_type, salary_min, salary_max, job_type, pipeline_stage, licenses_required, posted_date, apply_url, company:company_id(name, logo_url)')
+    .select('id, title, category, location, remote_type, salary_min, salary_max, job_type, pipeline_stage, licenses_required, posted_date, apply_url, company:company_id(name, logo_url, website)')
     .eq('location', location)
     .eq('is_active', true)
     .order('posted_date', { ascending: false })
 
   type RawLocationJob = Omit<LocationJob, 'company'> & {
-    company: { name: string; logo_url: string | null }[] | { name: string; logo_url: string | null } | null
+    company: { name: string; logo_url: string | null; website?: string | null }[] | { name: string; logo_url: string | null; website?: string | null } | null
   }
   const jobs = ((data || []) as RawLocationJob[]).map((j): LocationJob => ({
     ...j,

@@ -20,7 +20,7 @@ interface FilterableJob {
   licenses_required: string[]
   posted_date: string
   apply_url: string | null
-  company: { name: string; logo_url: string | null } | null
+  company: { name: string; logo_url: string | null; website?: string | null } | null
 }
 
 
