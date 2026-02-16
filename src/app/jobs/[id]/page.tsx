@@ -120,7 +120,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
     hiringOrganization: {
       '@type': 'Organization',
       name: job.company?.name || 'Company',
-      ...(job.company?.website && { sameAs: job.company.website }),
+      ...(safeUrl(job.company?.website) && { sameAs: [safeUrl(job.company!.website)] }),
       ...(job.company?.logo_url && { logo: job.company.logo_url }),
     },
     jobLocation: {
@@ -278,14 +278,14 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                   >
                     {job.company?.name}
                   </Link>
-                  {job.company?.website && (
+                  {safeUrl(job.company?.website) && (
                     <a
-                      href={job.company.website}
+                      href={safeUrl(job.company!.website)!}
                       target="_blank"
                       rel="noopener noreferrer nofollow"
                       className="text-navy-400 hover:text-navy-600 transition"
-                      title={`Visit ${job.company.name} website`}
-                      aria-label={`Visit ${job.company.name} website (opens in new tab)`}
+                      title={`Visit ${job.company!.name} website`}
+                      aria-label={`Visit ${job.company!.name} website (opens in new tab)`}
                     >
                       <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -465,9 +465,9 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </Link>
-                  {job.company.careers_url && (
+                  {safeUrl(job.company.careers_url) && (
                     <a
-                      href={job.company.careers_url}
+                      href={safeUrl(job.company.careers_url)!}
                       target="_blank"
                       rel="noopener noreferrer nofollow"
                       aria-label={`${job.company.name} careers page (opens in new tab)`}

@@ -3,6 +3,7 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import ScrollToTop from '@/components/ScrollToTop'
+import ErrorBoundary from '@/components/ErrorBoundary'
 import { SITE_URL, CONTACT_EMAIL } from "@/lib/constants"
 
 
@@ -128,7 +129,9 @@ export default function RootLayout({
           Skip to content
         </a>
         <Navbar />
-        <main id="main-content" className="min-h-screen">{children}</main>
+        <main id="main-content" className="min-h-screen">
+          <ErrorBoundary>{children}</ErrorBoundary>
+        </main>
         <Footer />
         <ScrollToTop />
       </body>

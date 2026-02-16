@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { slugify } from '@/lib/formatting'
+import { slugify, safeUrl } from '@/lib/formatting'
 import CompanyLogo from '@/components/CompanyLogo'
 
 interface CompanyWithCount {
@@ -237,9 +237,9 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </Link>
-              {company.careers_url && (
+              {safeUrl(company.careers_url) && (
                 <a
-                  href={company.careers_url}
+                  href={safeUrl(company.careers_url)!}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
                   aria-label={`${company.name} careers page (opens in new tab)`}
@@ -251,9 +251,9 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
                   </svg>
                 </a>
               )}
-              {company.website && (
+              {safeUrl(company.website) && (
                 <a
-                  href={company.website}
+                  href={safeUrl(company.website)!}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
                   aria-label={`${company.name} website (opens in new tab)`}

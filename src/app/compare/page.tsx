@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
-import { formatSalary, isGenericApplyUrl, slugify, extractHostname, timeAgo } from '@/lib/formatting'
+import { formatSalary, isGenericApplyUrl, slugify, extractHostname, timeAgo, safeUrl } from '@/lib/formatting'
 import { useCompareIds } from '@/hooks/useJobActions'
 
 export default function ComparePage() {
@@ -219,7 +219,8 @@ export default function ComparePage() {
                   {jobs.map(job => (
                     <td key={job.id} className="p-4">
                       {job.apply_url ? (() => {
-                        const url = job.apply_url!.startsWith('http') ? job.apply_url! : 'https://' + job.apply_url
+                        const url = safeUrl(job.apply_url)
+                        if (!url) return <span className="text-xs text-navy-400">Invalid link</span>
                         const generic = isGenericApplyUrl(url)
                         return (
                           <a

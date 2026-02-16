@@ -2,7 +2,7 @@
 
 import { useState, useMemo, memo } from 'react'
 import Link from 'next/link'
-import { stageColors, timeAgo, formatSalary, isGenericApplyUrl } from '@/lib/formatting'
+import { stageColors, timeAgo, formatSalary, isGenericApplyUrl, safeUrl } from '@/lib/formatting'
 import { trackApplyClick } from '@/hooks/useJobActions'
 
 interface CompanyJob {
@@ -127,7 +127,8 @@ export default memo(function CompanyJobList({
                   </span>
                 ))}
                 {job.apply_url && (() => {
-                  const url = job.apply_url!.startsWith('http') ? job.apply_url! : `https://${job.apply_url}`
+                  const url = safeUrl(job.apply_url)
+                  if (!url) return null
                   const generic = isGenericApplyUrl(url)
                   return (
                     <a

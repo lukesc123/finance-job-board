@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
-import { formatSalary, timeAgo } from '@/lib/formatting'
+import { formatSalary, timeAgo, safeUrl } from '@/lib/formatting'
 import { useAuth } from '@/hooks/useAuth'
 
 interface TrackedJob {
@@ -377,36 +377,43 @@ export default function TrackerPage() {
                     />
                   </div>
 
-                  {job.apply_url && (
-                    <div className="mt-2 flex items-center gap-3">
-                      <a
-                        href={job.apply_url.startsWith('http') ? job.apply_url : `https://${job.apply_url}`}
-                        target="_blank"
-                        rel="noopener noreferrer nofollow"
-                        aria-label={`Visit ${job.company?.name || 'company'} application page (opens in new tab)`}
-                        className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 transition"
-                      >
-                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                        Visit application page
-                      </a>
-                      {job.company?.careers_url && (
-                        <a
-                          href={job.company.careers_url}
-                          target="_blank"
-                          rel="noopener noreferrer nofollow"
-                          aria-label={`${job.company.name} careers page (opens in new tab)`}
-                          className="inline-flex items-center gap-1 text-xs font-medium text-navy-400 hover:text-navy-600 transition"
-                        >
-                          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                          {job.company.name} careers
-                        </a>
-                      )}
-                    </div>
-                  )}
+                  {(() => {
+                    const applyLink = safeUrl(job.apply_url)
+                    const careersLink = safeUrl(job.company?.careers_url)
+                    if (!applyLink && !careersLink) return null
+                    return (
+                      <div className="mt-2 flex items-center gap-3">
+                        {applyLink && (
+                          <a
+                            href={applyLink}
+                            target="_blank"
+                            rel="noopener noreferrer nofollow"
+                            aria-label={`Visit ${job.company?.name || 'company'} application page (opens in new tab)`}
+                            className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 transition"
+                          >
+                            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            Visit application page
+                          </a>
+                        )}
+                        {careersLink && (
+                          <a
+                            href={careersLink}
+                            target="_blank"
+                            rel="noopener noreferrer nofollow"
+                            aria-label={`${job.company?.name} careers page (opens in new tab)`}
+                            className="inline-flex items-center gap-1 text-xs font-medium text-navy-400 hover:text-navy-600 transition"
+                          >
+                            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            {job.company?.name} careers
+                          </a>
+                        )}
+                      </div>
+                    )
+                  })()}
                 </div>
               )
             })}
