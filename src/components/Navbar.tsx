@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect, useRef, useCallback, memo } from 'react'
 import { useListCount } from '@/hooks/useJobActions'
+import { useAuth } from '@/hooks/useAuth'
 
 export default memo(function Navbar() {
   const pathname = usePathname()
@@ -12,10 +13,26 @@ export default memo(function Navbar() {
   const hamburgerRef = useRef<HTMLButtonElement>(null)
   const savedCount = useListCount('savedJobs')
   const appliedCount = useListCount('appliedJobs')
+  const { user, loading: authLoading, signOut } = useAuth()
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setMobileMenuOpen(false)
+    setUserMenuOpen(false)
   }, [pathname])
+
+  // Close user menu on outside click
+  useEffect(() => {
+    if (!userMenuOpen) return
+    const handleClick = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [userMenuOpen])
 
   // Close mobile menu on Escape key, lock body scroll, and trap focus
   const handleMenuKeyDown = useCallback((e: KeyboardEvent) => {
@@ -144,12 +161,45 @@ export default memo(function Navbar() {
           >
             Locations
           </Link>
-          <Link
-            href="/employers"
-            className="rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-navy-800 ml-2"
-          >
-            For Employers
-          </Link>
+          {!authLoading && !user && (
+            <Link
+              href="/login"
+              className="rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-navy-800 ml-2"
+            >
+              Sign In
+            </Link>
+          )}
+          {!authLoading && user && (
+            <div className="relative ml-2" ref={userMenuRef}>
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center justify-center w-8 h-8 rounded-full bg-navy-100 text-navy-700 text-sm font-semibold hover:bg-navy-200 transition"
+                aria-label="User menu"
+                aria-expanded={userMenuOpen}
+              >
+                {(user.email?.[0] || 'U').toUpperCase()}
+              </button>
+              {userMenuOpen && (
+                <div className="absolute right-0 mt-2 w-56 rounded-lg border border-navy-200 bg-white shadow-lg py-1 z-50">
+                  <div className="px-3 py-2 border-b border-navy-100">
+                    <p className="text-xs text-navy-500 truncate">{user.email}</p>
+                  </div>
+                  <Link href="/tracker" className="block px-3 py-2 text-sm text-navy-700 hover:bg-navy-50 transition" onClick={() => setUserMenuOpen(false)}>
+                    Application Tracker
+                  </Link>
+                  <Link href="/employers" className="block px-3 py-2 text-sm text-navy-700 hover:bg-navy-50 transition" onClick={() => setUserMenuOpen(false)}>
+                    For Employers
+                  </Link>
+                  <button
+                    onClick={() => { signOut(); setUserMenuOpen(false) }}
+                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Mobile Hamburger */}
@@ -202,9 +252,25 @@ export default memo(function Navbar() {
             <Link href="/resources" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
               Resources
             </Link>
-            <Link href="/employers" className="rounded-lg bg-navy-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-800 text-center">
+            <Link href="/employers" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
               For Employers
             </Link>
+            {!authLoading && !user && (
+              <Link href="/login" className="rounded-lg bg-navy-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-800 text-center">
+                Sign In
+              </Link>
+            )}
+            {!authLoading && user && (
+              <div className="border-t border-navy-100 mt-1 pt-2">
+                <p className="px-3 py-1 text-xs text-navy-400 truncate">{user.email}</p>
+                <button
+                  onClick={() => { signOut(); setMobileMenuOpen(false) }}
+                  className="w-full text-left rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                >
+                  Sign Out
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
