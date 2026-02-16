@@ -319,8 +319,36 @@ function HomePageContent() {
     return counts
   }, [jobs])
 
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'How often are jobs updated on FinanceJobs?',
+        acceptedAnswer: { '@type': 'Answer', text: 'Jobs are refreshed daily from company career pages. We source positions directly from official career portals to ensure accuracy and freshness.' },
+      },
+      {
+        '@type': 'Question',
+        name: 'What types of finance jobs does FinanceJobs cover?',
+        acceptedAnswer: { '@type': 'Answer', text: 'We cover 9 major categories: Investment Banking, Accounting, Sales & Trading, Corporate Finance, Consulting, Private Wealth, Research, Risk Management, and Private Equity.' },
+      },
+      {
+        '@type': 'Question',
+        name: 'Is FinanceJobs free to use?',
+        acceptedAnswer: { '@type': 'Answer', text: 'Yes, FinanceJobs is completely free for job seekers. We link directly to company career pages where you apply through their own systems.' },
+      },
+      {
+        '@type': 'Question',
+        name: 'Can I filter jobs by salary, location, and experience level?',
+        acceptedAnswer: { '@type': 'Answer', text: 'Yes. Use our advanced filters to narrow results by salary range, location, job type, work style (remote/hybrid/in-office), license requirements, and graduation year.' },
+      },
+    ],
+  }
+
   return (
     <div className="min-h-screen bg-navy-50">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <KeyboardNav />
       <CompareBar />
       {/* Hero Section */}

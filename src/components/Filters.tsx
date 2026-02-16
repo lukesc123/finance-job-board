@@ -332,7 +332,7 @@ export default memo(function Filters({
               onClick={handleClearAll}
               className="text-xs font-medium text-navy-500 transition hover:text-navy-800 underline underline-offset-2"
             >
-              Clear all
+              Clear all ({activeFilterCount})
             </button>
           )}
         </div>
