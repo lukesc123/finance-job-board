@@ -41,7 +41,7 @@ async function getLocationJobs(locationSlug: string): Promise<{ location: string
 
   const { data } = await supabaseAdmin
     .from('jobs')
-    .select('id, title, category, location, remote_type, salary_min, salary_max, job_type, pipeline_stage, licenses_required, posted_date, apply_url, company:company_id(name, logo_url, website)')
+    .select('id, title, category, location, remote_type, salary_min, salary_max, job_type, pipeline_stage, licenses_required, posted_date, apply_url, company:companies(name, logo_url, website)')
     .eq('location', location)
     .eq('is_active', true)
     .order('posted_date', { ascending: false })

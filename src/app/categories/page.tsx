@@ -55,7 +55,7 @@ interface CategoryData {
 async function getCategoriesData(): Promise<CategoryData[]> {
   const { data: jobs } = await supabaseAdmin
     .from('jobs')
-    .select('category, location, salary_max, company:company_id(name)')
+    .select('category, location, salary_max, company:companies(name)')
     .eq('is_active', true)
 
   if (!jobs || jobs.length === 0) return []

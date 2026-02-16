@@ -7,7 +7,7 @@ export async function GET() {
 
   const { data: jobs } = await supabaseAdmin
     .from('jobs')
-    .select('id, title, description, posted_date, location, category, company:company_id(name)')
+    .select('id, title, description, posted_date, location, category, company:companies(name)')
     .eq('is_active', true)
     .order('posted_date', { ascending: false })
     .limit(50)

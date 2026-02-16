@@ -19,7 +19,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   try {
     const { data } = await supabaseAdmin
       .from('jobs')
-      .select('title, location, salary_min, salary_max, pipeline_stage, category, company:company_id(name)')
+      .select('title, location, salary_min, salary_max, pipeline_stage, category, company:companies(name)')
       .eq('id', id)
       .single()
 

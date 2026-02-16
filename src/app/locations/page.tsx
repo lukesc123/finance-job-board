@@ -17,7 +17,7 @@ interface LocationData {
 async function getLocationsData(): Promise<LocationData[]> {
   const { data: jobs } = await supabaseAdmin
     .from('jobs')
-    .select('location, category, company:company_id(name)')
+    .select('location, category, company:companies(name)')
     .eq('is_active', true)
 
   if (!jobs || jobs.length === 0) return []

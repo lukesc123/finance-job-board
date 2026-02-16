@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { JOB_CATEGORIES } from '@/lib/constants'
+import { slugify } from '@/lib/formatting'
 
 export default function JobNotFound() {
   return (
@@ -12,9 +14,9 @@ export default function JobNotFound() {
           </div>
           <h1 className="text-xl font-bold text-navy-900 mb-2">Job not found</h1>
           <p className="text-sm text-navy-600 mb-6">
-            This job listing may have been removed, filled, or the link may be incorrect. Try browsing our current openings.
+            This job listing may have been removed, filled, or the link may be incorrect. Try browsing our current openings below.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 mb-8">
             <Link
               href="/"
               className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition w-full sm:w-auto justify-center"
@@ -25,14 +27,27 @@ export default function JobNotFound() {
               Browse All Jobs
             </Link>
             <Link
-              href="/"
+              href="/companies"
               className="inline-flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-5 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition w-full sm:w-auto justify-center"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Go Back
+              Companies Hiring
             </Link>
+          </div>
+
+          {/* Category Quick Links */}
+          <div className="border-t border-navy-100 pt-6">
+            <p className="text-xs font-semibold text-navy-400 uppercase tracking-wider mb-3">Browse by Category</p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {JOB_CATEGORIES.map((cat) => (
+                <Link
+                  key={cat}
+                  href={`/category/${slugify(cat)}`}
+                  className="rounded-full bg-navy-50 border border-navy-200 px-3 py-1 text-xs font-medium text-navy-600 hover:bg-navy-100 hover:border-navy-300 transition"
+                >
+                  {cat}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </div>

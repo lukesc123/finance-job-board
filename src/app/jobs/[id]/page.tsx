@@ -29,11 +29,16 @@ interface JobDetailPageProps {
 }
 
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 async function getJobData(id: string): Promise<Job | null> {
+  // Validate UUID format to prevent unnecessary DB queries
+  if (!UUID_RE.test(id)) return null
+
   try {
     const { data, error } = await supabaseAdmin
       .from('jobs')
-      .select('*, company:company_id(*)')
+      .select('*, company:companies(*)')
       .eq('id', id)
       .single()
 
@@ -99,7 +104,13 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const applyDomain = applyUrl ? extractHostname(applyUrl) : ''
   const badgeColor = getPipelineStageBadgeColor(job.pipeline_stage)
   const hasLicenseInfo = job.licenses_required && job.licenses_required.length > 0 && !job.licenses_required.every(l => l === 'None Required')
+  const genericUrl = applyUrl ? isGenericApplyUrl(applyUrl) : false
 
+  // Staleness detection
+  const verifiedAt = new Date(job.last_verified_at).getTime()
+  const daysSinceVerified = Math.floor((Date.now() - verifiedAt) / (1000 * 60 * 60 * 24))
+  const isStale = daysSinceVerified > 14
+  const isRemoved = !!job.removal_detected_at
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -197,6 +208,52 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* Warning Banners */}
+        {isRemoved && (
+          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 flex items-start gap-3">
+            <svg className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <div>
+              <p className="text-sm font-semibold text-red-800">This listing may no longer be available</p>
+              <p className="text-xs text-red-600 mt-0.5">
+                We detected this position may have been removed from the company&apos;s career page. The apply link may not work.
+                {job.company?.careers_url && (
+                  <> Try checking <a href={job.company.careers_url} target="_blank" rel="noopener noreferrer nofollow" className="underline font-medium hover:text-red-800">{job.company.name}&apos;s careers page</a> directly.</>
+                )}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {!isRemoved && isStale && (
+          <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4 flex items-start gap-3">
+            <svg className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p className="text-sm font-semibold text-amber-800">This listing hasn&apos;t been verified recently</p>
+              <p className="text-xs text-amber-600 mt-0.5">
+                Last verified {daysSinceVerified} days ago. The position may have been filled or removed.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {genericUrl && !isRemoved && (
+          <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-4 flex items-start gap-3">
+            <svg className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p className="text-sm font-semibold text-blue-800">Apply link goes to {job.company?.name || 'the company'}&apos;s careers page</p>
+              <p className="text-xs text-blue-600 mt-0.5">
+                We couldn&apos;t find a direct application link for this role. You&apos;ll need to search for &quot;{job.title}&quot; on their careers page.
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white rounded-xl border border-navy-200 overflow-hidden shadow-sm">
           {/* Header */}
           <div className="p-5 sm:p-8 border-b border-navy-100">
