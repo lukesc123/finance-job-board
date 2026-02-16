@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { requireAdmin } from '@/lib/auth'
 import { rateLimit, getClientIP } from '@/lib/rateLimit'
+import { FINANCE_LICENSES, type FinanceLicense } from '@/types'
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
 
     // If specific IDs requested, return just those jobs (max 50)
     if (ids.length > 0) {
-      const safeIds = ids.slice(0, 50).filter(id => /^[a-f0-9-]{36}$/i.test(id))
+      const safeIds = ids.slice(0, 50).filter(id => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))
       if (safeIds.length === 0) {
         return NextResponse.json([])
       }
@@ -77,15 +78,16 @@ export async function GET(request: NextRequest) {
     // Apply remote type filter
     if (remoteType) query = query.eq('remote_type', remoteType)
 
-    // Apply license filter (check if licenses_required JSONB array contains the value)
+    // Apply license filter (validate against known licenses, then check JSONB array)
     if (license) {
-      const sanitized = license.replace(/[^a-zA-Z0-9 /&()-]/g, '')
-      if (sanitized) {
-        query = query.contains('licenses_required', JSON.stringify([sanitized]))
+      if (FINANCE_LICENSES.includes(license as FinanceLicense)) {
+        query = query.contains('licenses_required', JSON.stringify([license]))
       }
     }
 
-    // Apply salary range filter
+    // Apply salary range filter (range overlap logic):
+    // User's min threshold: show jobs where job.salary_max >= threshold (job pays at least this much)
+    // User's max threshold: show jobs where job.salary_min <= threshold (job starts below this cap)
     const salaryMin = searchParams.get('salary_min')
     const salaryMax = searchParams.get('salary_max')
     if (salaryMin) {

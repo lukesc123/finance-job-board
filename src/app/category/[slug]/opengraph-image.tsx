@@ -15,8 +15,8 @@ const CATEGORY_SLUGS: Record<string, JobCategory> = Object.fromEntries(
   JOB_CATEGORIES.map((cat) => [slugify(cat), cat])
 )
 
-export default async function Image({ params }: { params: { slug: string } }) {
-  const { slug } = params
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const category = CATEGORY_SLUGS[slug]
 
   if (!category) {
