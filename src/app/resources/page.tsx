@@ -6,16 +6,16 @@ import { SITE_URL } from "@/lib/constants"
 export const revalidate = 3600 // Static content, revalidate hourly
 
 export const metadata: Metadata = {
-  title: 'Career Resources | FinanceJobs',
+  title: 'Career Resources | Entry Level Finance Jobs',
   description: 'Essential guides, tips, and resources for landing your first finance job. Interview prep, resume advice, and career path guides for entry-level finance professionals.',
   alternates: { canonical: `${SITE_URL}/resources` },
   openGraph: {
-    title: 'Finance Career Resources | FinanceJobs',
+    title: 'Finance Career Resources | Entry Level Finance Jobs',
     description: 'Essential guides for landing your first finance job.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Career Resources | FinanceJobs',
+    title: 'Career Resources | Entry Level Finance Jobs',
     description: 'Essential guides for landing your first finance job.',
   },
   robots: { index: true, follow: true },

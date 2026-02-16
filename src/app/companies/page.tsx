@@ -9,17 +9,17 @@ export const revalidate = 300
 
 
 export const metadata: Metadata = {
-  title: 'Companies Hiring | FinanceJobs',
+  title: 'Companies Hiring | Entry Level Finance Jobs',
   description: 'Browse all companies with entry-level finance and accounting job openings. Find your next employer and explore open positions.',
   alternates: { canonical: `${SITE_URL}/companies` },
   openGraph: {
-    title: 'Companies Hiring | FinanceJobs',
+    title: 'Companies Hiring | Entry Level Finance Jobs',
     description: 'Browse all companies with entry-level finance and accounting job openings.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Companies Hiring | FinanceJobs',
+    title: 'Companies Hiring | Entry Level Finance Jobs',
     description: 'Browse all companies with entry-level finance and accounting job openings.',
   },
 }
@@ -101,7 +101,7 @@ export default async function CompaniesPage() {
       name: 'Companies Hiring',
       description: `Browse ${companies.length} companies with ${totalJobs} open entry-level finance positions.`,
       url: `${SITE_URL}/companies`,
-      isPartOf: { '@type': 'WebSite', name: 'FinanceJobs', url: SITE_URL },
+      isPartOf: { '@type': 'WebSite', name: 'Entry Level Finance Jobs', url: SITE_URL },
       mainEntity: {
         '@type': 'ItemList',
         numberOfItems: companies.length,

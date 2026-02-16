@@ -85,7 +85,7 @@ export default memo(function Navbar() {
           <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-navy-900 text-white text-sm font-bold">
             F
           </span>
-          Finance<span className="text-navy-500">Jobs</span>
+          Entry Level Finance<span className="text-navy-500"> Jobs</span>
         </Link>
 
         {/* Desktop Menu */}

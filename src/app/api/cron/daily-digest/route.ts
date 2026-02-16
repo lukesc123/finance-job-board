@@ -119,7 +119,7 @@ async function sendDigestEmail(email: string, jobs: DigestJob[], categories: str
   const html = `
     <div style="max-width: 560px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
       <div style="padding: 24px 0; border-bottom: 2px solid #1e293b;">
-        <h1 style="margin: 0; font-size: 20px; color: #1e293b;">FinanceJobs Daily Digest</h1>
+        <h1 style="margin: 0; font-size: 20px; color: #1e293b;">Entry Level Finance Jobs Daily Digest</h1>
         <p style="margin: 4px 0 0; color: #64748b; font-size: 14px;">${jobs.length} new position${jobs.length !== 1 ? 's' : ''} in ${categories.join(', ')}</p>
       </div>
       <table style="width: 100%; border-collapse: collapse;">
@@ -144,7 +144,7 @@ async function sendDigestEmail(email: string, jobs: DigestJob[], categories: str
         Authorization: `Bearer ${resendKey}`,
       },
       body: JSON.stringify({
-        from: 'FinanceJobs <digest@finance-job-board.vercel.app>',
+        from: 'Entry Level Finance Jobs <digest@finance-job-board.vercel.app>',
         to: email,
         subject: `${jobs.length} new finance job${jobs.length !== 1 ? 's' : ''} matching your interests`,
         html,

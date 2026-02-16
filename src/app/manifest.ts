@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'FinanceJobs',
-    short_name: 'FinanceJobs',
+    name: 'Entry Level Finance Jobs',
+    short_name: 'Entry Level Finance Jobs',
     description: 'Curated entry-level finance and accounting jobs sourced directly from company career pages.',
     start_url: '/',
     display: 'standalone',

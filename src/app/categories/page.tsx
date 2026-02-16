@@ -97,19 +97,19 @@ export async function generateMetadata(): Promise<Metadata> {
   const totalJobs = categories.reduce((sum, c) => sum + c.jobCount, 0)
 
   return {
-    title: `Finance Job Categories | ${categories.length} Specializations | FinanceJobs`,
+    title: `Finance Job Categories | ${categories.length} Specializations | Entry Level Finance Jobs`,
     description: `Browse ${totalJobs}+ entry-level finance jobs across ${categories.length} categories including Investment Banking, Accounting, Private Equity, Consulting, and more.`,
     alternates: { canonical: `${SITE_URL}/categories` },
     openGraph: {
       title: `Finance Job Categories | ${categories.length} Specializations`,
       description: `Browse ${totalJobs}+ entry-level finance jobs across ${categories.length} categories.`,
       url: `${SITE_URL}/categories`,
-      siteName: 'FinanceJobs',
+      siteName: 'Entry Level Finance Jobs',
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `Finance Job Categories | FinanceJobs`,
+      title: `Finance Job Categories | Entry Level Finance Jobs`,
       description: `Browse ${totalJobs}+ entry-level finance jobs across ${categories.length} categories.`,
     },
   }

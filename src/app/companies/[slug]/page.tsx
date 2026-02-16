@@ -56,11 +56,11 @@ async function getCompanyBySlug(slug: string): Promise<{ company: CompanyDetail;
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const result = await getCompanyBySlug(slug)
-  if (!result) return { title: 'Company Not Found | FinanceJobs', robots: { index: false, follow: false } }
+  if (!result) return { title: 'Company Not Found | Entry Level Finance Jobs', robots: { index: false, follow: false } }
 
   const { company, jobs } = result
   return {
-    title: `${company.name} Jobs | FinanceJobs`,
+    title: `${company.name} Jobs | Entry Level Finance Jobs`,
     description: `Browse ${jobs.length} entry-level finance positions at ${company.name}. ${company.description || ''}`.trim(),
     alternates: { canonical: `${SITE_URL}/companies/${slug}` },
     openGraph: {
@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${company.name} Jobs | FinanceJobs`,
+      title: `${company.name} Jobs | Entry Level Finance Jobs`,
       description: `${jobs.length} open positions at ${company.name}`,
     },
   }

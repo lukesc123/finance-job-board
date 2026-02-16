@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { SITE_URL, CONTACT_EMAIL } from '@/lib/constants'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | FinanceJobs',
-  description: 'FinanceJobs terms of service. Guidelines for using our job board, disclaimers, and user responsibilities.',
+  title: 'Terms of Service | Entry Level Finance Jobs',
+  description: 'Entry Level Finance Jobs terms of service. Guidelines for using our job board, disclaimers, and user responsibilities.',
   alternates: { canonical: `${SITE_URL}/terms` },
   robots: { index: true, follow: true },
 }
@@ -24,14 +24,14 @@ export default function TermsPage() {
           <div>
             <h2 className="text-lg font-bold text-navy-900 mb-2">Acceptance of Terms</h2>
             <p>
-              By accessing and using FinanceJobs, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the site.
+              By accessing and using Entry Level Finance Jobs, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the site.
             </p>
           </div>
 
           <div>
             <h2 className="text-lg font-bold text-navy-900 mb-2">Service Description</h2>
             <p>
-              FinanceJobs is a curated job board that aggregates entry-level finance and accounting positions from company career pages. We provide links to external job listings but do not directly employ, recruit, or make hiring decisions. All applications are submitted through the respective company's career portal.
+              Entry Level Finance Jobs is a curated job board that aggregates entry-level finance and accounting positions from company career pages. We provide links to external job listings but do not directly employ, recruit, or make hiring decisions. All applications are submitted through the respective company's career portal.
             </p>
           </div>
 
@@ -45,28 +45,28 @@ export default function TermsPage() {
           <div>
             <h2 className="text-lg font-bold text-navy-900 mb-2">User Responsibilities</h2>
             <p>
-              You agree to use FinanceJobs for lawful purposes only. You are responsible for verifying the legitimacy of any job posting before submitting personal information to external sites. We recommend researching companies independently and never paying fees to apply for a job.
+              You agree to use Entry Level Finance Jobs for lawful purposes only. You are responsible for verifying the legitimacy of any job posting before submitting personal information to external sites. We recommend researching companies independently and never paying fees to apply for a job.
             </p>
           </div>
 
           <div>
             <h2 className="text-lg font-bold text-navy-900 mb-2">Intellectual Property</h2>
             <p>
-              The FinanceJobs name, logo, design, and original content are protected by intellectual property laws. Job listing data is sourced from publicly available company career pages. Company names, logos, and trademarks belong to their respective owners.
+              The Entry Level Finance Jobs name, logo, design, and original content are protected by intellectual property laws. Job listing data is sourced from publicly available company career pages. Company names, logos, and trademarks belong to their respective owners.
             </p>
           </div>
 
           <div>
             <h2 className="text-lg font-bold text-navy-900 mb-2">Limitation of Liability</h2>
             <p>
-              FinanceJobs is provided "as is" without warranties of any kind. We are not liable for any damages arising from your use of the site, including but not limited to: decisions made based on job listing information, interactions with third-party employer websites, or loss of locally stored data.
+              Entry Level Finance Jobs is provided "as is" without warranties of any kind. We are not liable for any damages arising from your use of the site, including but not limited to: decisions made based on job listing information, interactions with third-party employer websites, or loss of locally stored data.
             </p>
           </div>
 
           <div>
             <h2 className="text-lg font-bold text-navy-900 mb-2">External Links</h2>
             <p>
-              FinanceJobs contains links to external websites operated by employers and other third parties. We do not control, endorse, or assume responsibility for the content, privacy policies, or practices of these external sites.
+              Entry Level Finance Jobs contains links to external websites operated by employers and other third parties. We do not control, endorse, or assume responsibility for the content, privacy policies, or practices of these external sites.
             </p>
           </div>
 

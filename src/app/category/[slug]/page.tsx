@@ -68,24 +68,24 @@ async function getCategoryJobs(category: JobCategory): Promise<CategoryJob[]> {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const category = CATEGORY_SLUGS[slug]
-  if (!category) return { title: 'Category Not Found | FinanceJobs', robots: { index: false, follow: false } }
+  if (!category) return { title: 'Category Not Found | Entry Level Finance Jobs', robots: { index: false, follow: false } }
 
   const jobs = await getCategoryJobs(category)
   const desc = CATEGORY_DESCRIPTIONS[category] || ''
-  const title = `${category} Jobs | Entry-Level ${category} Careers | FinanceJobs`
+  const title = `${category} Jobs | Entry-Level ${category} Careers | Entry Level Finance Jobs`
   const description = `Browse ${jobs.length} entry-level ${category.toLowerCase()} positions. ${desc}`.trim()
 
   return {
     title,
     description,
     openGraph: {
-      title: `${category} Jobs | FinanceJobs`,
+      title: `${category} Jobs | Entry Level Finance Jobs`,
       description: `${jobs.length} open entry-level ${category.toLowerCase()} positions`,
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${category} Jobs | FinanceJobs`,
+      title: `${category} Jobs | Entry Level Finance Jobs`,
       description: `${jobs.length} open entry-level ${category.toLowerCase()} positions`,
     },
     alternates: {
@@ -124,7 +124,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       name: `${category} Jobs`,
       description,
       url: `${SITE_URL}/category/${slug}`,
-      isPartOf: { '@type': 'WebSite', name: 'FinanceJobs', url: SITE_URL },
+      isPartOf: { '@type': 'WebSite', name: 'Entry Level Finance Jobs', url: SITE_URL },
     },
     {
       '@context': 'https://schema.org',

@@ -123,7 +123,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           </div>
         </div>
 
-        {/* FinanceJobs branding */}
+        {/* Entry Level Finance Jobs branding */}
         <div
           style={{
             position: 'absolute',
@@ -150,7 +150,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             F
           </div>
           <div style={{ fontSize: '14px', color: '#64748b', fontWeight: 600, display: 'flex' }}>
-            FinanceJobs
+            Entry Level Finance Jobs
           </div>
         </div>
 

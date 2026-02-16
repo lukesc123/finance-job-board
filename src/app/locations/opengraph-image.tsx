@@ -124,7 +124,7 @@ export default async function Image() {
             F
           </div>
           <div style={{ fontSize: '14px', color: '#64748b', fontWeight: 600, display: 'flex' }}>
-            FinanceJobs
+            Entry Level Finance Jobs
           </div>
         </div>
 

@@ -53,19 +53,19 @@ export async function generateMetadata(): Promise<Metadata> {
   const totalJobs = locations.reduce((sum, l) => sum + l.jobCount, 0)
 
   return {
-    title: `Finance Jobs by Location | ${locations.length} Cities | FinanceJobs`,
+    title: `Finance Jobs by Location | ${locations.length} Cities | Entry Level Finance Jobs`,
     description: `Browse ${totalJobs}+ entry-level finance jobs across ${locations.length} cities. Find positions in New York, San Francisco, Chicago, Charlotte, Boston, and more.`,
     alternates: { canonical: `${SITE_URL}/locations` },
     openGraph: {
       title: `Finance Jobs by Location | ${locations.length} Cities`,
       description: `Browse ${totalJobs}+ entry-level finance jobs across ${locations.length} cities.`,
       url: `${SITE_URL}/locations`,
-      siteName: 'FinanceJobs',
+      siteName: 'Entry Level Finance Jobs',
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `Finance Jobs by Location | FinanceJobs`,
+      title: `Finance Jobs by Location | Entry Level Finance Jobs`,
       description: `Browse ${totalJobs}+ entry-level finance jobs across ${locations.length} cities.`,
     },
   }

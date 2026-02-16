@@ -1,16 +1,16 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Application Tracker | FinanceJobs',
+  title: 'Application Tracker | Entry Level Finance Jobs',
   description: 'Track your job applications, saved positions, and application history in one place.',
   robots: { index: false, follow: true },
   openGraph: {
-    title: 'Application Tracker | FinanceJobs',
+    title: 'Application Tracker | Entry Level Finance Jobs',
     description: 'Track your finance job applications and interview progress.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Application Tracker | FinanceJobs',
+    title: 'Application Tracker | Entry Level Finance Jobs',
     description: 'Track your finance job applications and interview progress.',
   },
 }

@@ -325,18 +325,18 @@ function HomePageContent() {
     mainEntity: [
       {
         '@type': 'Question',
-        name: 'How often are jobs updated on FinanceJobs?',
+        name: 'How often are jobs updated on Entry Level Finance Jobs?',
         acceptedAnswer: { '@type': 'Answer', text: 'Jobs are refreshed daily from company career pages. We source positions directly from official career portals to ensure accuracy and freshness.' },
       },
       {
         '@type': 'Question',
-        name: 'What types of finance jobs does FinanceJobs cover?',
+        name: 'What types of finance jobs does Entry Level Finance Jobs cover?',
         acceptedAnswer: { '@type': 'Answer', text: 'We cover 9 major categories: Investment Banking, Accounting, Sales & Trading, Corporate Finance, Consulting, Private Wealth, Research, Risk Management, and Private Equity.' },
       },
       {
         '@type': 'Question',
-        name: 'Is FinanceJobs free to use?',
-        acceptedAnswer: { '@type': 'Answer', text: 'Yes, FinanceJobs is completely free for job seekers. We link directly to company career pages where you apply through their own systems.' },
+        name: 'Is Entry Level Finance Jobs free to use?',
+        acceptedAnswer: { '@type': 'Answer', text: 'Yes, Entry Level Finance Jobs is completely free for job seekers. We link directly to company career pages where you apply through their own systems.' },
       },
       {
         '@type': 'Question',

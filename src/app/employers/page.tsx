@@ -6,17 +6,17 @@ export const revalidate = 300
 
 
 export const metadata: Metadata = {
-  title: 'For Employers | FinanceJobs',
-  description: 'Reach top entry-level finance and accounting talent. Post your opportunities on FinanceJobs and connect directly with qualified candidates through your career page.',
+  title: 'For Employers | Entry Level Finance Jobs',
+  description: 'Reach top entry-level finance and accounting talent. Post your opportunities on Entry Level Finance Jobs and connect directly with qualified candidates through your career page.',
   alternates: { canonical: `${SITE_URL}/employers` },
   openGraph: {
-    title: 'For Employers | FinanceJobs',
-    description: 'Reach top entry-level finance and accounting talent. Post your opportunities on FinanceJobs.',
+    title: 'For Employers | Entry Level Finance Jobs',
+    description: 'Reach top entry-level finance and accounting talent. Post your opportunities on Entry Level Finance Jobs.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'For Employers | FinanceJobs',
+    title: 'For Employers | Entry Level Finance Jobs',
     description: 'Reach top entry-level finance and accounting talent.',
   },
   robots: { index: true, follow: true },
@@ -140,7 +140,7 @@ export default async function EmployersPage() {
             Connect directly with candidates actively seeking finance and accounting careers. Every listing links to your career page.
           </p>
           <a
-            href={`mailto:${CONTACT_EMAIL}?subject=Employer%20Inquiry%20-%20FinanceJobs`}
+            href={`mailto:${CONTACT_EMAIL}?subject=Employer%20Inquiry%20-%20Entry Level Finance Jobs`}
             className="inline-flex items-center gap-2 rounded-lg bg-white text-navy-900 px-6 py-3 text-sm font-semibold hover:bg-navy-100 transition shadow-sm"
           >
             Get Started
@@ -229,7 +229,7 @@ export default async function EmployersPage() {
             Get in touch to post your opportunities and connect with talented entry-level finance professionals.
           </p>
           <a
-            href={`mailto:${CONTACT_EMAIL}?subject=Employer%20Inquiry%20-%20FinanceJobs`}
+            href={`mailto:${CONTACT_EMAIL}?subject=Employer%20Inquiry%20-%20Entry Level Finance Jobs`}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-navy-900 px-8 py-3 text-sm font-semibold text-white hover:bg-navy-800 transition shadow-sm"
           >
             Contact Us

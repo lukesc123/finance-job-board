@@ -23,7 +23,7 @@ export default memo(function Footer() {
               <span className="flex items-center justify-center w-7 h-7 rounded-md bg-white text-navy-950 text-xs font-bold">
                 F
               </span>
-              Finance<span className="text-navy-400">Jobs</span>
+              Entry Level Finance<span className="text-navy-400"> Jobs</span>
             </Link>
             <p className="text-sm text-navy-400 leading-relaxed">
               Curated entry-level finance positions sourced directly from company career pages.
@@ -123,7 +123,7 @@ export default memo(function Footer() {
         <div className="mt-10 pt-6 border-t border-navy-800/60">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-navy-500">
-              &copy; {new Date().getFullYear()} FinanceJobs. All rights reserved.
+              &copy; {new Date().getFullYear()} Entry Level Finance Jobs. All rights reserved.
             </p>
             <div className="flex items-center gap-4 text-xs text-navy-500">
               <span>Job listings sourced from company career pages.</span>

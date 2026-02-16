@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Admin | FinanceJobs',
+  title: 'Admin | Entry Level Finance Jobs',
   robots: { index: false, follow: false },
 }
 

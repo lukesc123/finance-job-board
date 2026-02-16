@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: JobDetailPageProps): Promise<
 
   if (!job) {
     return {
-      title: 'Job Not Found | FinanceJobs',
+      title: 'Job Not Found | Entry Level Finance Jobs',
       description: 'The job listing you are looking for could not be found.',
       robots: { index: false, follow: false },
     }
@@ -63,9 +63,9 @@ export async function generateMetadata({ params }: JobDetailPageProps): Promise<
   const locationMeta = job.location ? ` in ${job.location}` : ''
   const rawDesc = (job.description || '').replace(/[#*_\[\]<>]/g, '').replace(/\s+/g, ' ').trim()
   const snippet = rawDesc.length > 80 ? rawDesc.substring(0, 80).trim() + '...' : rawDesc
-  const fallback = !snippet ? ` ${job.pipeline_stage} ${job.job_type} position. Apply now on FinanceJobs.` : ''
+  const fallback = !snippet ? ` ${job.pipeline_stage} ${job.job_type} position. Apply now on Entry Level Finance Jobs.` : ''
   const description = `${job.title} at ${companyName}${locationMeta}.${salaryMeta}${snippet ? ` ${snippet}` : fallback}`
-  const title = `${job.title} at ${companyName} | FinanceJobs`
+  const title = `${job.title} at ${companyName} | Entry Level Finance Jobs`
 
   return {
     title,
@@ -75,7 +75,7 @@ export async function generateMetadata({ params }: JobDetailPageProps): Promise<
       description,
       type: 'website',
       url: `${SITE_URL}/jobs/${id}`,
-      siteName: 'FinanceJobs',
+      siteName: 'Entry Level Finance Jobs',
     },
     twitter: {
       card: 'summary',
@@ -405,7 +405,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                     href={`/companies/${slugify(job.company.name)}`}
                     className="inline-flex items-center gap-1 text-sm font-medium text-navy-600 hover:text-navy-900 transition"
                   >
-                    View all {job.company.name} jobs on FinanceJobs
+                    View all {job.company.name} jobs on Entry Level Finance Jobs
                     <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>

@@ -82,25 +82,25 @@ const LOCATION_DESCRIPTIONS: Record<string, string> = {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const result = await getLocationJobs(slug)
-  if (!result) return { title: 'Location Not Found | FinanceJobs', robots: { index: false, follow: false } }
+  if (!result) return { title: 'Location Not Found | Entry Level Finance Jobs', robots: { index: false, follow: false } }
 
   const { location, jobs } = result
   const desc = LOCATION_DESCRIPTIONS[location] || `Entry-level finance and accounting positions in ${location}.`
   const companies = [...new Set(jobs.map((j) => j.company?.name).filter(Boolean))]
-  const title = `Finance Jobs in ${location} | Entry-Level Positions | FinanceJobs`
+  const title = `Finance Jobs in ${location} | Entry-Level Positions | Entry Level Finance Jobs`
   const description = `Browse ${jobs.length} entry-level finance jobs in ${location} at ${companies.length} companies. ${desc}`.trim()
 
   return {
     title,
     description,
     openGraph: {
-      title: `Finance Jobs in ${location} | FinanceJobs`,
+      title: `Finance Jobs in ${location} | Entry Level Finance Jobs`,
       description: `${jobs.length} open entry-level finance positions in ${location}`,
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `Finance Jobs in ${location} | FinanceJobs`,
+      title: `Finance Jobs in ${location} | Entry Level Finance Jobs`,
       description: `${jobs.length} open entry-level finance positions in ${location}`,
     },
     alternates: {
@@ -145,7 +145,7 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
       name: `Finance Jobs in ${location}`,
       description,
       url: `${SITE_URL}/location/${slug}`,
-      isPartOf: { '@type': 'WebSite', name: 'FinanceJobs', url: SITE_URL },
+      isPartOf: { '@type': 'WebSite', name: 'Entry Level Finance Jobs', url: SITE_URL },
     },
     {
       '@context': 'https://schema.org',

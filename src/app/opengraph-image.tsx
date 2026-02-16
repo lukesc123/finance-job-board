@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og'
 
 export const runtime = 'edge'
-export const alt = 'FinanceJobs - Entry-Level Finance & Accounting Positions'
+export const alt = 'Entry Level Finance Jobs - Entry-Level Finance & Accounting Positions'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 

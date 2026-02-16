@@ -16,7 +16,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'FinanceJobs | Entry-Level Finance & Accounting Positions',
+  title: 'Entry Level Finance Jobs | Entry-Level Finance & Accounting Positions',
   description:
     'Curated entry-level finance and accounting jobs sourced directly from company career pages. No easy apply. Real opportunities.',
   keywords: [
@@ -31,19 +31,19 @@ export const metadata: Metadata = {
     'trading analyst',
     'private equity analyst',
   ],
-  authors: [{ name: 'FinanceJobs' }],
+  authors: [{ name: 'Entry Level Finance Jobs' }],
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: SITE_URL,
-    siteName: 'FinanceJobs',
-    title: 'FinanceJobs | Entry-Level Finance & Accounting Positions',
+    siteName: 'Entry Level Finance Jobs',
+    title: 'Entry Level Finance Jobs | Entry-Level Finance & Accounting Positions',
     description:
       'Curated entry-level finance and accounting jobs sourced directly from company career pages. No easy apply. Real opportunities.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'FinanceJobs | Entry-Level Finance & Accounting Positions',
+    title: 'Entry Level Finance Jobs | Entry-Level Finance & Accounting Positions',
     description:
       'Curated entry-level finance and accounting jobs sourced directly from company career pages.',
   },
@@ -64,14 +64,14 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'FinanceJobs',
+    title: 'Entry Level Finance Jobs',
   },
 }
 
 const organizationJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'FinanceJobs',
+  name: 'Entry Level Finance Jobs',
   url: SITE_URL,
   logo: `${SITE_URL}/icon`,
   description: 'Curated entry-level finance and accounting jobs sourced directly from company career pages.',
@@ -85,7 +85,7 @@ const organizationJsonLd = {
 const websiteJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: 'FinanceJobs',
+  name: 'Entry Level Finance Jobs',
   url: SITE_URL,
   description: 'Curated entry-level finance and accounting jobs sourced directly from company career pages.',
   potentialAction: {
@@ -106,7 +106,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="alternate" type="application/rss+xml" title="FinanceJobs RSS Feed" href="/feed.xml" />
+        <link rel="alternate" type="application/rss+xml" title="Entry Level Finance Jobs RSS Feed" href="/feed.xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SUPABASE_URL || ''} />

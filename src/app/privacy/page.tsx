@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { SITE_URL, CONTACT_EMAIL } from '@/lib/constants'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | FinanceJobs',
-  description: 'FinanceJobs privacy policy. Learn how we handle your data, what we collect, and your rights.',
+  title: 'Privacy Policy | Entry Level Finance Jobs',
+  description: 'Entry Level Finance Jobs privacy policy. Learn how we handle your data, what we collect, and your rights.',
   alternates: { canonical: `${SITE_URL}/privacy` },
   robots: { index: true, follow: true },
 }
@@ -24,13 +24,13 @@ export default function PrivacyPage() {
           <div>
             <h2 className="text-lg font-bold text-navy-900 mb-2">Overview</h2>
             <p>
-              FinanceJobs is a curated job board for entry-level finance and accounting positions. We are committed to protecting your privacy. This policy explains what data we collect, how we use it, and your rights regarding that data.
+              Entry Level Finance Jobs is a curated job board for entry-level finance and accounting positions. We are committed to protecting your privacy. This policy explains what data we collect, how we use it, and your rights regarding that data.
             </p>
           </div>
 
           <div>
             <h2 className="text-lg font-bold text-navy-900 mb-2">Information We Collect</h2>
-            <p className="mb-2">FinanceJobs is designed to be privacy-friendly. We do not require account creation to browse or use most features.</p>
+            <p className="mb-2">Entry Level Finance Jobs is designed to be privacy-friendly. We do not require account creation to browse or use most features.</p>
             <p className="font-semibold text-navy-800 mb-1">Data stored in your browser (localStorage):</p>
             <p className="mb-2">
               Saved jobs, applied jobs, compare lists, application tracker entries, and job alert preferences are stored locally in your browser. This data never leaves your device and is not transmitted to our servers.
@@ -51,7 +51,7 @@ export default function PrivacyPage() {
           <div>
             <h2 className="text-lg font-bold text-navy-900 mb-2">Third-Party Links</h2>
             <p>
-              Job listings on FinanceJobs link to external company career pages. When you click an apply link, you leave our site and are subject to that company's privacy policy. We are not responsible for the privacy practices of external sites.
+              Job listings on Entry Level Finance Jobs link to external company career pages. When you click an apply link, you leave our site and are subject to that company's privacy policy. We are not responsible for the privacy practices of external sites.
             </p>
           </div>
 
