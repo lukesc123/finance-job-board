@@ -203,16 +203,17 @@ export default function TrackerPage() {
   const exportCSV = () => {
     if (trackedJobs.length === 0) return
     const headers = ['Title', 'Company', 'Location', 'Category', 'Salary', 'Status', 'Applied Date', 'Notes', 'Apply URL']
+    const escapeCSV = (s: string) => s.replace(/"/g, '""')
     const rows = trackedJobs.map(t => [
-      t.job.title,
-      t.job.company?.name || '',
-      t.job.location,
-      t.job.category,
+      escapeCSV(t.job.title),
+      escapeCSV(t.job.company?.name || ''),
+      escapeCSV(t.job.location),
+      escapeCSV(t.job.category),
       formatSalary(t.job.salary_min, t.job.salary_max) || '',
       STATUS_CONFIG[t.status].label,
       new Date(t.appliedAt).toLocaleDateString(),
-      t.notes.replace(/"/g, '""'),
-      t.job.apply_url || '',
+      escapeCSV(t.notes),
+      escapeCSV(t.job.apply_url || ''),
     ])
     const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })

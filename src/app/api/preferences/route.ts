@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { JOB_CATEGORIES } from '@/types'
+
+const VALID_FREQUENCIES = ['daily', 'weekly', 'none']
 
 // GET /api/preferences - get user preferences
 export async function GET() {
@@ -44,6 +47,19 @@ export async function PUT(request: Request) {
 
   const body = await request.json()
   const { tracked_categories, email_digest_enabled, email_digest_frequency } = body
+
+  if (tracked_categories !== undefined) {
+    if (!Array.isArray(tracked_categories) ||
+        !tracked_categories.every((c: unknown) => typeof c === 'string' && (JOB_CATEGORIES as readonly string[]).includes(c))) {
+      return NextResponse.json({ error: 'tracked_categories must be an array of valid categories' }, { status: 400 })
+    }
+  }
+  if (email_digest_frequency !== undefined && !VALID_FREQUENCIES.includes(email_digest_frequency)) {
+    return NextResponse.json({ error: `email_digest_frequency must be one of: ${VALID_FREQUENCIES.join(', ')}` }, { status: 400 })
+  }
+  if (email_digest_enabled !== undefined && typeof email_digest_enabled !== 'boolean') {
+    return NextResponse.json({ error: 'email_digest_enabled must be a boolean' }, { status: 400 })
+  }
 
   const updates: Record<string, unknown> = { user_id: user.id }
   if (tracked_categories !== undefined) updates.tracked_categories = tracked_categories

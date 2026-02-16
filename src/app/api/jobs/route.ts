@@ -355,8 +355,8 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
 
-    if (!id) {
-      return NextResponse.json({ error: 'ID is required' }, { status: 400 })
+    if (!id || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+      return NextResponse.json({ error: 'Valid UUID is required' }, { status: 400 })
     }
 
     const { error } = await supabaseAdmin.from('jobs').delete().eq('id', id)

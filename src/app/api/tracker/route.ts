@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const VALID_STATUSES = ['applied', 'interviewing', 'offered', 'rejected', 'withdrawn']
+
 // GET /api/tracker - get all tracked applications for current user
 export async function GET() {
   const supabase = await createClient()
@@ -35,8 +38,11 @@ export async function POST(request: Request) {
   const body = await request.json()
   const { job_id, status = 'applied', notes, applied_date } = body
 
-  if (!job_id) {
-    return NextResponse.json({ error: 'job_id is required' }, { status: 400 })
+  if (!job_id || !UUID_RE.test(job_id)) {
+    return NextResponse.json({ error: 'job_id must be a valid UUID' }, { status: 400 })
+  }
+  if (!VALID_STATUSES.includes(status)) {
+    return NextResponse.json({ error: `status must be one of: ${VALID_STATUSES.join(', ')}` }, { status: 400 })
   }
 
   const { data, error } = await supabase
@@ -73,8 +79,11 @@ export async function PATCH(request: Request) {
   const body = await request.json()
   const { job_id, status, notes } = body
 
-  if (!job_id) {
-    return NextResponse.json({ error: 'job_id is required' }, { status: 400 })
+  if (!job_id || !UUID_RE.test(job_id)) {
+    return NextResponse.json({ error: 'job_id must be a valid UUID' }, { status: 400 })
+  }
+  if (status !== undefined && !VALID_STATUSES.includes(status)) {
+    return NextResponse.json({ error: `status must be one of: ${VALID_STATUSES.join(', ')}` }, { status: 400 })
   }
 
   const updates: Record<string, string> = {}
@@ -108,8 +117,8 @@ export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url)
   const job_id = searchParams.get('job_id')
 
-  if (!job_id) {
-    return NextResponse.json({ error: 'job_id is required' }, { status: 400 })
+  if (!job_id || !UUID_RE.test(job_id)) {
+    return NextResponse.json({ error: 'job_id must be a valid UUID' }, { status: 400 })
   }
 
   const { error } = await supabase
