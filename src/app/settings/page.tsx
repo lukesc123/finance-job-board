@@ -15,6 +15,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (authLoading) return
@@ -32,8 +33,9 @@ export default function SettingsPage() {
           setEmailDigestEnabled(data.email_digest_enabled || false)
           setEmailDigestFrequency(data.email_digest_frequency || 'daily')
         }
-      } catch {
-        // Use defaults
+      } catch (err) {
+        console.error('Failed to load preferences:', err)
+        setError('Could not load your preferences. Using defaults.')
       } finally {
         setLoading(false)
       }
@@ -65,10 +67,14 @@ export default function SettingsPage() {
       })
       if (res.ok) {
         setSaved(true)
+        setError(null)
         setTimeout(() => setSaved(false), 3000)
+      } else {
+        setError('Failed to save. Please try again.')
       }
-    } catch {
-      // Handle error
+    } catch (err) {
+      console.error('Failed to save preferences:', err)
+      setError('Network error. Check your connection and try again.')
     } finally {
       setSaving(false)
     }
@@ -184,6 +190,18 @@ export default function SettingsPage() {
             </div>
           )}
         </div>
+
+        {/* Error Banner */}
+        {error && (
+          <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 flex items-center justify-between gap-3">
+            <p className="text-sm text-red-700">{error}</p>
+            <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600 transition" aria-label="Dismiss error">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
 
         {/* Save Button */}
         <div className="flex items-center gap-3">
