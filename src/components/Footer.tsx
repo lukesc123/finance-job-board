@@ -127,6 +127,8 @@ export default memo(function Footer() {
             </p>
             <div className="flex items-center gap-4 text-xs text-navy-500">
               <span>Job listings sourced from company career pages.</span>
+              <Link href="/privacy" className="hover:text-navy-300 transition">Privacy</Link>
+              <Link href="/terms" className="hover:text-navy-300 transition">Terms</Link>
               <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-navy-300 transition">Contact</a>
             </div>
           </div>

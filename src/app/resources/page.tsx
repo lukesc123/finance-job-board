@@ -30,6 +30,7 @@ const GUIDES = [
     topics: ['DCF Modeling', 'Valuation Methods', 'M&A Concepts', 'Behavioral Questions', 'Case Studies'],
     difficulty: 'Advanced',
     readTime: '15 min read',
+    externalUrl: 'https://www.wallstreetoasis.com/resources/interviews/investment-banking-interview-questions-answers',
   },
   {
     title: 'Breaking Into Corporate Finance',
@@ -39,6 +40,7 @@ const GUIDES = [
     topics: ['FP&A', 'Financial Modeling', 'Budgeting', 'Forecasting', 'Career Path'],
     difficulty: 'Beginner',
     readTime: '10 min read',
+    externalUrl: 'https://www.wallstreetoasis.com/resources/careers/corporate-finance',
   },
   {
     title: 'Finance Resume That Gets Interviews',
@@ -48,6 +50,7 @@ const GUIDES = [
     topics: ['Action Verbs', 'Quantified Results', 'ATS Optimization', 'Format Tips', 'Common Mistakes'],
     difficulty: 'Beginner',
     readTime: '8 min read',
+    externalUrl: 'https://www.wallstreetoasis.com/resources/templates/investment-banking-resume-template',
   },
   {
     title: 'CFA vs CPA vs Series Licenses',
@@ -57,6 +60,7 @@ const GUIDES = [
     topics: ['CFA Program', 'CPA Exam', 'Series 7 & 66', 'SIE Exam', 'ROI Analysis'],
     difficulty: 'Intermediate',
     readTime: '12 min read',
+    externalUrl: 'https://www.cfainstitute.org/programs/cfa',
   },
   {
     title: 'Accounting Career Paths Explained',
@@ -66,6 +70,7 @@ const GUIDES = [
     topics: ['Big 4 Firms', 'Public vs Private', 'Tax vs Audit', 'Advisory', 'Salary Ranges'],
     difficulty: 'Beginner',
     readTime: '10 min read',
+    externalUrl: 'https://www.aicpa-cima.com/career/career-paths',
   },
   {
     title: 'Sales & Trading Interview Guide',
@@ -75,6 +80,7 @@ const GUIDES = [
     topics: ['Market Knowledge', 'Mental Math', 'Stock Pitches', 'Brainteasers', 'Current Events'],
     difficulty: 'Advanced',
     readTime: '12 min read',
+    externalUrl: 'https://www.wallstreetoasis.com/resources/interviews/sales-and-trading-interview-questions',
   },
   {
     title: 'Networking in Finance: A Practical Guide',
@@ -84,6 +90,7 @@ const GUIDES = [
     topics: ['Cold Emails', 'Informational Interviews', 'LinkedIn Tips', 'Coffee Chats', 'Follow-Up'],
     difficulty: 'Beginner',
     readTime: '8 min read',
+    externalUrl: 'https://www.wallstreetoasis.com/resources/careers/networking',
   },
   {
     title: 'Private Equity & Venture Capital 101',
@@ -93,6 +100,7 @@ const GUIDES = [
     topics: ['Deal Sourcing', 'Due Diligence', 'LBO Modeling', 'Fund Structure', 'Career Entry Points'],
     difficulty: 'Intermediate',
     readTime: '14 min read',
+    externalUrl: 'https://www.wallstreetoasis.com/resources/careers/private-equity',
   },
 ]
 
@@ -157,51 +165,59 @@ export default function ResourcesPage() {
         {/* Guides Grid */}
         <div className="grid gap-4 sm:grid-cols-2">
           {GUIDES.map((guide) => (
-            <article
+            <a
               key={guide.slug}
-              className="rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 transition-all group"
+              href={guide.externalUrl}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              className="block"
             >
-              <div className="flex items-start gap-3 mb-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy-100 text-navy-600 flex-shrink-0 group-hover:bg-navy-900 group-hover:text-white transition-colors">
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={CATEGORY_ICONS[guide.category] || CATEGORY_ICONS['Career Guide']} />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-navy-400">{guide.category}</span>
-                    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${DIFFICULTY_COLORS[guide.difficulty]}`}>
-                      {guide.difficulty}
-                    </span>
+              <article className="rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 transition-all group h-full">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy-100 text-navy-600 flex-shrink-0 group-hover:bg-navy-900 group-hover:text-white transition-colors">
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={CATEGORY_ICONS[guide.category] || CATEGORY_ICONS['Career Guide']} />
+                    </svg>
                   </div>
-                  <h2 className="font-bold text-navy-900 group-hover:text-navy-700 transition leading-snug">
-                    {guide.title}
-                  </h2>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-navy-400">{guide.category}</span>
+                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${DIFFICULTY_COLORS[guide.difficulty]}`}>
+                        {guide.difficulty}
+                      </span>
+                    </div>
+                    <h2 className="font-bold text-navy-900 group-hover:text-navy-700 transition leading-snug">
+                      {guide.title}
+                    </h2>
+                  </div>
                 </div>
-              </div>
 
-              <p className="text-sm text-navy-600 leading-relaxed mb-3">
-                {guide.description}
-              </p>
+                <p className="text-sm text-navy-600 leading-relaxed mb-3">
+                  {guide.description}
+                </p>
 
-              <div className="flex flex-wrap gap-1.5 mb-3">
-                {guide.topics.map((topic) => (
-                  <span
-                    key={topic}
-                    className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-navy-50 text-navy-500 border border-navy-100"
-                  >
-                    {topic}
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {guide.topics.map((topic) => (
+                    <span
+                      key={topic}
+                      className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-navy-50 text-navy-500 border border-navy-100"
+                    >
+                      {topic}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-navy-400">{guide.readTime}</span>
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-navy-600 group-hover:text-navy-900 transition">
+                    Read Guide
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
                   </span>
-                ))}
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-navy-400">{guide.readTime}</span>
-                <span className="text-xs font-semibold text-navy-500 group-hover:text-navy-700 transition">
-                  Coming Soon
-                </span>
-              </div>
-            </article>
+                </div>
+              </article>
+            </a>
           ))}
         </div>
 
