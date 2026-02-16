@@ -68,7 +68,7 @@ async function getCategoryJobs(category: JobCategory): Promise<CategoryJob[]> {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const category = CATEGORY_SLUGS[slug]
-  if (!category) return { title: 'Category Not Found | FinanceJobs' }
+  if (!category) return { title: 'Category Not Found | FinanceJobs', robots: { index: false, follow: false } }
 
   const jobs = await getCategoryJobs(category)
   const desc = CATEGORY_DESCRIPTIONS[category] || ''

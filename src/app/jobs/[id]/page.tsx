@@ -52,6 +52,7 @@ export async function generateMetadata({ params }: JobDetailPageProps): Promise<
     return {
       title: 'Job Not Found | FinanceJobs',
       description: 'The job listing you are looking for could not be found.',
+      robots: { index: false, follow: false },
     }
   }
 
@@ -69,7 +70,18 @@ export async function generateMetadata({ params }: JobDetailPageProps): Promise<
   return {
     title,
     description,
-    openGraph: { title, description, type: 'website' },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url: `${SITE_URL}/jobs/${id}`,
+      siteName: 'FinanceJobs',
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+    },
     alternates: { canonical: `${SITE_URL}/jobs/${id}` },
   }
 }

@@ -59,11 +59,15 @@ export default memo(function SearchBar({
     abortRef.current?.abort()
     const controller = new AbortController()
     abortRef.current = controller
+    const timeoutId = setTimeout(() => controller.abort(), 5000)
     try {
       const res = await fetch(`/api/search-suggestions?q=${encodeURIComponent(q)}`, { signal: controller.signal })
+      clearTimeout(timeoutId)
+      if (!res.ok) { setSuggestions([]); return }
       const data = await res.json()
       setSuggestions(data.suggestions || [])
     } catch (err) {
+      clearTimeout(timeoutId)
       if (err instanceof DOMException && err.name === 'AbortError') return
       setSuggestions([])
     }

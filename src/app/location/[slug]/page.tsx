@@ -82,7 +82,7 @@ const LOCATION_DESCRIPTIONS: Record<string, string> = {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const result = await getLocationJobs(slug)
-  if (!result) return { title: 'Location Not Found | FinanceJobs' }
+  if (!result) return { title: 'Location Not Found | FinanceJobs', robots: { index: false, follow: false } }
 
   const { location, jobs } = result
   const desc = LOCATION_DESCRIPTIONS[location] || `Entry-level finance and accounting positions in ${location}.`
