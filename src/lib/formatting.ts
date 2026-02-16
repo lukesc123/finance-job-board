@@ -83,7 +83,6 @@ export function isGenericApplyUrl(url: string): boolean {
     const u = new URL(url.startsWith('http') ? url : `https://${url}`)
     const path = u.pathname.toLowerCase()
     const host = u.hostname.toLowerCase()
-    const fullUrl = u.href.toLowerCase()
 
     // Root-only career domains (e.g., careers.truist.com/, jobs.prudential.com/)
     if (path === '/' && /careers?\.|jobs\.|campus\.|hiring\./i.test(host)) return true
