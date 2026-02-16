@@ -110,7 +110,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const companies = [...new Set(jobs.map((j) => j.company?.name).filter(Boolean))].sort()
   const salaryJobs = jobs.filter((j) => j.salary_min || j.salary_max)
   const avgSalary = salaryJobs.length > 0
-    ? Math.round(salaryJobs.reduce((s, j) => s + (j.salary_min || j.salary_max || 0), 0) / salaryJobs.length)
+    ? Math.round(salaryJobs.reduce((s, j) => {
+        if (j.salary_min && j.salary_max) return s + (j.salary_min + j.salary_max) / 2
+        return s + (j.salary_min || j.salary_max || 0)
+      }, 0) / salaryJobs.length)
     : null
 
 

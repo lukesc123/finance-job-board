@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { JOB_CATEGORIES } from '@/types'
-import { slugify } from '@/lib/formatting'
+import { slugify, formatSalaryShort } from '@/lib/formatting'
 import { SITE_URL } from "@/lib/constants"
 
 export const revalidate = 300
@@ -113,11 +113,6 @@ export async function generateMetadata(): Promise<Metadata> {
       description: `Browse ${totalJobs}+ entry-level finance jobs across ${categories.length} categories.`,
     },
   }
-}
-
-function formatSalaryShort(amount: number): string {
-  if (amount >= 1000) return `$${Math.round(amount / 1000)}K`
-  return `$${amount}`
 }
 
 export default async function CategoriesPage() {

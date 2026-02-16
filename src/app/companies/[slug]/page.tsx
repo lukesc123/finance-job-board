@@ -90,7 +90,12 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
   const categories = [...new Set(jobs.map((j) => j.category))].sort()
   const locations = [...new Set(jobs.map((j) => j.location))].sort()
   const salaryJobs = jobs.filter((j) => j.salary_min || j.salary_max)
-  const avgMin = salaryJobs.length > 0 ? Math.round(salaryJobs.reduce((s, j) => s + (j.salary_min || j.salary_max || 0), 0) / salaryJobs.length) : null
+  const avgSalary = salaryJobs.length > 0
+    ? Math.round(salaryJobs.reduce((s, j) => {
+        if (j.salary_min && j.salary_max) return s + (j.salary_min + j.salary_max) / 2
+        return s + (j.salary_min || j.salary_max || 0)
+      }, 0) / salaryJobs.length)
+    : null
 
   const jsonLd = [
     {
@@ -178,9 +183,9 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
               <p className="text-2xl font-extrabold text-white">{locations.length}</p>
               <p className="text-[11px] text-navy-400 uppercase tracking-wider font-semibold">Locations</p>
             </div>
-            {avgMin && (
+            {avgSalary && (
               <div>
-                <p className="text-2xl font-extrabold text-white">${Math.round(avgMin / 1000)}K</p>
+                <p className="text-2xl font-extrabold text-white">${Math.round(avgSalary / 1000)}K</p>
                 <p className="text-[11px] text-navy-400 uppercase tracking-wider font-semibold">Avg. Salary</p>
               </div>
             )}
