@@ -10,8 +10,8 @@ function slugify(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 }
 
-export default async function Image({ params }: { params: { slug: string } }) {
-  const { slug } = params
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
 
   const { data: companies } = await supabaseAdmin.from('companies').select('*')
   const company = (companies || []).find((c: { name: string }) => slugify(c.name) === slug)

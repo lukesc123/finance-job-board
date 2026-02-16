@@ -10,8 +10,8 @@ function slugify(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 }
 
-export default async function Image({ params }: { params: { slug: string } }) {
-  const { slug } = params
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
 
   // Get all locations and find matching one
   const { data: allJobs } = await supabaseAdmin
