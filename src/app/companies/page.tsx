@@ -102,6 +102,16 @@ export default async function CompaniesPage() {
       description: `Browse ${companies.length} companies with ${totalJobs} open entry-level finance positions.`,
       url: `${SITE_URL}/companies`,
       isPartOf: { '@type': 'WebSite', name: 'FinanceJobs', url: SITE_URL },
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: companies.length,
+        itemListElement: companies.slice(0, 20).map((c, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: c.name,
+          url: `${SITE_URL}/companies/${c.slug}`,
+        })),
+      },
     },
     {
       '@context': 'https://schema.org',
