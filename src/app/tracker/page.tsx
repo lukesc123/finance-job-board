@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
 import { formatSalary, timeAgo } from '@/lib/formatting'
+import { useAuth } from '@/hooks/useAuth'
 
 interface TrackedJob {
   job: Job
@@ -21,87 +22,182 @@ const STATUS_CONFIG = {
 }
 
 export default function TrackerPage() {
+  const { user, loading: authLoading } = useAuth()
   const [trackedJobs, setTrackedJobs] = useState<TrackedJob[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<string>('all')
+  const [migrated, setMigrated] = useState(false)
 
-  const loadTrackedJobs = useCallback(async () => {
+  // Migrate localStorage data to Supabase on first authenticated load
+  const migrateLocalStorage = useCallback(async () => {
+    if (migrated) return
     try {
       const appliedIds: string[] = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
-      const trackerData: Record<string, { status: string; notes: string; appliedAt: number }> =
+      const trackerData: Record<string, { status?: string; notes?: string; appliedAt?: number }> =
         JSON.parse(localStorage.getItem('jobTracker') || '{}')
 
-      if (appliedIds.length === 0) {
-        setTrackedJobs([])
-        setLoading(false)
-        return
+      if (appliedIds.length === 0) return
+
+      const applications = appliedIds.map(id => ({
+        job_id: id,
+        status: trackerData[id]?.status || 'applied',
+        notes: trackerData[id]?.notes || '',
+        applied_date: trackerData[id]?.appliedAt
+          ? new Date(trackerData[id].appliedAt).toISOString()
+          : new Date().toISOString(),
+      }))
+
+      const res = await fetch('/api/tracker/migrate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applications }),
+      })
+
+      if (res.ok) {
+        localStorage.removeItem('appliedJobs')
+        localStorage.removeItem('jobTracker')
+        window.dispatchEvent(new Event('appliedJobsChanged'))
+        setMigrated(true)
       }
+    } catch {
+      // Silent fail - data stays in localStorage
+    }
+  }, [migrated])
 
-      // Fetch job data for applied jobs
-      const params = new URLSearchParams()
-      appliedIds.forEach(id => params.append('ids', id))
-      const res = await fetch(`/api/jobs?${params.toString()}`)
-      const allJobs: Job[] = await res.json()
+  const loadTrackedJobs = useCallback(async () => {
+    if (authLoading) return
 
-      const tracked: TrackedJob[] = appliedIds
-        .map(id => {
-          const job = allJobs.find(j => j.id === id)
-          if (!job) return null
-          const data = trackerData[id] || {}
-          return {
-            job,
-            appliedAt: data.appliedAt || Date.now(),
-            status: (data.status as TrackedJob['status']) || 'applied',
-            notes: data.notes || '',
-          }
-        })
-        .filter(Boolean) as TrackedJob[]
+    try {
+      if (user) {
+        await migrateLocalStorage()
 
-      // Sort by most recently applied
-      tracked.sort((a, b) => b.appliedAt - a.appliedAt)
-      setTrackedJobs(tracked)
+        const res = await fetch('/api/tracker')
+        if (!res.ok) throw new Error('Failed to load')
+        const applications = await res.json()
+
+        if (applications.length === 0) {
+          setTrackedJobs([])
+          setLoading(false)
+          return
+        }
+
+        const jobIds = applications.map((a: { job_id: string }) => a.job_id)
+        const params = new URLSearchParams()
+        jobIds.forEach((id: string) => params.append('ids', id))
+        const jobsRes = await fetch(`/api/jobs?${params.toString()}`)
+        const allJobs: Job[] = await jobsRes.json()
+
+        const tracked: TrackedJob[] = applications
+          .map((app: { job_id: string; status: string; notes: string; applied_date: string }) => {
+            const job = allJobs.find(j => j.id === app.job_id)
+            if (!job) return null
+            return {
+              job,
+              appliedAt: new Date(app.applied_date).getTime(),
+              status: app.status as TrackedJob['status'],
+              notes: app.notes || '',
+            }
+          })
+          .filter(Boolean) as TrackedJob[]
+
+        tracked.sort((a, b) => b.appliedAt - a.appliedAt)
+        setTrackedJobs(tracked)
+      } else {
+        // Fallback: load from localStorage for anonymous users
+        const appliedIds: string[] = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
+        const trackerData: Record<string, { status: string; notes: string; appliedAt: number }> =
+          JSON.parse(localStorage.getItem('jobTracker') || '{}')
+
+        if (appliedIds.length === 0) {
+          setTrackedJobs([])
+          setLoading(false)
+          return
+        }
+
+        const params = new URLSearchParams()
+        appliedIds.forEach(id => params.append('ids', id))
+        const res = await fetch(`/api/jobs?${params.toString()}`)
+        const allJobs: Job[] = await res.json()
+
+        const tracked: TrackedJob[] = appliedIds
+          .map(id => {
+            const job = allJobs.find(j => j.id === id)
+            if (!job) return null
+            const data = trackerData[id] || {}
+            return {
+              job,
+              appliedAt: data.appliedAt || Date.now(),
+              status: (data.status as TrackedJob['status']) || 'applied',
+              notes: data.notes || '',
+            }
+          })
+          .filter(Boolean) as TrackedJob[]
+
+        tracked.sort((a, b) => b.appliedAt - a.appliedAt)
+        setTrackedJobs(tracked)
+      }
     } catch {
       setTrackedJobs([])
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [user, authLoading, migrateLocalStorage])
 
   useEffect(() => {
     loadTrackedJobs()
   }, [loadTrackedJobs])
 
-  const updateStatus = (jobId: string, status: TrackedJob['status']) => {
-    try {
-      const trackerData = JSON.parse(localStorage.getItem('jobTracker') || '{}')
-      trackerData[jobId] = { ...trackerData[jobId], status, appliedAt: trackerData[jobId]?.appliedAt || Date.now() }
-      localStorage.setItem('jobTracker', JSON.stringify(trackerData))
-    } catch { /* ignore */ }
+  const updateStatus = async (jobId: string, status: TrackedJob['status']) => {
     setTrackedJobs(prev => prev.map(t => t.job.id === jobId ? { ...t, status } : t))
+
+    if (user) {
+      await fetch('/api/tracker', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ job_id: jobId, status }),
+      })
+    } else {
+      try {
+        const trackerData = JSON.parse(localStorage.getItem('jobTracker') || '{}')
+        trackerData[jobId] = { ...trackerData[jobId], status, appliedAt: trackerData[jobId]?.appliedAt || Date.now() }
+        localStorage.setItem('jobTracker', JSON.stringify(trackerData))
+      } catch { /* ignore */ }
+    }
   }
 
-  const updateNotes = (jobId: string, notes: string) => {
-    try {
-      const trackerData = JSON.parse(localStorage.getItem('jobTracker') || '{}')
-      trackerData[jobId] = { ...trackerData[jobId], notes }
-      localStorage.setItem('jobTracker', JSON.stringify(trackerData))
-    } catch { /* ignore */ }
+  const updateNotes = async (jobId: string, notes: string) => {
     setTrackedJobs(prev => prev.map(t => t.job.id === jobId ? { ...t, notes } : t))
+
+    if (user) {
+      await fetch('/api/tracker', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ job_id: jobId, notes }),
+      })
+    } else {
+      try {
+        const trackerData = JSON.parse(localStorage.getItem('jobTracker') || '{}')
+        trackerData[jobId] = { ...trackerData[jobId], notes }
+        localStorage.setItem('jobTracker', JSON.stringify(trackerData))
+      } catch { /* ignore */ }
+    }
   }
 
-  const removeJob = (jobId: string) => {
-    try {
-      // Remove from applied list
-      const appliedJobs: string[] = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
-      localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs.filter(id => id !== jobId)))
-      window.dispatchEvent(new Event('appliedJobsChanged'))
-      // Remove tracker data
-      const trackerData = JSON.parse(localStorage.getItem('jobTracker') || '{}')
-      delete trackerData[jobId]
-      localStorage.setItem('jobTracker', JSON.stringify(trackerData))
-    } catch { /* ignore */ }
-    // Update state
+  const removeJob = async (jobId: string) => {
     setTrackedJobs(prev => prev.filter(t => t.job.id !== jobId))
+
+    if (user) {
+      await fetch(`/api/tracker?job_id=${jobId}`, { method: 'DELETE' })
+    } else {
+      try {
+        const appliedJobs: string[] = JSON.parse(localStorage.getItem('appliedJobs') || '[]')
+        localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs.filter(id => id !== jobId)))
+        window.dispatchEvent(new Event('appliedJobsChanged'))
+        const trackerData = JSON.parse(localStorage.getItem('jobTracker') || '{}')
+        delete trackerData[jobId]
+        localStorage.setItem('jobTracker', JSON.stringify(trackerData))
+      } catch { /* ignore */ }
+    }
   }
 
   const exportCSV = () => {
@@ -148,7 +244,11 @@ export default function TrackerPage() {
             <h1 className="text-2xl sm:text-3xl font-bold">Application Tracker</h1>
           </div>
           <div className="flex items-center justify-between gap-3">
-            <p className="text-navy-300 text-sm">Track the status of jobs you've applied to. All data stored locally in your browser.</p>
+            <p className="text-navy-300 text-sm">
+              {user
+                ? 'Your applications are synced to your account.'
+                : 'Track the status of jobs you\'ve applied to. Sign in to sync across devices.'}
+            </p>
             {trackedJobs.length > 0 && (
               <button
                 onClick={exportCSV}
@@ -194,7 +294,7 @@ export default function TrackerPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
-        {loading ? (
+        {loading || authLoading ? (
           <div className="space-y-3">
             {[1, 2, 3].map(i => (
               <div key={i} className="animate-pulse bg-white rounded-xl border border-navy-200 p-5">
@@ -241,7 +341,6 @@ export default function TrackerPage() {
                       </div>
                     </div>
 
-                    {/* Status selector + actions */}
                     <div className="flex items-center gap-2">
                       <select
                         value={status}
@@ -266,7 +365,6 @@ export default function TrackerPage() {
                     </div>
                   </div>
 
-                  {/* Notes */}
                   <div className="mt-3">
                     <textarea
                       value={notes}
@@ -279,7 +377,6 @@ export default function TrackerPage() {
                     />
                   </div>
 
-                  {/* Quick actions */}
                   {job.apply_url && (
                     <div className="mt-2 flex items-center gap-3">
                       <a

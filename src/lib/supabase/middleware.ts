@@ -26,15 +26,7 @@ export async function updateSession(request: NextRequest) {
   )
 
   // Refresh session if it exists
-  const { data: { user } } = await supabase.auth.getUser()
-
-  // Protect /tracker route - redirect to login if not authenticated
-  if (!user && request.nextUrl.pathname.startsWith('/tracker')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    url.searchParams.set('redirect', '/tracker')
-    return NextResponse.redirect(url)
-  }
+  await supabase.auth.getUser()
 
   return supabaseResponse
 }
