@@ -38,16 +38,19 @@ export interface CompanyWithCount {
 }
 
 async function getCompaniesWithJobs(): Promise<CompanyWithCount[]> {
-  const { data: companies } = await supabaseAdmin
-    .from('companies')
-    .select('*')
-    .order('name', { ascending: true })
+  const [companyRes, jobRes] = await Promise.all([
+    supabaseAdmin
+      .from('companies')
+      .select('*')
+      .order('name', { ascending: true }),
+    supabaseAdmin
+      .from('jobs')
+      .select('company_id, category, location')
+      .eq('is_active', true),
+  ])
 
-  const { data: jobs } = await supabaseAdmin
-    .from('jobs')
-    .select('company_id, category, location')
-    .eq('is_active', true)
-
+  const companies = companyRes.data
+  const jobs = jobRes.data
   if (!companies) return []
 
   const jobsByCompany: Record<string, { count: number; categories: Set<string>; locations: Set<string> }> = {}
