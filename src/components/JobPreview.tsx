@@ -3,7 +3,7 @@
 import { memo, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
-import { formatSalary, timeAgo, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor, extractHostname } from '@/lib/formatting'
+import { formatSalary, timeAgo, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor, extractHostname, safeUrl } from '@/lib/formatting'
 import { useJobActions, trackApplyClick } from '@/hooks/useJobActions'
 
 interface JobPreviewProps {
@@ -35,9 +35,7 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
   if (!job) return null
 
   const salary = formatSalary(job.salary_min, job.salary_max)
-  const applyUrl = job.apply_url
-    ? (job.apply_url.startsWith('http') ? job.apply_url : 'https://' + job.apply_url)
-    : null
+  const applyUrl = safeUrl(job.apply_url)
   const companyName = job.company?.name || 'Company'
   const hasLicenseInfo = job.licenses_required &&
     job.licenses_required.length > 0 &&

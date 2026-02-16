@@ -184,6 +184,11 @@ export default function ComparePage() {
                             {job.title}
                           </Link>
                           <p className="text-xs text-navy-500 mt-0.5">{job.company?.name}</p>
+                          {(!job.is_active || job.removal_detected_at) && (
+                            <span className="inline-block mt-1 text-[10px] font-semibold text-red-600 bg-red-50 border border-red-200 rounded px-1.5 py-0.5">
+                              No longer available
+                            </span>
+                          )}
                         </div>
                         <button
                           onClick={() => removeJob(job.id)}

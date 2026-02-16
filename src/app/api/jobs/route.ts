@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
     const company = searchParams.get('company')
 
     // If specific IDs requested, return just those jobs (max 50)
+    // Includes inactive jobs so saved/compare features can show status
     if (ids.length > 0) {
       const safeIds = ids.slice(0, 50).filter(id => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))
       if (safeIds.length === 0) {

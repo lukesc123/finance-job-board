@@ -224,6 +224,22 @@ export const stageColors: Record<string, string> = {
   'No Experience Required': 'bg-amber-50 text-amber-700 border-amber-200',
 }
 
+/**
+ * Safely normalize a URL string, returning null for invalid or non-http(s) URLs.
+ * Prevents open redirects and javascript: protocol attacks.
+ */
+export function safeUrl(url: string | null | undefined): string | null {
+  if (!url) return null
+  try {
+    const raw = url.startsWith('http') ? url : `https://${url}`
+    const parsed = new URL(raw)
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') return parsed.href
+    return null
+  } catch {
+    return null
+  }
+}
+
 /** Safely extract a clean hostname from a URL string, stripping 'www.' prefix. */
 export function extractHostname(url: string): string {
   try {

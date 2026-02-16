@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Job } from '@/types'
 import CompanyLogo from '@/components/CompanyLogo'
-import { timeAgo, formatSalary, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor, getPipelineStageAccent } from '@/lib/formatting'
+import { timeAgo, formatSalary, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor, getPipelineStageAccent, safeUrl } from '@/lib/formatting'
 import { useJobActions, trackApplyClick } from '@/hooks/useJobActions'
 
 function isNewJob(postedDate: string): boolean {
@@ -253,7 +253,8 @@ export default memo(function JobCard({ job, searchQuery = '', onPreview, isActiv
 
                 {/* Quick Apply */}
                 {job.apply_url && (() => {
-                  const url = job.apply_url!.startsWith('http') ? job.apply_url! : `https://${job.apply_url}`
+                  const url = safeUrl(job.apply_url)
+                  if (!url) return null
                   const generic = isGenericApplyUrl(url)
                   return (
                     <a
