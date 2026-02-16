@@ -82,10 +82,7 @@ export default memo(function Navbar() {
           href="/"
           className="flex items-center gap-2 text-xl font-extrabold text-navy-900 hover:text-navy-800 transition"
         >
-          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-navy-900 text-white text-sm font-bold">
-            F
-          </span>
-          Entry Level Finance<span className="text-navy-500"> Jobs</span>
+          Entry Level Finance Jobs
         </Link>
 
         {/* Desktop Menu */}

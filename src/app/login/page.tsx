@@ -83,7 +83,6 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 text-navy-900 font-bold text-xl mb-2">
-            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-navy-900 text-white text-sm font-bold">F</span>
             Entry Level Finance Jobs
           </Link>
           <h1 className="text-2xl font-bold text-navy-900 mt-4">

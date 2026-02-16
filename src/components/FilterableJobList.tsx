@@ -116,7 +116,7 @@ export default memo(function FilterableJobList({
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex gap-3 min-w-0">
-                  <CompanyLogo logoUrl={job.company?.logo_url} name={job.company?.name || '?'} className="mt-0.5" />
+                  <CompanyLogo logoUrl={job.company?.logo_url} name={job.company?.name || '?'} website={job.company?.website} className="mt-0.5" />
                   <div className="min-w-0">
                     <h3 className="font-bold text-navy-900 group-hover:text-navy-700 transition truncate text-sm sm:text-base">
                       {job.title}

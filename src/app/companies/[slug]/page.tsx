@@ -142,6 +142,7 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
             <CompanyLogo
               logoUrl={company.logo_url}
               name={company.name}
+              website={company.website}
               size="lg"
               priority
               imgClassName="rounded-xl border-navy-700"

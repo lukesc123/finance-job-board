@@ -164,7 +164,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
         {filtered.map((company) => (
           <div key={company.id} className="rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md transition-shadow group">
             <div className="flex items-start gap-3 mb-3">
-              <CompanyLogo logoUrl={company.logo_url} name={company.name} fallbackClassName="bg-navy-100 text-navy-600" />
+              <CompanyLogo logoUrl={company.logo_url} name={company.name} website={company.website} fallbackClassName="bg-navy-100 text-navy-600" />
               <div className="min-w-0">
                 <Link
                   href={`/companies/${company.slug}`}

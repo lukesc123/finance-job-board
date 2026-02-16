@@ -58,7 +58,7 @@ export default memo(function SimilarJobs({ jobId }: { jobId: string }) {
             <Link key={job.id} href={`/jobs/${job.id}`}>
               <div className={`group rounded-lg border border-l-4 border-navy-100 bg-white p-3.5 transition hover:shadow-md hover:border-navy-200 hover:-translate-y-px ${getPipelineStageAccent(job.pipeline_stage)}`}>
                 <div className="flex items-start gap-3">
-                  <CompanyLogo logoUrl={job.company?.logo_url} name={job.company?.name || '?'} size="sm" />
+                  <CompanyLogo logoUrl={job.company?.logo_url} name={job.company?.name || '?'} website={job.company?.website} size="sm" />
                   <div className="min-w-0 flex-1">
                     <h3 className="font-semibold text-navy-900 group-hover:text-navy-700 text-sm leading-snug truncate">
                       {job.title}

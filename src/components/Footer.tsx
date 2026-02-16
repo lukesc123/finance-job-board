@@ -20,10 +20,7 @@ export default memo(function Footer() {
           {/* Brand */}
           <div className="col-span-2 sm:col-span-1 space-y-3">
             <Link href="/" className="inline-flex items-center gap-2 text-lg font-bold text-white">
-              <span className="flex items-center justify-center w-7 h-7 rounded-md bg-white text-navy-950 text-xs font-bold">
-                F
-              </span>
-              Entry Level Finance<span className="text-navy-400"> Jobs</span>
+              Entry Level Finance Jobs
             </Link>
             <p className="text-sm text-navy-400 leading-relaxed">
               Curated entry-level finance positions sourced directly from company career pages.

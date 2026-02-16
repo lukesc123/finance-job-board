@@ -138,7 +138,7 @@ export default memo(function JobCard({ job, searchQuery = '', onPreview, isActiv
           <div className="flex gap-3.5 pr-16 sm:pr-20">
             {/* Company Logo */}
             <div className="flex-shrink-0 mt-0.5">
-              <CompanyLogo logoUrl={job.company?.logo_url} name={job.company?.name || '?'} />
+              <CompanyLogo logoUrl={job.company?.logo_url} name={job.company?.name || '?'} website={job.company?.website} />
             </div>
 
             {/* Content */}
