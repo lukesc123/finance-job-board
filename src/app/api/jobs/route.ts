@@ -53,8 +53,11 @@ export async function GET(request: NextRequest) {
     // Apply category filter
     if (category) query = query.eq('category', category)
 
-    // Apply location filter (case-insensitive partial match)
-    if (location) query = query.ilike('location', `%${location}%`)
+    // Apply location filter (case-insensitive partial match, sanitized)
+    if (location) {
+      const sanitizedLocation = location.replace(/[%_\\]/g, '\\$&')
+      query = query.ilike('location', `%${sanitizedLocation}%`)
+    }
 
     // Apply company filter (look up company_id by name)
     if (company) {

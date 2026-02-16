@@ -74,7 +74,7 @@ export default memo(function JobCard({ job, searchQuery = '', onPreview, isActiv
 
   return (
     <Link href={`/jobs/${job.id}`} onClick={handleClick}>
-      <div data-job-card className={`group relative rounded-xl border-l-4 bg-white transition-all duration-200 hover:shadow-md hover:-translate-y-px ${getPipelineStageAccent(job.pipeline_stage)} ${
+      <div data-job-card data-job-id={job.id} tabIndex={-1} className={`group relative rounded-xl border-l-4 bg-white transition-all duration-200 hover:shadow-md hover:-translate-y-px ${getPipelineStageAccent(job.pipeline_stage)} ${
         isActive
           ? 'border border-l-4 border-navy-400 bg-navy-50/50 shadow-md ring-1 ring-navy-200'
           : applied

@@ -112,7 +112,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ suggestions: suggestions.slice(0, 8) }, {
       headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120' },
     })
-  } catch {
-    return NextResponse.json({ suggestions: [] })
+  } catch (error) {
+    console.error('Search suggestions error:', error)
+    return NextResponse.json({ suggestions: [] }, { status: 500 })
   }
 }

@@ -12,10 +12,19 @@ import KeyboardNav from '@/components/KeyboardNav'
 import CompareBar from '@/components/CompareBar'
 import JobPreview from '@/components/JobPreview'
 
-// Lazy-load below-the-fold components
-const JobAlertSignup = dynamic(() => import('@/components/JobAlertSignup'))
-const RecentlyViewed = dynamic(() => import('@/components/RecentlyViewed'))
-const SalaryInsights = dynamic(() => import('@/components/SalaryInsights'))
+// Lazy-load below-the-fold components with loading skeletons
+const JobAlertSignup = dynamic(() => import('@/components/JobAlertSignup'), {
+  loading: () => <div className="h-12 bg-white rounded-xl animate-pulse border border-navy-100" />,
+  ssr: false,
+})
+const RecentlyViewed = dynamic(() => import('@/components/RecentlyViewed'), {
+  loading: () => <div className="h-16 bg-white rounded-xl animate-pulse border border-navy-100" />,
+  ssr: false,
+})
+const SalaryInsights = dynamic(() => import('@/components/SalaryInsights'), {
+  loading: () => <div className="h-20 bg-white rounded-xl animate-pulse border border-navy-100" />,
+  ssr: false,
+})
 import { Job, JobFilters, PIPELINE_STAGES } from '@/types'
 import { getPipelineStageDisplay, debounce } from '@/lib/formatting'
 import { JOB_CATEGORIES } from '@/lib/constants'
@@ -70,6 +79,7 @@ function HomePageContent() {
   const [previewJob, setPreviewJob] = useState<Job | null>(null)
   const [isDesktop, setIsDesktop] = useState(false)
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
+  const previewSourceRef = useRef<HTMLElement | null>(null)
 
   // Desktop detection for split-pane
   useEffect(() => {
@@ -198,7 +208,8 @@ function HomePageContent() {
         } else {
           await fetchJobs(filters)
         }
-      } catch {
+      } catch (err) {
+        console.error('Initial jobs fetch failed:', err)
         await fetchJobs(filters)
       }
     }
@@ -541,7 +552,10 @@ function HomePageContent() {
                   key={job.id}
                   job={job}
                   searchQuery={filters.search}
-                  onPreview={isDesktop ? setPreviewJob : undefined}
+                  onPreview={isDesktop ? (job: Job) => {
+                    previewSourceRef.current = document.querySelector(`[data-job-id="${job.id}"]`)
+                    setPreviewJob(job)
+                  } : undefined}
                   isActive={previewJob?.id === job.id}
                 />
               ))}
@@ -563,7 +577,11 @@ function HomePageContent() {
         {/* Preview Panel (Desktop only) */}
         {previewJob && isDesktop && (
           <div className="w-[480px] flex-shrink-0 sticky top-16 h-[calc(100vh-5rem)] rounded-xl border border-navy-200 overflow-hidden shadow-sm">
-            <JobPreview job={previewJob} onClose={() => setPreviewJob(null)} />
+            <JobPreview job={previewJob} onClose={() => {
+              setPreviewJob(null)
+              previewSourceRef.current?.focus()
+              previewSourceRef.current = null
+            }} />
           </div>
         )}
         </div>
