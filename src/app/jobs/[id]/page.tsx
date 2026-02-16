@@ -215,7 +215,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
                 <div className="flex items-center gap-2 flex-wrap">
                   {job.company?.logo_url && (
-                    <Image src={job.company.logo_url} alt={`${job.company.name} logo`} width={20} height={20} className="h-5 w-5 rounded object-contain" />
+                    <Image src={job.company.logo_url} alt={`${job.company.name} logo`} width={20} height={20} priority className="h-5 w-5 rounded object-contain" />
                   )}
                   <Link
                     href={`/companies/${slugify(job.company?.name || '')}`}
@@ -323,7 +323,13 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             {/* Description */}
             <div>
               <h2 className="text-lg font-bold text-navy-900 mb-3">About this role</h2>
-              <JobDescription text={job.description} />
+              {job.description ? (
+                <JobDescription text={job.description} />
+              ) : (
+                <p className="text-sm text-navy-500 italic">
+                  No description available. Visit the company&apos;s career page for full details.
+                </p>
+              )}
             </div>
 
             {/* Licenses Required */}
