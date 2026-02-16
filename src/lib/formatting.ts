@@ -83,11 +83,16 @@ export function isGenericApplyUrl(url: string): boolean {
     const u = new URL(url.startsWith('http') ? url : `https://${url}`)
     const path = u.pathname.toLowerCase()
     const host = u.hostname.toLowerCase()
+    const fullUrl = u.href.toLowerCase()
+
+    // Root-only career domains (e.g., careers.truist.com/, jobs.prudential.com/)
+    if (path === '/' && /careers?\.|jobs\.|campus\.|hiring\./i.test(host)) return true
 
     // Patterns that indicate a generic careers/search page
     const genericPatterns = [
       /\/careers\/?$/,
       /\/careers\/?#/,
+      /\/careers\/$/,
       /\/search-jobs\/?$/,
       /\/search-results\/?$/,
       /\/job-search-results\/?$/,
@@ -101,6 +106,18 @@ export function isGenericApplyUrl(url: string): boolean {
       /\/new-analyst-program\/?$/,
       /\/campus\/?$/,
       /\/jobboard\/?/,
+      /\/results\/?$/,
+      /\/roles\/?$/,
+      /\/SearchJobs\/?$/i,
+      /\/internships?\/?$/,
+      /\/full-time-opportunities\/?$/,
+      /\/programs-and-internships\/?$/i,
+      /\/campus-recruiting\/?$/i,
+      /\/experienced-professionals\/?$/i,
+      /\/job-opportunities\/?$/i,
+      /\/opportunities\/?$/i,
+      /\/apply-now\/?$/i,
+      /\/job-listings\/?$/i,
     ]
 
     // Check path against generic patterns
@@ -109,19 +126,69 @@ export function isGenericApplyUrl(url: string): boolean {
     }
 
     // Workday campus/search pages (specific jobs have /job/ with alphanumeric ID)
-    if (host.includes('myworkdayjobs.com') && !path.match(/\/job\/\w+/)) return true
+    if (host.includes('myworkdayjobs.com') && !path.match(/\/job\//)) return true
 
     // Greenhouse job board landing pages (specific jobs have /jobs/<id>)
     if (host.includes('greenhouse.io') && !path.match(/\/jobs\/\d+/)) return true
 
-    // Lever job listings (specific jobs have /jobs/<id>)
+    // Lever job listings (specific jobs have a UUID)
     if (host.includes('lever.co') && !path.match(/\/[a-f0-9-]{36}/)) return true
 
-    // Goldman higher.gs.com roles listing (not a specific role)
-    if (host === 'higher.gs.com' && path === '/roles') return true
+    // Goldman higher.gs.com (specific roles have /roles/<number>)
+    if (host === 'higher.gs.com' && !path.match(/\/roles\/\d+/)) return true
 
-    // Very short paths on careers domains are likely generic
-    if (path.split('/').filter(Boolean).length <= 2 && /career|jobs|hiring/i.test(path)) return true
+    // Oracle/Taleo (JPMC, etc.) - specific jobs have /job/<number>
+    if (host.includes('oraclecloud.com') && !path.match(/\/job\/\d+/)) return true
+
+    // Citi jobs - generic search pages without specific job ID
+    if (host === 'jobs.citi.com' && !path.match(/\/job\//)) return true
+
+    // Bank of America campus - specific pages have descriptive slugs with year
+    if (host === 'campus.bankofamerica.com' && path.split('/').filter(Boolean).length <= 1) return true
+
+    // Deloitte apply portal - specific jobs have /JobDetail/ with ID
+    if (host === 'apply.deloitte.com' && !path.match(/\/JobDetail\//i)) return true
+
+    // EY careers - specific jobs have /job/ with a numeric ID at the end
+    if (host === 'careers.ey.com' && !path.match(/\/job\/.+\/\d+\/?$/)) return true
+
+    // EY referrals (SelectMinds) - generic unless specific job ID
+    if (host.includes('selectminds.com') && !path.match(/\/\d+/)) return true
+
+    // Morgan Stanley - specific jobs have /apply/<number> or /opp/<number>
+    if (host.includes('morganstanley.tal.net') && !path.match(/\/(apply|opp)\/\d+/)) return true
+
+    // Barclays - specific jobs have /job/ with path segments
+    if (host === 'search.jobs.barclays' && !path.match(/\/job\//)) return true
+
+    // Jefferies - specific openings have /opp/<number>
+    if (host === 'jefferies.tal.net' && !path.match(/\/opp\/\d+/)) return true
+
+    // Bridgewater - generic careers page
+    if (host.includes('bridgewater.com') && /\/careers?\/?$/i.test(path)) return true
+
+    // Citadel - specific jobs have /details/<slug>
+    if (host.includes('citadel.com') && path.includes('/careers') && !path.match(/\/details\//)) return true
+
+    // Protiviti - generic careers
+    if (host.includes('protiviti.com') && !path.match(/\/\d+/)) return true
+
+    // Northern Trust - generic careers
+    if (host.includes('northerntrust.com') && /\/careers?\/?/i.test(path) && !path.match(/\/\d{4,}/)) return true
+
+    // PwC - generic careers
+    if (host.includes('pwc.com') && /\/careers?\/?/i.test(path) && !path.match(/\/\d{4,}/)) return true
+
+    // Generic: paths that are just /careers/<section> without a job ID
+    if (/\/careers?\/(search|browse|explore|find|results|listings)\/?$/i.test(path)) return true
+
+    // Very short paths on career-related domains
+    const segments = path.split('/').filter(Boolean)
+    if (segments.length <= 1 && /career|jobs|hiring|campus|recruiting/i.test(host)) return true
+
+    // URL contains no numeric ID of 4+ digits anywhere (path or query) on known ATS domains
+    const hasJobId = path.match(/\d{4,}/) || u.search.match(/\d{4,}/)
+    if (!hasJobId && /career|jobs|campus|recruiting|talent/i.test(host) && segments.length <= 2) return true
 
     return false
   } catch {
