@@ -7,8 +7,9 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match tracker and auth routes, skip static files
+    // Match tracker, settings, and auth routes
     '/tracker/:path*',
+    '/settings/:path*',
     '/auth/:path*',
     '/login',
   ],

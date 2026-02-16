@@ -187,6 +187,9 @@ export default memo(function Navbar() {
                   <Link href="/tracker" className="block px-3 py-2 text-sm text-navy-700 hover:bg-navy-50 transition" onClick={() => setUserMenuOpen(false)}>
                     Application Tracker
                   </Link>
+                  <Link href="/settings" className="block px-3 py-2 text-sm text-navy-700 hover:bg-navy-50 transition" onClick={() => setUserMenuOpen(false)}>
+                    Preferences
+                  </Link>
                   <Link href="/employers" className="block px-3 py-2 text-sm text-navy-700 hover:bg-navy-50 transition" onClick={() => setUserMenuOpen(false)}>
                     For Employers
                   </Link>
