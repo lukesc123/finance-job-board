@@ -89,7 +89,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description: `${jobs.length} open entry-level ${category.toLowerCase()} positions`,
     },
     alternates: {
-      canonical: `/category/${slug}`,
+      canonical: `${SITE_URL}/category/${slug}`,
     },
   }
 }

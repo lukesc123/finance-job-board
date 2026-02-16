@@ -1,6 +1,8 @@
 'use client'
 
-export default function JobCardSkeleton() {
+import { memo } from 'react'
+
+export default memo(function JobCardSkeleton() {
   return (
     <div className="rounded-xl border border-l-4 border-navy-100 border-l-navy-200 bg-white p-4 sm:p-5 animate-pulse" role="status" aria-label="Loading job listing">
       <div className="flex gap-3.5">
@@ -24,4 +26,4 @@ export default function JobCardSkeleton() {
       </div>
     </div>
   )
-}
+})

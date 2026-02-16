@@ -50,6 +50,22 @@ export const metadata: Metadata = {
   alternates: {
     canonical: SITE_URL,
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'FinanceJobs',
+  },
 }
 
 const organizationJsonLd = {

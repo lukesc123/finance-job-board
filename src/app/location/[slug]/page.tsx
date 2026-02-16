@@ -104,7 +104,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description: `${jobs.length} open entry-level finance positions in ${location}`,
     },
     alternates: {
-      canonical: `/location/${slug}`,
+      canonical: `${SITE_URL}/location/${slug}`,
     },
   }
 }
