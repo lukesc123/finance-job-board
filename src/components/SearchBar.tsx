@@ -51,6 +51,14 @@ export default memo(function SearchBar({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
+  // Cleanup fetch timeout and abort controller on unmount
+  useEffect(() => {
+    return () => {
+      if (fetchTimeout.current) clearTimeout(fetchTimeout.current)
+      abortRef.current?.abort()
+    }
+  }, [])
+
   const fetchSuggestions = useCallback(async (q: string) => {
     if (q.length < 2) {
       setSuggestions([])

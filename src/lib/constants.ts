@@ -4,17 +4,22 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://finance-job
 /** Contact email displayed across the site. */
 export const CONTACT_EMAIL = 'luke.schindler@me.com'
 
-/** Finance job categories used across the site. */
+/** Finance job categories used across the site, ordered by job count. */
 export const JOB_CATEGORIES = [
   'Investment Banking',
-  'Accounting',
-  'Sales & Trading',
-  'Corporate Finance',
-  'Consulting',
-  'Private Wealth',
   'Research',
+  'Financial Planning',
+  'Private Wealth',
+  'Operations',
+  'Sales & Trading',
+  'Accounting',
+  'Insurance',
   'Risk Management',
+  'Commercial Banking',
+  'Consulting',
+  'Corporate Finance',
   'Private Equity',
+  'Venture Capital',
 ] as const
 
 /** Salary filter minimum threshold options. */
@@ -49,4 +54,8 @@ export const CATEGORY_COLORS: Record<string, string> = {
   'Risk Management': 'bg-orange-50 text-orange-700 border-orange-200',
   'Private Equity': 'bg-violet-50 text-violet-700 border-violet-200',
   'Commercial Banking': 'bg-sky-50 text-sky-700 border-sky-200',
+  'Financial Planning': 'bg-lime-50 text-lime-700 border-lime-200',
+  'Operations': 'bg-slate-50 text-slate-700 border-slate-200',
+  'Insurance': 'bg-amber-50 text-amber-700 border-amber-200',
+  'Venture Capital': 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200',
 }

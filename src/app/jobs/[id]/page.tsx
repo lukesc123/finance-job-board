@@ -98,9 +98,19 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   if (!job) notFound()
 
   const salary = formatSalary(job.salary_min, job.salary_max)
-  const applyUrl = job.apply_url
-    ? (job.apply_url.startsWith('http') ? job.apply_url : 'https://' + job.apply_url)
-    : null
+  let applyUrl: string | null = null
+  if (job.apply_url) {
+    try {
+      const raw = job.apply_url.startsWith('http') ? job.apply_url : 'https://' + job.apply_url
+      const parsed = new URL(raw)
+      // Only allow http/https protocols to prevent javascript: or data: URLs
+      if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+        applyUrl = parsed.href
+      }
+    } catch {
+      // Invalid URL, leave as null
+    }
+  }
   const applyDomain = applyUrl ? extractHostname(applyUrl) : ''
   const badgeColor = getPipelineStageBadgeColor(job.pipeline_stage)
   const hasLicenseInfo = job.licenses_required && job.licenses_required.length > 0 && !job.licenses_required.every(l => l === 'None Required')
