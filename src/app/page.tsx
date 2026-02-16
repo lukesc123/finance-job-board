@@ -16,7 +16,7 @@ import JobPreview from '@/components/JobPreview'
 const JobAlertSignup = dynamic(() => import('@/components/JobAlertSignup'))
 const RecentlyViewed = dynamic(() => import('@/components/RecentlyViewed'))
 const SalaryInsights = dynamic(() => import('@/components/SalaryInsights'))
-import { Job, JobFilters } from '@/types'
+import { Job, JobFilters, PIPELINE_STAGES } from '@/types'
 import { getPipelineStageDisplay, debounce } from '@/lib/formatting'
 import { JOB_CATEGORIES } from '@/lib/constants'
 
@@ -425,7 +425,7 @@ function HomePageContent() {
 
         {/* Quick Stage Filters */}
         <div className="mb-4 flex flex-wrap gap-1.5">
-          {(['Sophomore Internship', 'Junior Internship', 'Senior Internship', 'New Grad', 'Early Career', 'No Experience Required'] as const).map((stage) => (
+          {PIPELINE_STAGES.map((stage) => (
             <button
               key={stage}
               onClick={() => {
