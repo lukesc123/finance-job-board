@@ -4,6 +4,7 @@ import { rateLimit, getClientIP } from '@/lib/rateLimit'
 import { logger } from '@/lib/logger'
 import { searchATS, detectATS, scrapeJobPage, extractLicenses } from '@/lib/ats'
 import type { FinanceLicense } from '@/lib/ats'
+import { searchForJobUrl } from '@/lib/googleSearch'
 
 /**
  * GET /api/admin/resolve-jobs
@@ -43,12 +44,14 @@ export async function GET(request: NextRequest) {
   const keyParam = searchParams.get('key')
   const adminPassword = process.env.ADMIN_PASSWORD
   const cronSecret = process.env.CRON_SECRET
-  const validSecret = cronSecret || adminPassword
-  if (!validSecret) {
+  if (!cronSecret && !adminPassword) {
     return NextResponse.json({ error: 'No admin secret configured' }, { status: 500 })
   }
   const authHeader = request.headers.get('authorization')
-  if (authHeader !== `Bearer ${validSecret}` && keyParam !== validSecret) {
+  const bearerToken = authHeader?.replace('Bearer ', '')
+  const providedKey = bearerToken || keyParam
+  const isAuthorized = providedKey === cronSecret || providedKey === adminPassword
+  if (!isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -172,6 +175,19 @@ export async function GET(request: NextRequest) {
                   stats.scraped++
                 }
               }
+            }
+          }
+
+          // Step 2.5: Google Search fallback if ATS didn't resolve
+          if (!updates.apply_url && (!urlAlive || isGeneric || !applyUrl)) {
+            const googleUrl = await searchForJobUrl(companyName, job.title as string)
+            if (googleUrl) {
+              result.resolvedUrl = googleUrl
+              result.resolvedVia = 'google-search'
+              updates.apply_url = googleUrl
+              updates.removal_detected_at = null
+              stats.resolved++
+              stats.urlsUpdated++
             }
           }
 
