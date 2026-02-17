@@ -41,12 +41,14 @@ async function getCompaniesWithJobs(): Promise<CompanyWithCount[]> {
   const [companyRes, jobRes] = await Promise.all([
     supabaseAdmin
       .from('companies')
-      .select('*')
-      .order('name', { ascending: true }),
+      .select('id,name,website,careers_url,logo_url,description')
+      .order('name', { ascending: true })
+      .limit(2000),
     supabaseAdmin
       .from('jobs')
       .select('company_id, category, location')
-      .eq('is_active', true),
+      .eq('is_active', true)
+      .limit(5000),
   ])
 
   const companies = companyRes.data

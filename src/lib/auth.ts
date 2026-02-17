@@ -43,7 +43,7 @@ export function verifyToken(token: string): boolean {
       if (signature !== expectedSig) return false
 
       const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString())
-          if (decoded.exp < Math.floor(Date.now() / 1000)) return false
+          if (!decoded.exp || typeof decoded.exp !== 'number' || decoded.exp < Math.floor(Date.now() / 1000)) return false
           if (decoded.role !== 'admin') return false
 
       return true
@@ -53,7 +53,9 @@ export function verifyToken(token: string): boolean {
 }
 
 export function verifyPassword(password: string): boolean {
-    return password === getAdminPassword()
+    const adminPw = getAdminPassword()
+    if (password.length !== adminPw.length) return false
+    return crypto.timingSafeEqual(Buffer.from(password), Buffer.from(adminPw))
 }
 
 /**

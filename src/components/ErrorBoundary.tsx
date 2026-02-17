@@ -22,6 +22,11 @@ export default class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error }
   }
 
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Log error for debugging. In production, send to error reporting service.
+    console.error('[ErrorBoundary]', error, errorInfo.componentStack)
+  }
+
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) return this.props.fallback
@@ -35,15 +40,20 @@ export default class ErrorBoundary extends Component<Props, State> {
           <p className="text-sm text-navy-500 mb-4 max-w-md">
             An unexpected error occurred. Try refreshing the page.
           </p>
-          <button
-            onClick={() => {
-              this.setState({ hasError: false, error: null })
-              window.location.reload()
-            }}
-            className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition"
-          >
-            Refresh Page
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => this.setState({ hasError: false, error: null })}
+              className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="inline-flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-5 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
+            >
+              Refresh Page
+            </button>
+          </div>
         </div>
       )
     }

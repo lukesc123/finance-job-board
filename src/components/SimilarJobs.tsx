@@ -1,31 +1,38 @@
 'use client'
 
-import { useState, useEffect, memo } from 'react'
+import { useState, useEffect, useCallback, memo } from 'react'
 import Link from 'next/link'
 import { Job } from '@/types'
 import CompanyLogo from '@/components/CompanyLogo'
+import { fetchRetry } from '@/lib/fetchRetry'
 import { formatSalary, getPipelineStageBadgeColor, getPipelineStageAccent } from '@/lib/formatting'
 
 export default memo(function SimilarJobs({ jobId }: { jobId: string }) {
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  const fetchSimilar = useCallback(async (signal?: AbortSignal) => {
+    setLoading(true)
+    setError(false)
+    try {
+      const res = await fetchRetry(`/api/similar-jobs?id=${jobId}`, { signal })
+      if (!res.ok) throw new Error('Failed')
+      const data: unknown = await res.json()
+      if (Array.isArray(data)) setJobs(data as Job[])
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return
+      setError(true)
+    } finally {
+      setLoading(false)
+    }
+  }, [jobId])
 
   useEffect(() => {
     const controller = new AbortController()
-    async function fetchSimilar() {
-      try {
-        const res = await fetch(`/api/similar-jobs?id=${jobId}`, { signal: controller.signal })
-        const data = await res.json()
-        if (Array.isArray(data)) setJobs(data)
-      } catch (err) {
-        if (err instanceof DOMException && err.name === 'AbortError') return
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchSimilar()
+    fetchSimilar(controller.signal)
     return () => controller.abort()
-  }, [jobId])
+  }, [fetchSimilar])
 
   if (loading) {
     return (
@@ -46,6 +53,23 @@ export default memo(function SimilarJobs({ jobId }: { jobId: string }) {
     )
   }
 
+  if (error) {
+    return (
+      <div>
+        <h2 className="text-lg font-bold text-navy-900 mb-4">Similar Jobs</h2>
+        <div className="rounded-lg border border-navy-200 bg-navy-50/50 p-4 text-center">
+          <p className="text-sm text-navy-500 mb-2">Couldn&apos;t load similar jobs.</p>
+          <button
+            onClick={() => fetchSimilar()}
+            className="text-sm font-medium text-navy-600 hover:text-navy-900 transition underline underline-offset-2"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (jobs.length === 0) return null
 
   return (
@@ -55,7 +79,7 @@ export default memo(function SimilarJobs({ jobId }: { jobId: string }) {
         {jobs.map((job) => {
           const salary = formatSalary(job.salary_min, job.salary_max)
           return (
-            <Link key={job.id} href={`/jobs/${job.id}`}>
+            <Link key={job.id} href={`/jobs/${job.id}`} prefetch={false} className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2">
               <div className={`group rounded-lg border border-l-4 border-navy-100 bg-white p-3.5 transition hover:shadow-md hover:border-navy-200 hover:-translate-y-px ${getPipelineStageAccent(job.pipeline_stage)}`}>
                 <div className="flex items-start gap-3">
                   <CompanyLogo logoUrl={job.company?.logo_url} name={job.company?.name || '?'} website={job.company?.website} size="sm" />

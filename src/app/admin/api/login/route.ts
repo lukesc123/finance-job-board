@@ -15,6 +15,10 @@ export async function POST(request: Request) {
 
     const { password } = await request.json()
 
+    if (!password || typeof password !== 'string' || password.length > 256) {
+      return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
+    }
+
     if (!verifyPassword(password)) {
       return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
     }

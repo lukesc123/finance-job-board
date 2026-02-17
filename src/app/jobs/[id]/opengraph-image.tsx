@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { formatSalary } from '@/lib/formatting'
+import { UUID_RE } from '@/lib/constants'
 
 export const runtime = 'edge'
 export const size = { width: 1200, height: 630 }
@@ -17,6 +18,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   let category = ''
 
   try {
+    if (!UUID_RE.test(id)) throw new Error('Invalid ID')
     const { data } = await supabaseAdmin
       .from('jobs')
       .select('title, location, salary_min, salary_max, pipeline_stage, category, company:companies(name)')

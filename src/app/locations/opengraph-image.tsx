@@ -11,6 +11,7 @@ export default async function Image() {
     .from('jobs')
     .select('location')
     .eq('is_active', true)
+    .limit(5000)
 
   const locations = [...new Set((jobs || []).map((j: { location: string }) => j.location))].filter(Boolean)
   const jobCount = jobs?.length || 0

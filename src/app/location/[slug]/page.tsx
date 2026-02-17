@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -29,14 +30,15 @@ async function getAllLocations(): Promise<string[]> {
     .from('jobs')
     .select('location')
     .eq('is_active', true)
+    .limit(5000)
 
   if (!data) return []
   return [...new Set(data.map((j: { location: string }) => j.location))].filter(Boolean).sort()
 }
 
-async function getLocationJobs(locationSlug: string): Promise<{ location: string; jobs: LocationJob[] } | null> {
-  const locations = await getAllLocations()
-  const location = locations.find((loc) => slugify(loc) === locationSlug)
+const getLocationJobs = cache(async function getLocationJobs(locationSlug: string, cachedLocations?: string[]): Promise<{ location: string; jobs: LocationJob[]; allLocations: string[] } | null> {
+  const allLocations = cachedLocations || await getAllLocations()
+  const location = allLocations.find((loc) => slugify(loc) === locationSlug)
   if (!location) return null
 
   const { data } = await supabaseAdmin
@@ -54,8 +56,8 @@ async function getLocationJobs(locationSlug: string): Promise<{ location: string
     company: Array.isArray(j.company) ? j.company[0] || null : j.company,
   }))
 
-  return { location, jobs }
-}
+  return { location, jobs, allLocations }
+})
 
 const LOCATION_DESCRIPTIONS: Record<string, string> = {
   'New York, NY': 'The financial capital of the world. Home to Wall Street, major investment banks, hedge funds, and the NYSE. The largest concentration of entry-level finance jobs in the US.',
@@ -120,7 +122,7 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
   const result = await getLocationJobs(slug)
   if (!result) notFound()
 
-  const { location, jobs } = result
+  const { location, jobs, allLocations } = result
   const description = LOCATION_DESCRIPTIONS[location] || `Entry-level finance and accounting positions in ${location}.`
 
   const categories = [...new Set(jobs.map((j) => j.category))].sort()
@@ -133,9 +135,6 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
       }, 0) / salaryJobs.length)
     : null
 
-
-  // Get all locations for the "Other Locations" section
-  const allLocations = await getAllLocations()
   const otherLocations = allLocations.filter((loc) => loc !== location).slice(0, 8)
 
   const jsonLd = [
@@ -166,9 +165,9 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
       <div className="bg-white border-b border-navy-100">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <nav className="flex items-center gap-1.5 text-xs text-navy-400" aria-label="Breadcrumb">
-            <Link href="/" className="hover:text-navy-700 transition">Home</Link>
+            <Link href="/" className="hover:text-navy-700 transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Home</Link>
             <svg className="h-3 w-3" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-            <Link href="/locations" className="hover:text-navy-700 transition">Locations</Link>
+            <Link href="/locations" className="hover:text-navy-700 transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Locations</Link>
             <svg className="h-3 w-3" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             <span className="text-navy-700 font-medium" aria-current="page">{location}</span>
           </nav>
@@ -232,7 +231,7 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
                 <Link
                   key={name}
                   href={`/companies/${slugify(name as string)}`}
-                  className="rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm font-medium text-navy-700 hover:bg-navy-50 hover:border-navy-300 transition"
+                  className="rounded-lg border border-navy-200 bg-white px-3 py-2 text-sm font-medium text-navy-700 hover:bg-navy-50 hover:border-navy-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
                 >
                   {name}
                 </Link>
@@ -250,7 +249,7 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
                 <Link
                   key={loc}
                   href={`/location/${slugify(loc)}`}
-                  className="rounded-lg border border-navy-200 bg-white px-4 py-3 text-sm font-medium text-navy-700 hover:bg-navy-50 hover:border-navy-300 transition"
+                  className="rounded-lg border border-navy-200 bg-white px-4 py-3 text-sm font-medium text-navy-700 hover:bg-navy-50 hover:border-navy-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
                 >
                   {loc}
                 </Link>
@@ -261,10 +260,10 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
 
         {/* CTA */}
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/" className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition">
+          <Link href="/" className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2">
             Browse All Jobs
           </Link>
-          <Link href="/companies" className="inline-flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-5 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition">
+          <Link href="/companies" className="inline-flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-5 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2">
             View All Companies
           </Link>
         </div>

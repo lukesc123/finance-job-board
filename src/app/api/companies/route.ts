@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { requireAdmin } from '@/lib/auth'
 import { rateLimit, getClientIP } from '@/lib/rateLimit'
+import { logger } from '@/lib/logger'
+import { withETag } from '@/lib/etag'
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,19 +16,24 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Select only columns needed by the client (skip large text fields)
     const { data, error } = await supabaseAdmin
       .from('companies')
-      .select('*')
+      .select('id,name,website,careers_url,logo_url,description')
       .order('name', { ascending: true })
+      .limit(2000)
 
     if (error) throw error
 
-    return NextResponse.json(data ?? [], {
-      headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600' },
-    })
+    const cacheHeaders = {
+      'Cache-Control': 'public, max-age=0, s-maxage=300, stale-while-revalidate=900',
+      'Vary': 'Accept-Encoding',
+    }
+    const { response } = withETag(request, data ?? [], cacheHeaders)
+    return response
   } catch (error) {
-    console.error('Error fetching companies:', error)
-    return NextResponse.json({ error: 'Failed to fetch companies' }, { status: 500 })
+    logger.error('Error fetching companies:', error)
+    return NextResponse.json({ error: 'Failed to fetch companies', code: 'INTERNAL_ERROR' }, { status: 500 })
   }
 }
 
@@ -83,10 +90,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data)
   } catch (error: unknown) {
-    console.error('Error creating company:', error)
+    logger.error('Error creating company:', error)
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    return NextResponse.json({ error: 'Failed to create company' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to create company', code: 'INTERNAL_ERROR' }, { status: 500 })
   }
 }

@@ -42,6 +42,65 @@ export const SALARY_MAX_OPTIONS = [
   { value: '200000', label: '$200K' },
 ] as const
 
+/** localStorage key names used across the app. */
+export const STORAGE_KEYS = {
+  SAVED: 'savedJobs',
+  APPLIED: 'appliedJobs',
+  COMPARE: 'compareJobs',
+  CLICKS: 'applyClicks',
+  TRACKER: 'jobTracker',
+  SAVED_SEARCHES: 'savedSearches',
+  FILTERS: 'jobFilters',
+  SORT: 'jobSort',
+  SCROLL: 'homeScrollY',
+  RECENTLY_VIEWED: 'recentlyViewed',
+  JOB_ALERT_DISMISSED: 'jobAlertDismissed',
+  ADMIN_TOKEN: 'admin_token',
+} as const
+
+/** App-wide numeric limits. */
+export const LIMITS = {
+  MAX_COMPARE: 4,
+  MAX_CLICKS: 100,
+  MAX_SAVED_SEARCHES: 5,
+  PAGE_SIZE: 20,
+  NOTES_MAX_LENGTH: 500,
+  SEARCH_MIN_CHARS: 2,
+  SEARCH_DEBOUNCE_MS: 200,
+  SEARCH_TIMEOUT_MS: 5000,
+  API_JOBS_LIMIT: 1000,
+  API_COMPANIES_LIMIT: 2000,
+  API_SUGGESTIONS_MAX: 8,
+} as const
+
+/** Custom event names dispatched when localStorage lists change. */
+export const STORAGE_EVENTS = {
+  SAVED: 'savedJobsChanged',
+  APPLIED: 'appliedJobsChanged',
+  COMPARE: 'compareJobsChanged',
+} as const
+
+/** UUID v4 regex for input validation across API routes. */
+export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/** Accent color for category pills on dark backgrounds (hero sections). */
+export const CATEGORY_ACCENT: Record<string, string> = {
+  'Investment Banking': 'bg-blue-500 text-white',
+  'Private Wealth': 'bg-purple-500 text-white',
+  'Accounting': 'bg-emerald-500 text-white',
+  'Sales & Trading': 'bg-red-500 text-white',
+  'Corporate Finance': 'bg-indigo-500 text-white',
+  'Consulting': 'bg-teal-500 text-white',
+  'Research': 'bg-cyan-500 text-white',
+  'Risk Management': 'bg-orange-500 text-white',
+  'Private Equity': 'bg-violet-500 text-white',
+  'Commercial Banking': 'bg-sky-500 text-white',
+  'Financial Planning': 'bg-lime-500 text-white',
+  'Operations': 'bg-slate-500 text-white',
+  'Insurance': 'bg-amber-500 text-white',
+  'Venture Capital': 'bg-fuchsia-500 text-white',
+}
+
 /** Color mapping for job categories (Tailwind classes). */
 export const CATEGORY_COLORS: Record<string, string> = {
   'Investment Banking': 'bg-blue-50 text-blue-700 border-blue-200',

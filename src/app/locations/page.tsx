@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
@@ -14,11 +15,12 @@ interface LocationData {
   categories: string[]
 }
 
-async function getLocationsData(): Promise<LocationData[]> {
+const getLocationsData = cache(async function getLocationsData(): Promise<LocationData[]> {
   const { data: jobs } = await supabaseAdmin
     .from('jobs')
     .select('location, category, company:companies(name)')
     .eq('is_active', true)
+    .limit(5000)
 
   if (!jobs || jobs.length === 0) return []
 
@@ -46,7 +48,7 @@ async function getLocationsData(): Promise<LocationData[]> {
       categories: Array.from(data.categories).sort(),
     }))
     .sort((a, b) => b.jobCount - a.jobCount)
-}
+})
 
 export async function generateMetadata(): Promise<Metadata> {
   const locations = await getLocationsData()
@@ -155,7 +157,7 @@ export default async function LocationsPage() {
             <Link
               key={loc.slug}
               href={`/location/${loc.slug}`}
-              className="group rounded-xl border border-navy-200 bg-white p-5 shadow-sm hover:shadow-md hover:border-navy-300 transition"
+              className="group rounded-xl border border-navy-200 bg-white p-5 shadow-sm hover:shadow-md hover:border-navy-300 hover:-translate-y-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
@@ -195,7 +197,7 @@ export default async function LocationsPage() {
                   <Link
                     key={loc.slug}
                     href={`/location/${loc.slug}`}
-                    className="flex items-center justify-between px-5 py-3 hover:bg-navy-50/50 transition group"
+                    className="flex items-center justify-between px-5 py-3 hover:bg-navy-50/50 transition group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-navy-400"
                   >
                     <div className="flex items-center gap-3">
                       <svg className="h-4 w-4 text-navy-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

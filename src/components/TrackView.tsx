@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { STORAGE_KEYS } from '@/lib/constants'
 
 interface TrackViewProps {
   jobId: string
@@ -23,7 +24,7 @@ export default function TrackView({ jobId, jobTitle, companyName, location, sala
         salary: string
         stage: string
         viewedAt: number
-      }> = JSON.parse(localStorage.getItem('recentlyViewed') || '[]')
+      }> = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECENTLY_VIEWED) || '[]')
 
       // Remove if already in list
       const filtered = viewed.filter(v => v.id !== jobId)
@@ -40,8 +41,13 @@ export default function TrackView({ jobId, jobTitle, companyName, location, sala
       })
 
       // Keep only MAX_RECENT
-      localStorage.setItem('recentlyViewed', JSON.stringify(filtered.slice(0, MAX_RECENT)))
-    } catch { /* ignore */ }
+      localStorage.setItem(STORAGE_KEYS.RECENTLY_VIEWED, JSON.stringify(filtered.slice(0, MAX_RECENT)))
+    } catch (err) {
+      // If quota exceeded, clear old entries and retry
+      if (err instanceof DOMException && err.name === 'QuotaExceededError') {
+        try { localStorage.removeItem(STORAGE_KEYS.RECENTLY_VIEWED) } catch { /* ignore */ }
+      }
+    }
   }, [jobId, jobTitle, companyName, location, salary, pipelineStage])
 
   return null

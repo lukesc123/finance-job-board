@@ -16,6 +16,7 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: light;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -31,7 +32,7 @@ html {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: -0.011em;
@@ -72,6 +73,113 @@ body {
 
 main > * {
   animation: fadeIn 0.3s ease-out;
+}
+
+/* Staggered fade-in for list items */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.35s ease-out both;
+}
+
+/* Dropdown slide-in */
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-4px) scaleY(0.95); }
+  to { opacity: 1; transform: translateY(0) scaleY(1); }
+}
+
+.animate-dropdown-in {
+  animation: dropdownIn 0.15s ease-out;
+  transform-origin: top center;
+}
+
+/* Hide native month input placeholder when empty */
+input[type="month"].text-transparent::-webkit-datetime-edit {
+  color: transparent;
+}
+input[type="month"].text-transparent::-webkit-datetime-edit-fields-wrapper {
+  color: transparent;
+}
+
+/* Print styles */
+@media print {
+  /* Reset backgrounds and colors for ink saving */
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+
+  /* Hide non-essential UI */
+  nav,
+  footer,
+  [data-scroll-top],
+  [data-apply-toast],
+  [data-compare-bar],
+  [data-job-alert],
+  .sr-only,
+  button:not([data-print-keep]),
+  [role="dialog"] {
+    display: none !important;
+  }
+
+  /* Show URLs after links */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #627d98;
+    word-break: break-all;
+  }
+
+  /* Prevent orphaned headings */
+  h1, h2, h3, h4 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* Keep cards together */
+  article, .rounded-xl {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Remove shadows, borders simplify */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Ensure full width */
+  .max-w-5xl, .max-w-4xl, .max-w-3xl, .max-w-2xl {
+    max-width: 100% !important;
+  }
+
+  /* Remove backdrop blur from sticky nav area */
+  .backdrop-blur-xl {
+    backdrop-filter: none !important;
+  }
+
+  /* Make sure images print */
+  img {
+    max-width: 100% !important;
+  }
+
+  /* Remove animations */
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Touch device: always show action buttons since hover doesn't exist */
+@media (hover: none) {
+  .job-action-btn {
+    opacity: 1 !important;
+  }
 }
 
 /* Better select styling */

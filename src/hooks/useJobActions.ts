@@ -1,19 +1,20 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { STORAGE_KEYS, STORAGE_EVENTS, LIMITS } from '@/lib/constants'
 
-// ── Key constants ────────────────────────────────────────────
-const SAVED_KEY = 'savedJobs'
-const APPLIED_KEY = 'appliedJobs'
-const COMPARE_KEY = 'compareJobs'
-const CLICKS_KEY = 'applyClicks'
+// ── Key aliases (keep code terse) ────────────────────────────
+const SAVED_KEY = STORAGE_KEYS.SAVED
+const APPLIED_KEY = STORAGE_KEYS.APPLIED
+const COMPARE_KEY = STORAGE_KEYS.COMPARE
+const CLICKS_KEY = STORAGE_KEYS.CLICKS
 
-const SAVED_EVENT = 'savedJobsChanged'
-const APPLIED_EVENT = 'appliedJobsChanged'
-const COMPARE_EVENT = 'compareJobsChanged'
+const SAVED_EVENT = STORAGE_EVENTS.SAVED
+const APPLIED_EVENT = STORAGE_EVENTS.APPLIED
+const COMPARE_EVENT = STORAGE_EVENTS.COMPARE
 
-const MAX_COMPARE = 4
-const MAX_CLICKS = 100
+const MAX_COMPARE = LIMITS.MAX_COMPARE
+const MAX_CLICKS = LIMITS.MAX_CLICKS
 
 // ── Helpers ──────────────────────────────────────────────────
 function readList(key: string): string[] {

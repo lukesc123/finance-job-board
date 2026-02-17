@@ -144,11 +144,11 @@ export default memo(function CompanyLogo({
   const initial = name?.charAt(0).toUpperCase() || '?'
   const [imgError, setImgError] = useState(false)
   const [faviconError, setFaviconError] = useState(false)
+  const [clearbitError, setClearbitError] = useState(false)
 
-  const faviconUrl = useMemo(() => {
-    const domain = getDomainFromWebsite(website) || guessCompanyDomain(name)
-    return domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : null
-  }, [website, name])
+  const domain = useMemo(() => getDomainFromWebsite(website) || guessCompanyDomain(name), [website, name])
+  const faviconUrl = domain ? `/api/favicon?domain=${encodeURIComponent(domain)}` : null
+  const clearbitUrl = domain ? `https://logo.clearbit.com/${domain}` : null
 
   // Use explicit logo_url first
   if (logoUrl && !imgError) {
@@ -165,7 +165,7 @@ export default memo(function CompanyLogo({
     )
   }
 
-  // Try Google favicon
+  // Try Google favicon via proxy
   if (faviconUrl && !faviconError) {
     return (
       <img
@@ -173,8 +173,26 @@ export default memo(function CompanyLogo({
         alt={`${name} logo`}
         width={px}
         height={px}
+        loading="lazy"
+        decoding="async"
         onError={() => setFaviconError(true)}
         className={`${cls} rounded-lg object-contain border border-navy-100 bg-white p-1.5 flex-shrink-0 ${imgClassName} ${className}`}
+      />
+    )
+  }
+
+  // Try Clearbit logo API
+  if (clearbitUrl && !clearbitError) {
+    return (
+      <img
+        src={clearbitUrl}
+        alt={`${name} logo`}
+        width={px}
+        height={px}
+        loading="lazy"
+        decoding="async"
+        onError={() => setClearbitError(true)}
+        className={`${cls} rounded-lg object-contain border border-navy-100 bg-white p-1 flex-shrink-0 ${imgClassName} ${className}`}
       />
     )
   }

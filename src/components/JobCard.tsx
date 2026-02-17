@@ -1,20 +1,12 @@
 'use client'
 
-import { memo } from 'react'
+import { memo, useMemo, useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Job } from '@/types'
 import CompanyLogo from '@/components/CompanyLogo'
-import { timeAgo, formatSalary, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor, getPipelineStageAccent, safeUrl } from '@/lib/formatting'
+import { timeAgo, formatSalary, getPipelineStageDisplay, getGradYearText, isGenericApplyUrl, slugify, getPipelineStageBadgeColor, getPipelineStageAccent, safeUrl, isNewJob } from '@/lib/formatting'
 import { useJobActions, trackApplyClick } from '@/hooks/useJobActions'
-
-function isNewJob(postedDate: string): boolean {
-  const posted = new Date(postedDate)
-  const now = new Date()
-  const diffMs = now.getTime() - posted.getTime()
-  const diffHours = diffMs / (1000 * 60 * 60)
-  return diffHours <= 48
-}
 
 const HighlightText = memo(function HighlightText({ text, highlight }: { text: string; highlight: string }) {
   if (!highlight || highlight.length < 2) return <>{text}</>
@@ -47,22 +39,44 @@ export default memo(function JobCard({ job, searchQuery = '', onPreview, isActiv
   const salary = formatSalary(job.salary_min, job.salary_max)
   const timePosted = timeAgo(job.posted_date)
   const isNew = isNewJob(job.posted_date)
-  const isStale = (() => {
+  // Compute staleness using a stable "now" reference to satisfy React purity rules.
+  // The value is captured once per mount and won't drift during the render.
+  const [mountTime] = useState(() => Date.now())
+  const isStale = useMemo(() => {
     if (job.removal_detected_at) return 'removed'
     const verified = new Date(job.last_verified_at).getTime()
-    const daysSinceVerified = (Date.now() - verified) / (1000 * 60 * 60 * 24)
+    const daysSinceVerified = (mountTime - verified) / (1000 * 60 * 60 * 24)
     return daysSinceVerified > 14 ? 'stale' : null
-  })()
+  }, [job.removal_detected_at, job.last_verified_at, mountTime])
 
   const hasNonRequiredLicenses = job.licenses_required &&
     job.licenses_required.length > 0 &&
     !job.licenses_required.every(l => l === 'None Required')
 
   const { saved, applied, comparing, toggleSave, toggleApplied, toggleCompare, markApplied } = useJobActions(job.id)
+  const [linkCopied, setLinkCopied] = useState(false)
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout>>(null)
+  useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current) }, [])
 
   const handleApplyClick = (j: Job) => {
     markApplied()
     trackApplyClick(j)
+  }
+
+  const handleCopyLink = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const url = `${window.location.origin}/jobs/${job.id}`
+    try {
+      // Use native share sheet on mobile if available
+      if (navigator.share) {
+        await navigator.share({ title: `${job.title} at ${job.company?.name || 'Company'}`, url })
+        return
+      }
+      await navigator.clipboard.writeText(url)
+      setLinkCopied(true)
+      copyTimerRef.current = setTimeout(() => setLinkCopied(false), 2000)
+    } catch { /* user cancelled or clipboard failed */ }
   }
 
   const handleClick = (e: React.MouseEvent) => {
@@ -72,8 +86,16 @@ export default memo(function JobCard({ job, searchQuery = '', onPreview, isActiv
     }
   }
 
+  const prefetchedRef = useRef(false)
+  const handleMouseEnter = () => {
+    if (!prefetchedRef.current) {
+      prefetchedRef.current = true
+      router.prefetch(`/jobs/${job.id}`)
+    }
+  }
+
   return (
-    <Link href={`/jobs/${job.id}`} onClick={handleClick}>
+    <Link href={`/jobs/${job.id}`} prefetch={false} onClick={handleClick} onMouseEnter={handleMouseEnter}>
       <div data-job-card data-job-id={job.id} tabIndex={-1} className={`group relative rounded-xl border-l-4 bg-white transition-all duration-200 hover:shadow-md hover:-translate-y-px ${getPipelineStageAccent(job.pipeline_stage)} ${
         isActive
           ? 'border border-l-4 border-navy-400 bg-navy-50/50 shadow-md ring-1 ring-navy-200'
@@ -94,11 +116,31 @@ export default memo(function JobCard({ job, searchQuery = '', onPreview, isActiv
               </span>
             )}
             <button
+              onClick={handleCopyLink}
+              className={`p-1.5 rounded-lg transition-all text-xs font-medium ${
+                linkCopied
+                  ? 'text-emerald-600 bg-emerald-100'
+                  : 'text-navy-300 sm:opacity-0 sm:group-hover:opacity-100 hover:text-navy-600 hover:bg-navy-50 job-action-btn'
+              }`}
+              aria-label={linkCopied ? 'Link copied' : 'Copy job link'}
+              title={linkCopied ? 'Copied!' : 'Share'}
+            >
+              {linkCopied ? (
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+              )}
+            </button>
+            <button
               onClick={toggleCompare}
               className={`p-1.5 rounded-lg transition-all text-xs font-medium ${
                 comparing
                   ? 'text-blue-600 bg-blue-100'
-                  : 'text-navy-300 opacity-0 group-hover:opacity-100 hover:text-blue-600 hover:bg-blue-50'
+                  : 'text-navy-300 sm:opacity-0 sm:group-hover:opacity-100 hover:text-blue-600 hover:bg-blue-50 job-action-btn'
               }`}
               aria-label={comparing ? 'Remove from compare' : 'Add to compare'}
               title={comparing ? 'Remove from compare' : 'Compare'}
@@ -112,7 +154,7 @@ export default memo(function JobCard({ job, searchQuery = '', onPreview, isActiv
               className={`p-1.5 rounded-lg transition-all text-xs font-medium ${
                 applied
                   ? 'text-emerald-600 bg-emerald-100'
-                  : 'text-navy-300 opacity-0 group-hover:opacity-100 hover:text-emerald-600 hover:bg-emerald-50'
+                  : 'text-navy-300 sm:opacity-0 sm:group-hover:opacity-100 hover:text-emerald-600 hover:bg-emerald-50 job-action-btn'
               }`}
               aria-label={applied ? 'Mark as not applied' : 'Mark as applied'}
             >
@@ -122,10 +164,11 @@ export default memo(function JobCard({ job, searchQuery = '', onPreview, isActiv
             </button>
             <button
               onClick={toggleSave}
+              data-save-btn
               className={`p-1.5 rounded-lg transition-all ${
                 saved
                   ? 'text-amber-500 hover:text-amber-600'
-                  : 'text-navy-300 opacity-0 group-hover:opacity-100 hover:text-navy-600'
+                  : 'text-navy-300 sm:opacity-0 sm:group-hover:opacity-100 hover:text-navy-600 job-action-btn'
               }`}
               aria-label={saved ? 'Unsave job' : 'Save job'}
             >
@@ -266,18 +309,18 @@ export default memo(function JobCard({ job, searchQuery = '', onPreview, isActiv
                         e.stopPropagation()
                         handleApplyClick(job)
                       }}
-                      className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white sm:opacity-0 sm:group-hover:opacity-100 transition-all hover:bg-emerald-700"
+                      className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white sm:opacity-0 sm:group-hover:opacity-100 transition-all hover:bg-emerald-700 max-w-[200px] sm:max-w-[240px] job-action-btn"
                     >
                       {generic ? (
                         <>
                           <svg className="h-3 w-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                           </svg>
-                          Careers at {job.company?.name || 'Company'}
+                          <span className="truncate">Careers at {job.company?.name || 'Company'}</span>
                         </>
                       ) : (
                         <>
-                          Apply at {job.company?.name || 'Company'}
+                          <span className="truncate">Apply at {job.company?.name || 'Company'}</span>
                         </>
                       )}
                       <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

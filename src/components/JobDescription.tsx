@@ -17,6 +17,13 @@ function linkify(text: string): (string | React.ReactElement)[] {
   return parts.map((part, i) => {
     if (urlRegex.test(part)) {
       urlRegex.lastIndex = 0
+      // Validate URL protocol to prevent javascript: XSS
+      try {
+        const url = new URL(part)
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') return part
+      } catch {
+        return part
+      }
       return (
         <a
           key={i}
@@ -45,13 +52,19 @@ function formatInlineMarkdown(text: string): (string | React.ReactElement)[] {
       parts.push(...linkify(text.substring(lastIndex, match.index)))
     }
     if (match[1] && match[2]) {
-      // Markdown link [text](url)
-      parts.push(
-        <a key={`l-${match.index}`} href={match[2]} target="_blank" rel="noopener noreferrer nofollow"
-          className="text-navy-600 underline decoration-navy-300 hover:text-navy-800 hover:decoration-navy-500 transition">
-          {match[1]}
-        </a>
-      )
+      // Markdown link [text](url) - validate protocol
+      let safeUrl = true
+      try { const u = new URL(match[2]); if (u.protocol !== 'http:' && u.protocol !== 'https:') safeUrl = false } catch { safeUrl = false }
+      if (safeUrl) {
+        parts.push(
+          <a key={`l-${match.index}`} href={match[2]} target="_blank" rel="noopener noreferrer nofollow"
+            className="text-navy-600 underline decoration-navy-300 hover:text-navy-800 hover:decoration-navy-500 transition">
+            {match[1]}
+          </a>
+        )
+      } else {
+        parts.push(match[1])
+      }
     } else if (match[3]) {
       // Bold **text**
       parts.push(<strong key={`b-${match.index}`} className="font-semibold text-navy-900">{match[3]}</strong>)

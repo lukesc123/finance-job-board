@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, memo } from 'react'
+import { useState, useEffect, useMemo, memo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { JOB_CATEGORIES } from '@/lib/constants'
+import { JOB_CATEGORIES, STORAGE_KEYS } from '@/lib/constants'
+import { fetchRetry } from '@/lib/fetchRetry'
 
 export default memo(function JobAlertSignup() {
   const router = useRouter()
@@ -13,26 +14,29 @@ export default memo(function JobAlertSignup() {
   const [step, setStep] = useState<'form' | 'verify' | 'done'>('form')
   const [loading, setLoading] = useState(false)
   const [showCategories, setShowCategories] = useState(false)
-  const [dismissed, setDismissed] = useState(false)
+  // Initialize dismissed from localStorage in lazy initializer (not in effect)
+  const [dismissed, setDismissed] = useState(() => {
+    try { return typeof window !== 'undefined' && localStorage.getItem(STORAGE_KEYS.JOB_ALERT_DISMISSED) === '1' } catch { return false }
+  })
   const [emailError, setEmailError] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  const supabase = createClient()
+  // Stabilize client reference to prevent effect re-runs
+  const supabase = useMemo(() => createClient(), [])
 
   useEffect(() => {
+    let cancelled = false
     supabase.auth.getUser().then(({ data: { user } }) => {
+      if (cancelled) return
       if (user) {
         setIsLoggedIn(true)
-        // Check if already subscribed
-        fetch('/api/preferences').then(r => r.json()).then(data => {
-          if (data?.email_digest_enabled) setStep('done')
+        fetchRetry('/api/preferences').then(r => r.json()).then(data => {
+          if (!cancelled && data?.email_digest_enabled) setStep('done')
         }).catch(() => {})
       }
     })
-    try {
-      if (localStorage.getItem('jobAlertDismissed') === '1') setDismissed(true)
-    } catch { /* ignore */ }
-  }, [supabase.auth])
+    return () => { cancelled = true }
+  }, [supabase])
 
   const toggleCategory = (cat: string) => {
     setSelectedCategories(prev =>
@@ -53,7 +57,7 @@ export default memo(function JobAlertSignup() {
     if (isLoggedIn) {
       // Already logged in: just enable the digest
       setLoading(true)
-      await fetch('/api/preferences', {
+      await fetchRetry('/api/preferences', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -61,6 +65,7 @@ export default memo(function JobAlertSignup() {
           email_digest_frequency: 'daily',
           ...(selectedCategories.length > 0 && { tracked_categories: selectedCategories }),
         }),
+        retries: 1,
       })
       setStep('done')
       setLoading(false)
@@ -104,7 +109,7 @@ export default memo(function JobAlertSignup() {
     }
 
     // Now signed in — enable digest and save categories
-    await fetch('/api/preferences', {
+    await fetchRetry('/api/preferences', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -112,6 +117,7 @@ export default memo(function JobAlertSignup() {
         email_digest_frequency: 'daily',
         ...(selectedCategories.length > 0 && { tracked_categories: selectedCategories }),
       }),
+      retries: 1,
     })
 
     setStep('done')
@@ -121,7 +127,7 @@ export default memo(function JobAlertSignup() {
 
   const handleDismiss = () => {
     setDismissed(true)
-    try { localStorage.setItem('jobAlertDismissed', '1') } catch { /* ignore */ }
+    try { localStorage.setItem(STORAGE_KEYS.JOB_ALERT_DISMISSED, '1') } catch { /* ignore */ }
   }
 
   if (dismissed) return null
@@ -141,7 +147,7 @@ export default memo(function JobAlertSignup() {
               <p className="text-sm text-emerald-700">We&apos;ll notify you when new finance jobs are posted.</p>
             </div>
           </div>
-          <button onClick={handleDismiss} className="text-emerald-400 hover:text-emerald-600 transition p-1" aria-label="Dismiss notification">
+          <button onClick={handleDismiss} className="text-emerald-400 hover:text-emerald-600 transition p-2 -m-1" aria-label="Dismiss notification">
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -155,7 +161,7 @@ export default memo(function JobAlertSignup() {
     <div className="rounded-xl border border-navy-200 bg-gradient-to-r from-navy-900 to-navy-800 p-5 sm:p-6 text-white relative">
       <button
         onClick={handleDismiss}
-        className="absolute top-3 right-3 text-navy-500 hover:text-navy-300 transition p-1"
+        className="absolute top-2 right-2 text-navy-500 hover:text-navy-300 transition p-2"
         aria-label="Dismiss"
       >
         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -190,14 +196,14 @@ export default memo(function JobAlertSignup() {
                   {selectedCategories.length > 0 ? `${selectedCategories.length} categories selected` : 'Select categories (optional)'}
                 </button>
                 {showCategories && (
-                  <div className="flex flex-wrap gap-1.5 mt-2">
+                  <div className="flex flex-wrap gap-2 mt-2">
                     {JOB_CATEGORIES.map(cat => (
                       <button
                         key={cat}
                         type="button"
                         onClick={() => toggleCategory(cat)}
                         aria-pressed={selectedCategories.includes(cat)}
-                        className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-all ${
+                        className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 ${
                           selectedCategories.includes(cat)
                             ? 'bg-amber-500 text-navy-900'
                             : 'bg-navy-700 text-navy-300 hover:bg-navy-600 hover:text-white'

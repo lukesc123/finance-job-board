@@ -19,13 +19,13 @@ export default function NotFound() {
           </div>
         </div>
         <h1 className="text-2xl font-bold text-navy-900 mb-2">Page not found</h1>
-        <p className="text-navy-500 text-sm mb-8">
+        <p className="text-navy-500 text-sm mb-6">
           The page you&apos;re looking for doesn&apos;t exist or may have been moved.
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition"
+            className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" />
@@ -34,10 +34,24 @@ export default function NotFound() {
           </Link>
           <Link
             href="/categories"
-            className="inline-flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-5 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition"
+            className="inline-flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-5 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
           >
             Browse Categories
           </Link>
+        </div>
+        <div className="border-t border-navy-200 pt-6">
+          <p className="text-xs text-navy-400 mb-3">Popular categories</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {['Investment Banking', 'Accounting', 'Consulting', 'Corporate Finance', 'Private Equity'].map(cat => (
+              <Link
+                key={cat}
+                href={`/category/${cat.toLowerCase().replace(/\s+&\s+/g, '-').replace(/\s+/g, '-')}`}
+                className="rounded-full border border-navy-200 px-3 py-1 text-xs text-navy-600 hover:bg-navy-100 transition"
+              >
+                {cat}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>

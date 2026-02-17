@@ -1,7 +1,18 @@
 'use client'
 
-import { useState, memo } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect, memo } from 'react'
 import { useJobActions } from '@/hooks/useJobActions'
+import { useToast } from '@/components/Toast'
+import { fetchRetry } from '@/lib/fetchRetry'
+import { SITE_URL } from '@/lib/constants'
+
+const REPORT_REASONS = [
+  { value: 'dead_link', label: 'Dead link' },
+  { value: 'not_entry_level', label: 'Not entry level' },
+  { value: 'duplicate', label: 'Duplicate' },
+  { value: 'spam', label: 'Spam' },
+  { value: 'other', label: 'Other' },
+] as const
 
 interface JobDetailActionsProps {
   jobId: string
@@ -13,9 +24,42 @@ interface JobDetailActionsProps {
 export default memo(function JobDetailActions({ jobId, jobTitle, companyName, postedDate }: JobDetailActionsProps) {
   const { saved, applied, toggleSave, toggleApplied } = useJobActions(jobId)
   const [copied, setCopied] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
+  const [reportSent, setReportSent] = useState(false)
+  const [reportLoading, setReportLoading] = useState(false)
+  const toast = useToast()
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout>>(null)
+  useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current) }, [])
+
+  const submitReport = useCallback(async (reason: string) => {
+    setReportLoading(true)
+    try {
+      const res = await fetchRetry('/api/jobs/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ job_id: jobId, reason }),
+        retries: 1,
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Failed to submit report')
+      }
+      setReportSent(true)
+      setReportOpen(false)
+      toast.toast('Report submitted. Thanks for helping keep listings accurate.', 'success')
+    } catch (err) {
+      toast.toast(err instanceof Error ? err.message : 'Failed to submit report', 'error')
+    } finally {
+      setReportLoading(false)
+    }
+  }, [jobId, toast])
+
+  const jobUrl = useMemo(() =>
+    typeof window !== 'undefined' ? window.location.href : `${SITE_URL}/jobs/${jobId}`
+  , [jobId])
 
   const shareJob = async () => {
-    const url = window.location.href
+    const url = jobUrl
     const text = jobTitle + ' at ' + companyName
 
     if (navigator.share) {
@@ -28,7 +72,7 @@ export default memo(function JobDetailActions({ jobId, jobTitle, companyName, po
     try {
       await navigator.clipboard.writeText(url)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2000)
     } catch { /* ignore */ }
   }
 
@@ -79,7 +123,7 @@ export default memo(function JobDetailActions({ jobId, jobTitle, companyName, po
         </button>
 
         <a
-          href={`mailto:?subject=${encodeURIComponent(jobTitle + ' at ' + companyName)}&body=${encodeURIComponent('Check out this job:\n\n' + jobTitle + ' at ' + companyName + '\n\n' + (typeof window !== 'undefined' ? window.location.href : ''))}`}
+          href={`mailto:?subject=${encodeURIComponent(jobTitle + ' at ' + companyName)}&body=${encodeURIComponent('Check out this job:\n\n' + jobTitle + ' at ' + companyName + '\n\n' + (jobUrl))}`}
           className={`${btnBase} border-navy-200 bg-white text-navy-600 hover:bg-navy-50 hover:border-navy-300`}
           aria-label="Share via email"
         >
@@ -90,7 +134,7 @@ export default memo(function JobDetailActions({ jobId, jobTitle, companyName, po
         </a>
 
         <a
-          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(jobTitle + ' at ' + companyName)}&url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(jobTitle + ' at ' + companyName)}&url=${encodeURIComponent(jobUrl)}`}
           target="_blank"
           rel="noopener noreferrer nofollow"
           className={`${btnBase} border-navy-200 bg-white text-navy-600 hover:bg-navy-50 hover:border-navy-300`}
@@ -103,7 +147,7 @@ export default memo(function JobDetailActions({ jobId, jobTitle, companyName, po
         </a>
 
         <a
-          href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+          href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(jobUrl)}`}
           target="_blank"
           rel="noopener noreferrer nofollow"
           className={`${btnBase} border-navy-200 bg-white text-navy-600 hover:bg-navy-50 hover:border-navy-300`}
@@ -123,6 +167,48 @@ export default memo(function JobDetailActions({ jobId, jobTitle, companyName, po
           </svg>
           <span className="text-sm font-medium text-emerald-700">You marked this job as applied</span>
         </div>
+      )}
+
+      {/* Report section */}
+      {!reportSent ? (
+        <div className="pt-1">
+          {!reportOpen ? (
+            <button
+              onClick={() => setReportOpen(true)}
+              className="inline-flex items-center gap-1 text-xs text-navy-400 hover:text-navy-600 transition"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+              </svg>
+              Report a problem
+            </button>
+          ) : (
+            <div className="rounded-lg border border-navy-200 bg-navy-50/50 p-3">
+              <p className="text-xs font-medium text-navy-600 mb-2">What's wrong with this listing?</p>
+              <div className="flex flex-wrap gap-1.5">
+                {REPORT_REASONS.map((r) => (
+                  <button
+                    key={r.value}
+                    onClick={() => submitReport(r.value)}
+                    disabled={reportLoading}
+                    className="rounded-full border border-navy-200 bg-white px-2.5 py-1 text-[11px] font-medium text-navy-600 hover:bg-navy-100 hover:border-navy-300 transition disabled:opacity-50"
+                  >
+                    {r.label}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setReportOpen(false)}
+                  disabled={reportLoading}
+                  className="rounded-full px-2.5 py-1 text-[11px] font-medium text-navy-400 hover:text-navy-600 transition disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <p className="text-xs text-navy-400 pt-1">Thanks for reporting this listing.</p>
       )}
     </div>
   )

@@ -15,6 +15,11 @@ export function timeAgo(date: string): string {
   return timeAgoFromTimestamp(new Date(date).getTime())
 }
 
+/** Returns true if a job was posted within the last 48 hours. */
+export function isNewJob(postedDate: string): boolean {
+  return (Date.now() - new Date(postedDate).getTime()) / (1000 * 60 * 60) <= 48
+}
+
 export function formatSalaryShort(n: number): string {
   return n >= 1000 ? `$${Math.round(n / 1000)}K` : `$${n}`
 }
@@ -77,8 +82,19 @@ export function getGradYearText(earliest: string | null, latest: string | null):
  * Checks if an apply URL is a generic careers page rather than a specific job posting.
  * Generic URLs point to search pages, career landing pages, etc. rather than a direct job listing.
  */
+const _genericUrlCache = new Map<string, boolean>()
+
 export function isGenericApplyUrl(url: string): boolean {
   if (!url) return false
+  const cached = _genericUrlCache.get(url)
+  if (cached !== undefined) return cached
+  const result = _isGenericApplyUrlInner(url)
+  if (_genericUrlCache.size > 5000) _genericUrlCache.clear() // prevent unbounded growth
+  _genericUrlCache.set(url, result)
+  return result
+}
+
+function _isGenericApplyUrlInner(url: string): boolean {
   try {
     const u = new URL(url.startsWith('http') ? url : `https://${url}`)
     const path = u.pathname.toLowerCase()

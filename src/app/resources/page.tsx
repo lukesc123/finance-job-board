@@ -170,9 +170,10 @@ export default function ResourcesPage() {
               href={guide.externalUrl}
               target="_blank"
               rel="noopener noreferrer nofollow"
-              className="block"
+              className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400/50 rounded-xl"
+              aria-label={`${guide.title} (opens in new tab)`}
             >
-              <article className="rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 transition-all group h-full">
+              <article className="rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 hover:-translate-y-0.5 transition-all group h-full">
                 <div className="flex items-start gap-3 mb-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy-100 text-navy-600 flex-shrink-0 group-hover:bg-navy-900 group-hover:text-white transition-colors">
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -200,7 +201,7 @@ export default function ResourcesPage() {
                   {guide.topics.map((topic) => (
                     <span
                       key={topic}
-                      className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-navy-50 text-navy-500 border border-navy-100"
+                      className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-navy-50 text-navy-700 border border-navy-200"
                     >
                       {topic}
                     </span>
@@ -230,7 +231,7 @@ export default function ResourcesPage() {
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition"
+              className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
             >
               Browse Jobs
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -239,7 +240,7 @@ export default function ResourcesPage() {
             </Link>
             <Link
               href="/companies"
-              className="inline-flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-5 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition"
+              className="inline-flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-5 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
             >
               View Companies
             </Link>

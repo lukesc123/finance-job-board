@@ -13,7 +13,7 @@ function slugify(name: string) {
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
 
-  const { data: companies } = await supabaseAdmin.from('companies').select('*')
+  const { data: companies } = await supabaseAdmin.from('companies').select('id,name,logo_url').limit(2000)
   const company = (companies || []).find((c: { name: string }) => slugify(c.name) === slug)
 
   if (!company) {

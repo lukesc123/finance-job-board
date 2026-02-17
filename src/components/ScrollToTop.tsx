@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 
 const SCROLL_THRESHOLD = 600
 
-export default function ScrollToTop() {
+export default memo(function ScrollToTop() {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -29,4 +29,4 @@ export default function ScrollToTop() {
       </svg>
     </button>
   )
-}
+})

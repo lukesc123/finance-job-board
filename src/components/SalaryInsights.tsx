@@ -73,10 +73,10 @@ export default memo(function SalaryInsights({ jobs }: { jobs: Job[] }) {
               <div
                 className="h-2 bg-navy-100 rounded-full overflow-hidden relative"
                 role="img"
-                aria-label={`Salary range ${formatSalaryShort(insight.avgMin)} to ${formatSalaryShort(insight.avgMax)}`}
+                aria-label={`Average salary range from ${formatSalaryShort(insight.avgMin)} to ${formatSalaryShort(insight.avgMax)}, based on ${insight.count} jobs in ${insight.category}`}
               >
                 <div
-                  className="absolute h-full bg-emerald-400 rounded-full group-hover:bg-emerald-500 transition-colors"
+                  className="absolute h-full bg-emerald-400 rounded-full group-hover:bg-emerald-500 group-active:bg-emerald-600 transition-colors"
                   style={{ left: `${barLeft}%`, width: `${Math.max(barWidth, 2)}%` }}
                 />
               </div>
@@ -88,9 +88,12 @@ export default memo(function SalaryInsights({ jobs }: { jobs: Job[] }) {
       {insights.length > 5 && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="mt-3 text-xs font-medium text-navy-500 hover:text-navy-700 transition"
+          className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-navy-500 hover:text-navy-700 transition px-2 py-1 -mx-2 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400/50"
         >
           {expanded ? 'Show less' : `Show all ${insights.length} categories`}
+          <svg className={`h-3 w-3 transition-transform ${expanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
         </button>
       )}
     </div>

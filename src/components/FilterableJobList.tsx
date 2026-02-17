@@ -2,7 +2,7 @@
 
 import { useState, useMemo, memo } from 'react'
 import Link from 'next/link'
-import { stageColors, timeAgo, formatSalary, isGenericApplyUrl, safeUrl } from '@/lib/formatting'
+import { stageColors, timeAgo, formatSalary, isGenericApplyUrl, safeUrl, isNewJob } from '@/lib/formatting'
 import { trackApplyClick } from '@/hooks/useJobActions'
 import { CATEGORY_COLORS } from '@/lib/constants'
 import CompanyLogo from '@/components/CompanyLogo'
@@ -37,14 +37,21 @@ export default memo(function FilterableJobList({
 }: FilterableJobListProps) {
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
 
-  const filterValues = useMemo(() => [...new Set(
-    jobs.map((j) => {
-      if (filterBy === 'category') return j.category
-      if (filterBy === 'stage') return j.pipeline_stage
-      if (filterBy === 'company') return j.company?.name || ''
-      return ''
-    }).filter(Boolean)
-  )].sort(), [jobs, filterBy])
+  // Pre-compute filter values and counts in a single pass instead of per-button iteration
+  const { filterValues, filterCounts } = useMemo(() => {
+    const counts: Record<string, number> = {}
+    jobs.forEach((j) => {
+      let key = ''
+      if (filterBy === 'category') key = j.category
+      else if (filterBy === 'stage') key = j.pipeline_stage
+      else if (filterBy === 'company') key = j.company?.name || ''
+      if (key) counts[key] = (counts[key] || 0) + 1
+    })
+    return {
+      filterValues: Object.keys(counts).sort(),
+      filterCounts: counts,
+    }
+  }, [jobs, filterBy])
 
   const filtered = activeFilter
     ? jobs.filter((j) => {
@@ -71,7 +78,7 @@ export default memo(function FilterableJobList({
           <button
             onClick={() => setActiveFilter(null)}
             aria-pressed={activeFilter === null}
-            className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+            className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2 ${
               activeFilter === null
                 ? 'bg-navy-900 border-navy-900 text-white'
                 : 'bg-white border-navy-200 text-navy-600 hover:bg-navy-50 hover:border-navy-300'
@@ -81,18 +88,13 @@ export default memo(function FilterableJobList({
           </button>
           {filterValues.map((val) => {
             const isActive = activeFilter === val
-            const count = jobs.filter((j) => {
-              if (filterBy === 'category') return j.category === val
-              if (filterBy === 'stage') return j.pipeline_stage === val
-              if (filterBy === 'company') return j.company?.name === val
-              return false
-            }).length
+            const count = filterCounts[val] || 0
             return (
               <button
                 key={val}
                 onClick={() => setActiveFilter(isActive ? null : val)}
                 aria-pressed={isActive}
-                className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2 ${
                   isActive
                     ? 'bg-navy-900 border-navy-900 text-white'
                     : getFilterColor(val)
@@ -106,13 +108,15 @@ export default memo(function FilterableJobList({
       )}
 
       <div className="space-y-3">
-        {filtered.map((job) => {
+        {filtered.map((job, i) => {
           const salary = formatSalary(job.salary_min, job.salary_max)
           return (
             <Link
               key={job.id}
               href={`/jobs/${job.id}`}
-              className="block rounded-xl border border-navy-200 bg-white p-4 sm:p-5 hover:shadow-md hover:border-navy-300 transition group"
+              prefetch={false}
+              style={i < 15 ? { animationDelay: `${i * 30}ms` } : undefined}
+              className={`block rounded-xl border border-navy-200 bg-white p-4 sm:p-5 hover:shadow-md hover:border-navy-300 transition group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2 ${i < 15 ? 'animate-fade-in-up' : ''}`}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex gap-3 min-w-0">
@@ -140,6 +144,9 @@ export default memo(function FilterableJobList({
                     <span className="text-sm font-bold text-emerald-600 whitespace-nowrap">{salary}</span>
                   )}
                   <span className="text-[11px] text-navy-400">{timeAgo(job.posted_date)}</span>
+                  {isNewJob(job.posted_date) && (
+                    <span className="inline-flex items-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[9px] font-bold text-white uppercase tracking-wide">New</span>
+                  )}
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 mt-2.5">

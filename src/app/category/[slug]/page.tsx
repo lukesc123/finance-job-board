@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -48,13 +49,14 @@ interface CategoryJob {
   company: { name: string; logo_url: string | null; website?: string | null } | null
 }
 
-async function getCategoryJobs(category: JobCategory): Promise<CategoryJob[]> {
+const getCategoryJobs = cache(async function getCategoryJobs(category: JobCategory): Promise<CategoryJob[]> {
   const { data } = await supabaseAdmin
     .from('jobs')
     .select('id, title, category, location, remote_type, salary_min, salary_max, job_type, pipeline_stage, licenses_required, posted_date, apply_url, company:companies(name, logo_url, website)')
     .eq('category', category)
     .eq('is_active', true)
     .order('posted_date', { ascending: false })
+    .limit(2000)
 
   type RawCategoryJob = Omit<CategoryJob, 'company'> & {
     company: { name: string; logo_url: string | null; website?: string | null }[] | { name: string; logo_url: string | null; website?: string | null } | null
@@ -63,7 +65,7 @@ async function getCategoryJobs(category: JobCategory): Promise<CategoryJob[]> {
     ...j,
     company: Array.isArray(j.company) ? j.company[0] || null : j.company,
   }))
-}
+})
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -148,9 +150,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       <div className="bg-white border-b border-navy-100">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <nav className="flex items-center gap-1.5 text-xs text-navy-400" aria-label="Breadcrumb">
-            <Link href="/" className="hover:text-navy-700 transition">Home</Link>
+            <Link href="/" className="hover:text-navy-700 transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Home</Link>
             <svg className="h-3 w-3" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-            <Link href="/categories" className="hover:text-navy-700 transition">Categories</Link>
+            <Link href="/categories" className="hover:text-navy-700 transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Categories</Link>
             <svg className="h-3 w-3" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             <span className="text-navy-700 font-medium" aria-current="page">{category}</span>
           </nav>
@@ -207,7 +209,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
               <Link
                 key={cat}
                 href={`/category/${slugify(cat)}`}
-                className="rounded-lg border border-navy-200 bg-white px-4 py-3 text-sm font-medium text-navy-700 hover:bg-navy-50 hover:border-navy-300 transition"
+                className="rounded-lg border border-navy-200 bg-white px-4 py-3 text-sm font-medium text-navy-700 hover:bg-navy-50 hover:border-navy-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
               >
                 {cat}
               </Link>
@@ -217,10 +219,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
 
         {/* CTA */}
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/" className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition">
+          <Link href="/" className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2">
             Browse All Jobs
           </Link>
-          <Link href="/companies" className="inline-flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-5 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition">
+          <Link href="/companies" className="inline-flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-5 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2">
             View All Companies
           </Link>
         </div>

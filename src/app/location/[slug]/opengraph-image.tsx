@@ -18,6 +18,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     .from('jobs')
     .select('location, company_id')
     .eq('is_active', true)
+    .limit(5000)
 
   if (!allJobs) {
     return new ImageResponse(

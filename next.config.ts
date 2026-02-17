@@ -12,8 +12,8 @@ const securityHeaders = [
     value: [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "font-src 'self' https://fonts.gstatic.com",
+      "style-src 'self' 'unsafe-inline'",
+      "font-src 'self'",
       "img-src 'self' data: https: blob:",
       "connect-src 'self' https://*.supabase.co",
       "frame-ancestors 'self'",
@@ -24,6 +24,8 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
+  reactStrictMode: true,
   images: {
     formats: ['image/avif', 'image/webp'],
     // Wildcard required: company logos are stored as arbitrary external URLs in the DB.
@@ -39,6 +41,13 @@ const nextConfig: NextConfig = {
       {
         source: '/(.*)',
         headers: securityHeaders,
+      },
+      {
+        // Prevent search engines from indexing API routes
+        source: '/api/:path*',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ],
       },
     ]
   },

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { rateLimit, getClientIP } from '@/lib/rateLimit'
+import { logger } from '@/lib/logger'
+import { withETag } from '@/lib/etag'
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,39 +22,46 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ suggestions: [] })
     }
 
-    const pattern = `%${query}%`
+    // Escape SQL LIKE wildcards to prevent pattern injection
+    const escaped = query.replace(/[%_\\]/g, '\\$&')
+    // Use prefix match first (uses indexes), fall back to contains for short queries
+    const prefixPattern = `${escaped}%`
+    const containsPattern = `%${escaped}%`
 
-    // Run filtered queries in parallel instead of fetching all 1000 jobs
+    // Run filtered queries in parallel
+    // Strategy: prefix match is much faster (can use B-tree/trigram indexes)
+    // We use prefix for company/category (short fields) and contains for title/location
     const [titleRes, companyRes, locationRes, categoryRes] = await Promise.all([
-      // Title matches (server-side filtered, max 5)
+      // Title matches: contains pattern (users search mid-word often)
       supabaseAdmin
         .from('jobs')
         .select('title')
         .eq('is_active', true)
-        .ilike('title', pattern)
+        .ilike('title', containsPattern)
+        .order('posted_date', { ascending: false })
         .limit(5),
 
-      // Company matches (search on companies table directly)
+      // Company matches: prefer prefix (faster, more relevant for autocomplete)
       supabaseAdmin
         .from('companies')
         .select('name, jobs:jobs(count)')
-        .ilike('name', pattern)
+        .ilike('name', prefixPattern)
         .limit(5),
 
-      // Location matches (server-side filtered, max 10 for dedup)
+      // Location matches: contains (users may type city without state)
       supabaseAdmin
         .from('jobs')
         .select('location')
         .eq('is_active', true)
-        .ilike('location', pattern)
+        .ilike('location', containsPattern)
         .limit(50),
 
-      // Category matches (server-side filtered)
+      // Category matches: prefix (categories are short, well-known strings)
       supabaseAdmin
         .from('jobs')
         .select('category')
         .eq('is_active', true)
-        .ilike('category', pattern)
+        .ilike('category', prefixPattern)
         .limit(50),
     ])
 
@@ -109,11 +118,15 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ suggestions: suggestions.slice(0, 8) }, {
-      headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120' },
-    })
+    const payload = { suggestions: suggestions.slice(0, 8) }
+    const cacheHeaders = {
+      'Cache-Control': 'public, max-age=0, s-maxage=300, stale-while-revalidate=600',
+      'Vary': 'Accept-Encoding',
+    }
+    const { response } = withETag(request, payload, cacheHeaders)
+    return response
   } catch (error) {
-    console.error('Search suggestions error:', error)
-    return NextResponse.json({ suggestions: [] }, { status: 500 })
+    logger.error('Search suggestions error:', error)
+    return NextResponse.json({ suggestions: [], code: 'INTERNAL_ERROR' }, { status: 500 })
   }
 }

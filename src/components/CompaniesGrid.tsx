@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import Link from 'next/link'
 import { slugify, safeUrl } from '@/lib/formatting'
 import CompanyLogo from '@/components/CompanyLogo'
@@ -20,7 +20,7 @@ interface CompanyWithCount {
 
 type SortOption = 'jobs' | 'name_az' | 'name_za'
 
-export default function CompaniesGrid({ companies }: { companies: CompanyWithCount[] }) {
+export default memo(function CompaniesGrid({ companies }: { companies: CompanyWithCount[] }) {
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState<SortOption>('jobs')
   const [selectedCategory, setSelectedCategory] = useState('')
@@ -90,7 +90,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-navy-400 hover:text-navy-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-navy-400 hover:text-navy-600 p-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400/50"
               aria-label="Clear search"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -103,7 +103,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
           value={selectedLocation}
           onChange={(e) => setSelectedLocation(e.target.value)}
           aria-label="Filter by location"
-          className="rounded-lg border border-navy-200 bg-white px-3 py-2.5 text-sm text-navy-700 focus:border-navy-400 focus:outline-none"
+          className="rounded-lg border border-navy-200 bg-white px-3 py-2.5 text-sm text-navy-700 focus:border-navy-400 focus:outline-none focus:ring-2 focus:ring-navy-400/20"
         >
           <option value="">All locations</option>
           {allLocations.map((loc) => (
@@ -114,7 +114,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as SortOption)}
           aria-label="Sort companies"
-          className="rounded-lg border border-navy-200 bg-white px-3 py-2.5 text-sm text-navy-700 focus:border-navy-400 focus:outline-none"
+          className="rounded-lg border border-navy-200 bg-white px-3 py-2.5 text-sm text-navy-700 focus:border-navy-400 focus:outline-none focus:ring-2 focus:ring-navy-400/20"
         >
           <option value="jobs">Most jobs</option>
           <option value="name_az">A to Z</option>
@@ -123,11 +123,11 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
       </div>
 
       {/* Category filter pills */}
-      <div className="flex flex-wrap gap-1.5 mb-5">
+      <div className="flex flex-wrap gap-2 mb-5">
         <button
           onClick={() => setSelectedCategory('')}
           aria-pressed={!selectedCategory}
-          className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+          className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2 ${
             !selectedCategory
               ? 'bg-navy-900 text-white'
               : 'bg-white text-navy-600 border border-navy-200 hover:border-navy-300'
@@ -140,7 +140,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
             key={cat}
             onClick={() => setSelectedCategory(selectedCategory === cat ? '' : cat)}
             aria-pressed={selectedCategory === cat}
-            className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+            className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2 ${
               selectedCategory === cat
                 ? 'bg-navy-900 text-white'
                 : 'bg-white text-navy-600 border border-navy-200 hover:border-navy-300'
@@ -161,13 +161,14 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
 
       {/* Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((company) => (
-          <div key={company.id} className="rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md transition-shadow group">
+        {filtered.map((company, i) => (
+          <div key={company.id} className={`rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:-translate-y-0.5 transition-all group ${i < 12 ? 'animate-fade-in-up' : ''}`} style={i < 12 ? { animationDelay: `${i * 40}ms` } : undefined}>
             <div className="flex items-start gap-3 mb-3">
               <CompanyLogo logoUrl={company.logo_url} name={company.name} website={company.website} fallbackClassName="bg-navy-100 text-navy-600" />
               <div className="min-w-0">
                 <Link
                   href={`/companies/${company.slug}`}
+                  prefetch={false}
                   className="font-bold text-navy-900 group-hover:text-navy-700 transition block truncate"
                 >
                   {company.name}
@@ -230,6 +231,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
             <div className="flex items-center gap-3 pt-2 border-t border-navy-100">
               <Link
                 href={`/companies/${company.slug}`}
+                prefetch={false}
                 className="inline-flex items-center gap-1 text-xs font-semibold text-navy-600 hover:text-navy-900 transition"
               >
                 View Jobs
@@ -276,7 +278,7 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
           <p className="text-sm">Try a different search term or clear your filters.</p>
           <button
             onClick={() => { setSearch(''); setSelectedCategory(''); setSelectedLocation('') }}
-            className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white hover:bg-navy-800 transition"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white hover:bg-navy-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
           >
             Clear filters
           </button>
@@ -284,4 +286,4 @@ export default function CompaniesGrid({ companies }: { companies: CompanyWithCou
       )}
     </section>
   )
-}
+})

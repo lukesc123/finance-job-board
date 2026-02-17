@@ -35,6 +35,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     .select('id, company_id')
     .eq('category', category)
     .eq('is_active', true)
+    .limit(5000)
 
   const jobCount = jobs?.length || 0
   const companyCount = new Set((jobs || []).map((j: { company_id: string }) => j.company_id)).size

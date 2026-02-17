@@ -6,11 +6,13 @@ import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import SearchBar from '@/components/SearchBar'
 import Filters from '@/components/Filters'
+import SavedSearches from '@/components/SavedSearches'
 import JobCard from '@/components/JobCard'
 import JobCardSkeleton from '@/components/JobCardSkeleton'
-import KeyboardNav from '@/components/KeyboardNav'
-import CompareBar from '@/components/CompareBar'
-import JobPreview from '@/components/JobPreview'
+// Lazy-load non-critical interactive overlays
+const JobPreview = dynamic(() => import('@/components/JobPreview'), { ssr: false })
+const KeyboardNav = dynamic(() => import('@/components/KeyboardNav'), { ssr: false })
+const CompareBar = dynamic(() => import('@/components/CompareBar'), { ssr: false })
 
 // Lazy-load below-the-fold components with loading skeletons
 const JobAlertSignup = dynamic(() => import('@/components/JobAlertSignup'), {
@@ -25,9 +27,12 @@ const SalaryInsights = dynamic(() => import('@/components/SalaryInsights'), {
   loading: () => <div className="h-20 bg-white rounded-xl animate-pulse border border-navy-100" />,
   ssr: false,
 })
+import ErrorBoundary from '@/components/ErrorBoundary'
 import { Job, JobFilters, PIPELINE_STAGES } from '@/types'
 import { getPipelineStageDisplay, debounce } from '@/lib/formatting'
-import { JOB_CATEGORIES } from '@/lib/constants'
+import { JOB_CATEGORIES, CATEGORY_ACCENT, STORAGE_KEYS, STORAGE_EVENTS } from '@/lib/constants'
+import { fetchRetry } from '@/lib/fetchRetry'
+import { useNewJobCount } from '@/hooks/useRealtimeJobs'
 
 type SortBy = 'newest' | 'salary_high' | 'salary_low' | 'company_az' | 'relevance'
 
@@ -67,12 +72,26 @@ function HomePageContent() {
   const router = useRouter()
   const isInitialMount = useRef(true)
 
-  const [filters, setFilters] = useState<JobFilters>(() => filtersFromParams(searchParams))
+  const [filters, setFilters] = useState<JobFilters>(() => {
+    const fromUrl = filtersFromParams(searchParams)
+    const hasUrlFilters = FILTER_KEYS.some(k => fromUrl[k])
+    if (hasUrlFilters) return fromUrl
+    // Restore from sessionStorage on back navigation
+    try {
+      const cached = sessionStorage.getItem(STORAGE_KEYS.FILTERS)
+      if (cached) return JSON.parse(cached)
+    } catch { /* ignore */ }
+    return fromUrl
+  })
   const [allJobs, setAllJobs] = useState<Job[]>([])
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [sortBy, setSortBy] = useState<SortBy>(() => (searchParams.get('sort') as SortBy) || 'newest')
+  const [sortBy, setSortBy] = useState<SortBy>(() => {
+    const urlSort = searchParams.get('sort') as SortBy
+    if (urlSort) return urlSort
+    try { return (sessionStorage.getItem(STORAGE_KEYS.SORT) as SortBy) || 'newest' } catch { return 'newest' }
+  })
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [showSaved, setShowSaved] = useState(() => searchParams.get('saved') === '1')
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set())
@@ -81,15 +100,51 @@ function HomePageContent() {
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
   const previewSourceRef = useRef<HTMLElement | null>(null)
 
-  // Desktop detection for split-pane
+  // Realtime: track new jobs since last fetch
+  const { count: newJobCount, reset: resetNewJobCount } = useNewJobCount(
+    filters.category || undefined,
+  )
+
+  // Desktop detection for split-pane; close preview when resizing below breakpoint
   useEffect(() => {
-    const check = () => setIsDesktop(window.innerWidth >= 1024)
+    const check = () => {
+      const desktop = window.innerWidth >= 1024
+      setIsDesktop(desktop)
+      if (!desktop) setPreviewJob(null)
+    }
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  // Infinite scroll observer
+  // Scroll position restoration on back navigation
+  useEffect(() => {
+    try {
+      const savedScroll = sessionStorage.getItem(STORAGE_KEYS.SCROLL)
+      if (savedScroll) {
+        const y = Math.max(0, parseInt(savedScroll, 10) || 0)
+        requestAnimationFrame(() => window.scrollTo(0, y))
+        sessionStorage.removeItem(STORAGE_KEYS.SCROLL)
+      }
+    } catch { /* ignore */ }
+
+    const saveScroll = () => {
+      try { sessionStorage.setItem(STORAGE_KEYS.SCROLL, String(window.scrollY)) } catch { /* ignore */ }
+    }
+    // Save on any navigation away (link clicks trigger beforeunload in SPA via popstate)
+    window.addEventListener('beforeunload', saveScroll)
+    // Also save periodically for SPA navigations
+    const interval = setInterval(saveScroll, 2000)
+    return () => {
+      saveScroll()
+      window.removeEventListener('beforeunload', saveScroll)
+      clearInterval(interval)
+    }
+  }, [])
+
+  // Infinite scroll observer.
+  // Only re-attach when loading changes (the sentinel element mounts/unmounts).
+  // The callback uses setVisibleCount(prev => ...) so it never goes stale.
   useEffect(() => {
     const el = loadMoreRef.current
     if (!el) return
@@ -103,22 +158,22 @@ function HomePageContent() {
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [visibleCount, loading])
+  }, [loading])
 
   useEffect(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem('savedJobs') || '[]')
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED) || '[]')
       setSavedJobIds(new Set(saved))
     } catch { /* ignore */ }
 
     const handleChange = () => {
       try {
-        const saved = JSON.parse(localStorage.getItem('savedJobs') || '[]')
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED) || '[]')
         setSavedJobIds(new Set(saved))
       } catch { /* ignore */ }
     }
-    window.addEventListener('savedJobsChanged', handleChange)
-    return () => window.removeEventListener('savedJobsChanged', handleChange)
+    window.addEventListener(STORAGE_EVENTS.SAVED, handleChange)
+    return () => window.removeEventListener(STORAGE_EVENTS.SAVED, handleChange)
   }, [])
 
   const companyCounts = useMemo(() => {
@@ -174,15 +229,26 @@ function HomePageContent() {
       if (filterState.company) params.append('company', filterState.company)
       if (filterState.location) params.append('location', filterState.location)
 
-      const response = await fetch(`/api/jobs?${params.toString()}`, { signal: controller.signal })
-      if (!response.ok) throw new Error('Failed to fetch jobs')
-      const data = await response.json()
+      // Use slim mode to omit description (not needed in list view, saves ~60% payload)
+      params.append('fields', 'slim')
+      const response = await fetchRetry(`/api/jobs?${params.toString()}`, { signal: controller.signal })
+      if (!response.ok) {
+        if (response.status === 503) throw new Error('SERVICE_UNAVAILABLE')
+        if (response.status >= 500) throw new Error('SERVER_ERROR')
+        throw new Error('FETCH_FAILED')
+      }
+      const data = (await response.json()) as Job[]
       setJobs(data)
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return
       console.error('Error fetching jobs:', err)
+      const msg = err instanceof Error ? err.message : ''
       if (err instanceof TypeError && err.message === 'Failed to fetch') {
-        setError('Network error. Check your connection and try again.')
+        setError('Unable to connect. Check your internet connection and try again.')
+      } else if (msg === 'SERVICE_UNAVAILABLE') {
+        setError('The server is temporarily unavailable. Please try again in a few minutes.')
+      } else if (msg === 'SERVER_ERROR') {
+        setError('Something went wrong on our end. Please try again shortly.')
       } else {
         setError('Failed to load jobs. Please try again.')
       }
@@ -193,12 +259,14 @@ function HomePageContent() {
   }, [])
 
   useEffect(() => {
+    let cancelled = false
     async function initialFetch() {
       try {
         // Fetch all jobs once for counts, salary insights, etc.
-        const allRes = await fetch('/api/jobs')
-        if (!allRes.ok) return
-        const allData = await allRes.json()
+        const allRes = await fetchRetry('/api/jobs?fields=slim')
+        if (cancelled || !allRes.ok) return
+        const allData = (await allRes.json()) as Job[]
+        if (cancelled) return
         setAllJobs(allData)
 
         // If no filters are active on initial load, reuse the same data
@@ -209,12 +277,14 @@ function HomePageContent() {
           await fetchJobs(filters)
         }
       } catch (err) {
+        if (cancelled) return
         console.error('Initial jobs fetch failed:', err)
         await fetchJobs(filters)
       }
     }
     initialFetch()
     isInitialMount.current = false
+    return () => { cancelled = true }
   }, [])
 
   const isFiltered =
@@ -233,6 +303,11 @@ function HomePageContent() {
     fetchJobs(cleared)
     updateURL(cleared, 'newest')
     setSortBy('newest')
+    try { sessionStorage.removeItem(STORAGE_KEYS.FILTERS); sessionStorage.removeItem(STORAGE_KEYS.SORT) } catch { /* ignore */ }
+    // Move focus to job list region for screen readers
+    requestAnimationFrame(() => {
+      document.getElementById('job-results')?.focus()
+    })
   }
 
   const handleFilterChange = (newFilters: JobFilters) => {
@@ -240,31 +315,44 @@ function HomePageContent() {
     setVisibleCount(PAGE_SIZE)
     fetchJobs(newFilters)
     updateURL(newFilters, sortBy)
+    try { sessionStorage.setItem(STORAGE_KEYS.FILTERS, JSON.stringify(newFilters)) } catch { /* ignore */ }
   }
 
   const handleSortChange = (newSort: string) => {
     setSortBy(newSort as SortBy)
     updateURL(filters, newSort)
+    try { sessionStorage.setItem(STORAGE_KEYS.SORT, newSort) } catch { /* ignore */ }
   }
+
+  // Use refs to avoid stale closures in the debounced callback.
+  // Without this, the debounce is recreated on every state change, defeating its purpose.
+  const filtersRef = useRef(filters)
+  filtersRef.current = filters
+  const sortByRef = useRef(sortBy)
+  sortByRef.current = sortBy
+  const fetchJobsRef = useRef(fetchJobs)
+  fetchJobsRef.current = fetchJobs
+  const updateURLRef = useRef(updateURL)
+  updateURLRef.current = updateURL
 
   const debouncedSearch = useMemo(
     () =>
       debounce((query: string) => {
-        const newFilters = { ...filters, search: query }
+        const newFilters = { ...filtersRef.current, search: query }
         setFilters(newFilters)
-        fetchJobs(newFilters)
+        fetchJobsRef.current(newFilters)
 
-        if (query && sortBy === 'newest') {
+        if (query && sortByRef.current === 'newest') {
           setSortBy('relevance')
-          updateURL(newFilters, 'relevance')
-        } else if (!query && sortBy === 'relevance') {
+          updateURLRef.current(newFilters, 'relevance')
+        } else if (!query && sortByRef.current === 'relevance') {
           setSortBy('newest')
-          updateURL(newFilters, 'newest')
+          updateURLRef.current(newFilters, 'newest')
         } else {
-          updateURL(newFilters, sortBy)
+          updateURLRef.current(newFilters, sortByRef.current)
         }
       }, 300),
-    [filters, fetchJobs, sortBy, updateURL]
+    [] // stable: refs keep values current without recreating the debounce
   )
 
   const handleSearch = (query: string) => {
@@ -392,7 +480,7 @@ function HomePageContent() {
                 aria-pressed={filters.category === cat}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all inline-flex items-center gap-1.5 ${
                   filters.category === cat
-                    ? 'bg-white text-navy-950 shadow-sm'
+                    ? `${CATEGORY_ACCENT[cat] || 'bg-white text-navy-950'} shadow-sm`
                     : 'bg-navy-800/60 text-navy-200 hover:bg-navy-700 hover:text-white'
                 }`}
               >
@@ -400,7 +488,7 @@ function HomePageContent() {
                 {categoryCounts[cat] > 0 && (
                   <span className={`text-[10px] font-bold rounded-full min-w-[18px] h-[18px] inline-flex items-center justify-center ${
                     filters.category === cat
-                      ? 'bg-navy-900 text-white'
+                      ? 'bg-white/20 text-white'
                       : 'bg-navy-700/80 text-navy-300'
                   }`}>
                     {categoryCounts[cat]}
@@ -436,14 +524,6 @@ function HomePageContent() {
           />
         </div>
 
-        {/* Job Alert Signup */}
-        <div className="mb-5">
-          <JobAlertSignup />
-        </div>
-
-        {/* Recently Viewed */}
-        <RecentlyViewed />
-
         {/* Filters */}
         <div className="mb-5">
           <Filters
@@ -459,8 +539,8 @@ function HomePageContent() {
           />
         </div>
 
-        {/* Salary Insights */}
-        <SalaryInsights jobs={allJobs} />
+        {/* Saved Searches */}
+        <SavedSearches currentFilters={filters} onApply={handleFilterChange} />
 
         {/* Quick Stage Filters */}
         <div className="mb-4 flex flex-wrap gap-1.5">
@@ -482,6 +562,22 @@ function HomePageContent() {
             </button>
           ))}
         </div>
+
+        {/* New jobs banner (Realtime) */}
+        {newJobCount > 0 && (
+          <button
+            onClick={() => {
+              resetNewJobCount()
+              fetchJobs(filters)
+            }}
+            className="mb-3 w-full rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-2.5 text-sm text-emerald-700 font-medium hover:bg-emerald-100 transition flex items-center justify-center gap-2"
+          >
+            <svg className="h-4 w-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {newJobCount} new {newJobCount === 1 ? 'job' : 'jobs'} posted. Click to refresh.
+          </button>
+        )}
 
         {/* Results Count + Saved Toggle */}
         <div className="mb-4 flex items-center justify-between">
@@ -515,7 +611,7 @@ function HomePageContent() {
 
         {/* Jobs List + Preview Split Pane */}
         <div className={`${previewJob && isDesktop ? 'flex gap-6' : ''}`}>
-        <div className={`space-y-2.5 ${previewJob && isDesktop ? 'flex-1 min-w-0' : ''}`}>
+        <div id="job-results" tabIndex={-1} role="region" aria-label="Job listings" className={`space-y-3 outline-none ${previewJob && isDesktop ? 'flex-1 min-w-0' : ''}`}>
           {loading ? (
             <>
               {[1, 2, 3, 4, 5].map((i) => (
@@ -523,20 +619,34 @@ function HomePageContent() {
               ))}
             </>
           ) : sortedJobs.length === 0 ? (
-            <div className="rounded-xl border border-navy-200 bg-white px-6 py-16 text-center">
-              <svg className="mx-auto h-10 w-10 text-navy-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <p className="text-navy-700 font-semibold mb-1">
+            <div className="rounded-xl border border-navy-200 bg-gradient-to-b from-white to-navy-50/40 px-6 py-20 text-center">
+              {showSaved ? (
+                <svg className="mx-auto h-12 w-12 text-amber-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+              ) : (
+                <svg className="mx-auto h-12 w-12 text-navy-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              )}
+              <p className="text-navy-800 font-bold text-lg mb-1">
                 {showSaved ? 'No saved jobs yet' : 'No jobs match your criteria'}
               </p>
-              <p className="text-sm text-navy-500 mb-4">
-                {showSaved ? 'Click the bookmark icon on any job to save it' : 'Try broadening your filters or search terms'}
+              <p className="text-sm text-navy-500 mb-5 max-w-xs mx-auto">
+                {showSaved ? 'Tap the bookmark icon on any job listing to save it for later' : 'Try broadening your filters or adjusting your search terms'}
               </p>
+              {showSaved && (
+                <button
+                  onClick={() => handleToggleSaved()}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white hover:bg-navy-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
+                >
+                  Browse all jobs
+                </button>
+              )}
               {!showSaved && isFiltered && (
                 <button
                   onClick={handleClearAll}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white hover:bg-navy-800 transition"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white hover:bg-navy-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
                 >
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -547,21 +657,48 @@ function HomePageContent() {
             </div>
           ) : (
             <>
-              {sortedJobs.slice(0, visibleCount).map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  searchQuery={filters.search}
-                  onPreview={isDesktop ? (job: Job) => {
-                    previewSourceRef.current = document.querySelector(`[data-job-id="${job.id}"]`)
-                    setPreviewJob(job)
-                  } : undefined}
-                  isActive={previewJob?.id === job.id}
-                />
+              {sortedJobs.slice(0, visibleCount).map((job, i) => (
+                <div key={job.id}>
+                  <div className={i < PAGE_SIZE ? 'animate-fade-in-up' : ''} style={i < PAGE_SIZE ? { animationDelay: `${i * 30}ms` } : undefined}>
+                    <JobCard
+                      job={job}
+                      searchQuery={filters.search}
+                      onPreview={isDesktop ? (job: Job) => {
+                        previewSourceRef.current = document.querySelector(`[data-job-id="${job.id}"]`)
+                        setPreviewJob(job)
+                      } : undefined}
+                      isActive={previewJob?.id === job.id}
+                    />
+                  </div>
+                  {i === 4 && sortedJobs.length > 5 && !previewJob && (
+                    <div className="my-3 rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-white px-4 py-3 flex items-center justify-between gap-3 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                          <svg className="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                          </svg>
+                        </div>
+                        <p className="text-sm text-navy-700 truncate">
+                          <span className="font-semibold">Finding good results?</span>{' '}
+                          <span className="hidden sm:inline text-navy-500">Get new matches emailed to you daily.</span>
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const alertEl = document.querySelector('[data-job-alert]')
+                          if (alertEl) alertEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                        }}
+                        className="flex-shrink-0 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2"
+                      >
+                        Set alert
+                      </button>
+                    </div>
+                  )}
+                </div>
               ))}
 
               {sortedJobs.length > visibleCount ? (
-                <div ref={loadMoreRef} className="pt-6 flex flex-col items-center gap-2">
+                <div ref={loadMoreRef} className="pt-6 flex flex-col items-center gap-2 animate-fade-in-up">
                   <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-navy-300 border-t-navy-600"></div>
                   <span className="text-xs text-navy-400">Loading more jobs...</span>
                 </div>
@@ -601,6 +738,15 @@ function HomePageContent() {
           </div>
         )}
 
+        {/* Below-the-fold: Recently Viewed, Job Alerts, Salary Insights */}
+        {!loading && (
+          <div className="mt-8 space-y-5">
+            <ErrorBoundary><RecentlyViewed /></ErrorBoundary>
+            <ErrorBoundary><div data-job-alert><JobAlertSignup /></div></ErrorBoundary>
+            <ErrorBoundary><SalaryInsights jobs={allJobs} /></ErrorBoundary>
+          </div>
+        )}
+
         {/* Browse More Section */}
         {!loading && (
           <div className="mt-10 pt-8 border-t border-navy-200">
@@ -608,7 +754,7 @@ function HomePageContent() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Link
                 href="/categories"
-                className="group rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 transition"
+                className="group rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 hover:-translate-y-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
               >
                 <div className="flex items-center gap-3 mb-2">
                   <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600">
@@ -622,7 +768,7 @@ function HomePageContent() {
               </Link>
               <Link
                 href="/locations"
-                className="group rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 transition"
+                className="group rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 hover:-translate-y-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
               >
                 <div className="flex items-center gap-3 mb-2">
                   <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600">
@@ -637,7 +783,7 @@ function HomePageContent() {
               </Link>
               <Link
                 href="/companies"
-                className="group rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 transition"
+                className="group rounded-xl border border-navy-200 bg-white p-5 hover:shadow-md hover:border-navy-300 hover:-translate-y-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
               >
                 <div className="flex items-center gap-3 mb-2">
                   <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-amber-50 text-amber-600">

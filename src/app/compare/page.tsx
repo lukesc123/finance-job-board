@@ -5,14 +5,18 @@ import Link from 'next/link'
 import { Job } from '@/types'
 import { formatSalary, isGenericApplyUrl, slugify, extractHostname, timeAgo, safeUrl } from '@/lib/formatting'
 import { useCompareIds } from '@/hooks/useJobActions'
+import { fetchRetry } from '@/lib/fetchRetry'
+import ConfirmDialog from '@/components/ConfirmDialog'
 
 export default function ComparePage() {
   const { ids: compareIds, remove: removeJob, clearAll: clearCompare } = useCompareIds()
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
 
   useEffect(() => {
+    const controller = new AbortController()
     async function fetchJobs() {
       if (compareIds.length === 0) {
         setJobs([])
@@ -24,23 +28,24 @@ export default function ComparePage() {
       try {
         const params = new URLSearchParams()
         compareIds.forEach(id => params.append('ids', id))
-        const response = await fetch(`/api/jobs?${params.toString()}`)
+        const response = await fetchRetry(`/api/jobs?${params.toString()}`, { signal: controller.signal })
         if (!response.ok) throw new Error('Failed')
         const fetchedJobs: Job[] = await response.json()
         const matched = compareIds.map(id => fetchedJobs.find(j => j.id === id)).filter(Boolean) as Job[]
         setJobs(matched)
-      } catch {
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return
         setJobs([])
         setError(true)
       }
       setLoading(false)
     }
     fetchJobs()
+    return () => controller.abort()
   }, [compareIds])
 
   const clearAll = () => {
-    if (!window.confirm('Remove all jobs from comparison?')) return
-    clearCompare()
+    setShowClearConfirm(true)
   }
 
   if (loading) {
@@ -57,7 +62,7 @@ export default function ComparePage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-24 text-center">
           <div className="rounded-xl bg-white border border-red-200 p-10 shadow-sm">
             <p className="text-sm text-red-600 mb-4">Failed to load comparison data.</p>
-            <button onClick={() => window.location.reload()} className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition">
+            <button onClick={() => window.location.reload()} className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2">
               Retry
             </button>
           </div>
@@ -69,19 +74,43 @@ export default function ComparePage() {
   if (jobs.length === 0) {
     return (
       <div className="min-h-screen bg-navy-50">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-24 text-center">
-          <div className="rounded-xl bg-white border border-navy-200 p-10 shadow-sm">
-            <svg className="h-12 w-12 text-navy-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-            </svg>
-            <h1 className="text-xl font-bold text-navy-900 mb-2">No jobs to compare</h1>
-            <p className="text-sm text-navy-600 mb-6">
-              Add jobs to compare by clicking the compare icon on any job card.
+        <div className="max-w-lg mx-auto px-4 sm:px-6 py-24 text-center">
+          <div className="rounded-xl bg-white border border-navy-200 p-8 sm:p-10 shadow-sm">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className={`rounded-lg border-2 border-dashed ${i === 2 ? 'border-navy-300' : 'border-navy-200'} w-20 h-24 flex flex-col items-center justify-center gap-1`}>
+                  <div className={`w-8 h-1.5 rounded-full ${i === 2 ? 'bg-navy-200' : 'bg-navy-100'}`} />
+                  <div className={`w-12 h-1 rounded-full ${i === 2 ? 'bg-navy-200' : 'bg-navy-100'}`} />
+                  <div className={`w-6 h-1 rounded-full ${i === 2 ? 'bg-navy-200' : 'bg-navy-100'}`} />
+                  {i === 2 && (
+                    <svg className="h-4 w-4 text-navy-300 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  )}
+                </div>
+              ))}
+            </div>
+            <h1 className="text-xl font-bold text-navy-900 mb-2">Compare jobs side by side</h1>
+            <p className="text-sm text-navy-500 mb-2">
+              Add up to 4 jobs to compare salaries, locations, requirements, and more.
             </p>
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <span className="text-xs text-navy-400">Look for the</span>
+              <span className="inline-flex items-center gap-1 rounded-md border border-navy-200 bg-navy-50 px-2 py-1 text-xs text-navy-600">
+                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7" />
+                </svg>
+                compare
+              </span>
+              <span className="text-xs text-navy-400">icon on job cards</span>
+            </div>
             <Link
               href="/"
-              className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition"
+              className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
             >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
               Browse Jobs
             </Link>
           </div>
@@ -146,7 +175,7 @@ export default function ComparePage() {
     {
       label: 'Description',
       values: jobs.map(j => {
-        const desc = (j.description || '').replace(/[#*_\[\]<>]/g, '').replace(/\s+/g, ' ').trim()
+        const desc = (j.description || '').replace(/#{1,6}\s/g, '').replace(/[*_\[\]<>]/g, '').replace(/\s+/g, ' ').trim()
         if (!desc) return <span className="text-navy-400">No description</span>
         return <span className="line-clamp-4 text-xs leading-relaxed">{desc.substring(0, 200)}{desc.length > 200 ? '...' : ''}</span>
       }),
@@ -169,84 +198,88 @@ export default function ComparePage() {
           </button>
         </div>
 
-        <div className="rounded-xl border border-navy-200 bg-white overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[600px]">
-              <caption className="sr-only">Side-by-side comparison of {jobs.length} job listings</caption>
-              <thead>
-                <tr className="border-b border-navy-200 bg-navy-50/50">
-                  <th className="p-4 text-left text-xs font-semibold text-navy-400 uppercase tracking-wider w-32">Field</th>
-                  {jobs.map(job => (
-                    <th key={job.id} className="p-4 text-left">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <Link href={`/jobs/${job.id}`} className="font-bold text-navy-900 hover:text-navy-700 transition text-sm block truncate">
-                            {job.title}
-                          </Link>
-                          <p className="text-xs text-navy-500 mt-0.5">{job.company?.name}</p>
-                          {(!job.is_active || job.removal_detected_at) && (
-                            <span className="inline-block mt-1 text-[10px] font-semibold text-red-600 bg-red-50 border border-red-200 rounded px-1.5 py-0.5">
-                              No longer available
-                            </span>
-                          )}
-                        </div>
-                        <button
-                          onClick={() => removeJob(job.id)}
-                          className="flex-shrink-0 p-1 rounded hover:bg-navy-100 text-navy-400 hover:text-navy-600 transition"
-                          aria-label="Remove from comparison"
-                        >
-                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row, i) => (
-                  <tr key={row.label} className={`border-b border-navy-100 ${i % 2 === 0 ? '' : 'bg-navy-50/30'}`}>
-                    <td className="p-4 text-xs font-semibold text-navy-500 uppercase tracking-wider">{row.label}</td>
-                    {row.values.map((val, j) => (
-                      <td key={j} className="p-4 text-sm text-navy-700">{val}</td>
-                    ))}
-                  </tr>
-                ))}
-                {/* Apply row */}
-                <tr className="bg-navy-50/50">
-                  <td className="p-4 text-xs font-semibold text-navy-500 uppercase tracking-wider">Apply</td>
-                  {jobs.map(job => (
-                    <td key={job.id} className="p-4">
-                      {job.apply_url ? (() => {
-                        const url = safeUrl(job.apply_url)
-                        if (!url) return <span className="text-xs text-navy-400">Invalid link</span>
-                        const generic = isGenericApplyUrl(url)
-                        return (
-                          <a
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer nofollow"
-                            aria-label={`${generic ? 'Careers' : 'Apply'} at ${job.company?.name} (opens in new tab)`}
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition"
-                          >
-                            {generic ? `Careers at ${job.company?.name}` : `Apply at ${job.company?.name}`}
-                            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                          </a>
-                        )
-                      })() : (
-                        <span className="text-xs text-navy-400">No link available</span>
+        {/* Card-based comparison */}
+        <div className={`grid gap-4 ${jobs.length === 2 ? 'sm:grid-cols-2' : jobs.length >= 3 ? 'sm:grid-cols-2 lg:grid-cols-3' : ''}`}>
+          {jobs.map((job, idx) => {
+            const url = job.apply_url ? safeUrl(job.apply_url) : null
+            const generic = url ? isGenericApplyUrl(url) : false
+            return (
+              <div key={job.id} className="rounded-xl border border-navy-200 bg-white shadow-sm overflow-hidden flex flex-col">
+                {/* Card header */}
+                <div className="p-4 sm:p-5 border-b border-navy-100 bg-navy-50/30">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <Link href={`/jobs/${job.id}`} className="font-bold text-navy-900 hover:text-navy-700 transition text-sm leading-snug block">
+                        {job.title}
+                      </Link>
+                      <Link href={`/companies/${slugify(job.company?.name || '')}`} className="text-xs text-navy-500 hover:text-navy-700 transition mt-0.5 block">
+                        {job.company?.name}
+                      </Link>
+                      {(!job.is_active || job.removal_detected_at) && (
+                        <span className="inline-block mt-1.5 text-[10px] font-semibold text-red-600 bg-red-50 border border-red-200 rounded px-1.5 py-0.5">
+                          No longer available
+                        </span>
                       )}
-                    </td>
+                    </div>
+                    <button
+                      onClick={() => removeJob(job.id)}
+                      className="flex-shrink-0 p-2 rounded-lg hover:bg-navy-100 text-navy-400 hover:text-navy-600 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400"
+                      aria-label={`Remove ${job.title} from comparison`}
+                    >
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Card body - attribute rows */}
+                <div className="flex-1 divide-y divide-navy-50">
+                  {rows.map((row) => (
+                    <div key={row.label} className="px-4 sm:px-5 py-2.5 flex items-start gap-3">
+                      <span className="text-[10px] font-semibold text-navy-400 uppercase tracking-wider w-20 flex-shrink-0 pt-0.5">{row.label}</span>
+                      <span className="text-sm text-navy-700 min-w-0 flex-1">{row.values[idx]}</span>
+                    </div>
                   ))}
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                </div>
+
+                {/* Card footer - apply button */}
+                <div className="p-4 sm:p-5 border-t border-navy-100 bg-navy-50/30 mt-auto">
+                  {url ? (
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer nofollow"
+                      aria-label={`${generic ? 'Careers' : 'Apply'} at ${job.company?.name} (opens in new tab)`}
+                      className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2"
+                    >
+                      {generic ? `Careers at ${job.company?.name}` : `Apply at ${job.company?.name}`}
+                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  ) : (
+                    <span className="block text-center text-xs text-navy-400 py-2">No link available</span>
+                  )}
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={showClearConfirm}
+        title="Clear comparison"
+        message="Remove all jobs from comparison? This cannot be undone."
+        confirmLabel="Clear all"
+        destructive
+        onConfirm={() => {
+          clearCompare()
+          setShowClearConfirm(false)
+        }}
+        onCancel={() => setShowClearConfirm(false)}
+      />
     </div>
   )
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { STORAGE_KEYS } from '@/lib/constants'
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -11,7 +12,7 @@ export default function AdminPage() {
   useEffect(() => {
     let token: string | null = null
     try {
-      token = localStorage.getItem('admin_token')
+      token = localStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN)
     } catch {
       // localStorage unavailable (private browsing)
     }
@@ -20,9 +21,22 @@ export default function AdminPage() {
       return
     }
 
-    // Token exists, user is authenticated
-    setIsAuthenticated(true)
-    setLoading(false)
+    // Verify token is actually valid with the server
+    fetch('/admin/api/verify', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          try { localStorage.removeItem(STORAGE_KEYS.ADMIN_TOKEN) } catch { /* ignore */ }
+          router.push('/admin/login')
+          return
+        }
+        setIsAuthenticated(true)
+        setLoading(false)
+      })
+      .catch(() => {
+        router.push('/admin/login')
+      })
   }, [router])
 
   if (loading) {
@@ -47,7 +61,7 @@ export default function AdminPage() {
           </div>
           <button
             onClick={() => {
-              localStorage.removeItem('admin_token')
+              localStorage.removeItem(STORAGE_KEYS.ADMIN_TOKEN)
               router.push('/admin/login')
             }}
             className="rounded-lg bg-navy-100 px-4 py-2 text-sm font-medium text-navy-700 hover:bg-navy-200 transition"

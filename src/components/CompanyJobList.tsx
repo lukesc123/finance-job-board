@@ -2,7 +2,7 @@
 
 import { useState, useMemo, memo } from 'react'
 import Link from 'next/link'
-import { stageColors, timeAgo, formatSalary, isGenericApplyUrl, safeUrl } from '@/lib/formatting'
+import { stageColors, timeAgo, formatSalary, isGenericApplyUrl, safeUrl, isNewJob } from '@/lib/formatting'
 import { trackApplyClick } from '@/hooks/useJobActions'
 
 interface CompanyJob {
@@ -57,7 +57,7 @@ export default memo(function CompanyJobList({
           <button
             onClick={() => setActiveCategory(null)}
             aria-pressed={activeCategory === null}
-            className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
+            className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2 ${
               activeCategory === null
                 ? 'bg-navy-900 border-navy-900 text-white'
                 : 'bg-white border-navy-200 text-navy-600 hover:bg-navy-50 hover:border-navy-300'
@@ -72,7 +72,7 @@ export default memo(function CompanyJobList({
                 setActiveCategory(activeCategory === cat ? null : cat)
               }
               aria-pressed={activeCategory === cat}
-              className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
+              className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2 ${
                 activeCategory === cat
                   ? 'bg-navy-900 border-navy-900 text-white'
                   : 'bg-white border-navy-200 text-navy-600 hover:bg-navy-50 hover:border-navy-300'
@@ -85,13 +85,15 @@ export default memo(function CompanyJobList({
       )}
 
       <div className="space-y-3">
-        {filtered.map((job) => {
+        {filtered.map((job, i) => {
           const salary = formatSalary(job.salary_min, job.salary_max)
           return (
             <Link
               key={job.id}
               href={`/jobs/${job.id}`}
-              className="block rounded-xl border border-navy-200 bg-white p-4 sm:p-5 hover:shadow-md hover:border-navy-300 transition group"
+              prefetch={false}
+              style={i < 15 ? { animationDelay: `${i * 30}ms` } : undefined}
+              className={`block rounded-xl border border-navy-200 bg-white p-4 sm:p-5 hover:shadow-md hover:border-navy-300 transition group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2 ${i < 15 ? 'animate-fade-in-up' : ''}`}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -106,6 +108,9 @@ export default memo(function CompanyJobList({
                     <span>{job.remote_type}</span>
                     <span>{job.job_type}</span>
                     <span className="text-navy-400">{timeAgo(job.posted_date)}</span>
+                    {isNewJob(job.posted_date) && (
+                      <span className="inline-flex items-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[9px] font-bold text-white uppercase tracking-wide">New</span>
+                    )}
                   </div>
                 </div>
                 {salary && (

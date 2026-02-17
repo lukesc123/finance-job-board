@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
@@ -52,11 +53,12 @@ interface CategoryData {
   avgSalaryMax: number | null
 }
 
-async function getCategoriesData(): Promise<CategoryData[]> {
+const getCategoriesData = cache(async function getCategoriesData(): Promise<CategoryData[]> {
   const { data: jobs } = await supabaseAdmin
     .from('jobs')
     .select('category, location, salary_max, company:companies(name)')
     .eq('is_active', true)
+    .limit(5000)
 
   if (!jobs || jobs.length === 0) return []
 
@@ -90,7 +92,7 @@ async function getCategoriesData(): Promise<CategoryData[]> {
       }
     })
     .filter(Boolean) as CategoryData[]
-}
+})
 
 export async function generateMetadata(): Promise<Metadata> {
   const categories = await getCategoriesData()
@@ -183,7 +185,7 @@ export default async function CategoriesPage() {
             <Link
               key={cat.slug}
               href={`/category/${cat.slug}`}
-              className="group rounded-xl border border-navy-200 bg-white p-5 shadow-sm hover:shadow-md hover:border-navy-300 transition"
+              className="group rounded-xl border border-navy-200 bg-white p-5 shadow-sm hover:shadow-md hover:border-navy-300 hover:-translate-y-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2.5">
@@ -210,15 +212,15 @@ export default async function CategoriesPage() {
 
         {/* Cross-links */}
         <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Link href="/" className="rounded-xl border border-navy-200 bg-white p-5 text-center hover:shadow-md hover:border-navy-300 transition">
+          <Link href="/" className="rounded-xl border border-navy-200 bg-white p-5 text-center hover:shadow-md hover:border-navy-300 hover:-translate-y-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2">
             <h3 className="font-bold text-navy-900 text-sm">Browse All Jobs</h3>
             <p className="text-xs text-navy-500 mt-1">{totalJobs}+ open positions</p>
           </Link>
-          <Link href="/locations" className="rounded-xl border border-navy-200 bg-white p-5 text-center hover:shadow-md hover:border-navy-300 transition">
+          <Link href="/locations" className="rounded-xl border border-navy-200 bg-white p-5 text-center hover:shadow-md hover:border-navy-300 hover:-translate-y-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2">
             <h3 className="font-bold text-navy-900 text-sm">Browse by Location</h3>
             <p className="text-xs text-navy-500 mt-1">Find jobs near you</p>
           </Link>
-          <Link href="/companies" className="rounded-xl border border-navy-200 bg-white p-5 text-center hover:shadow-md hover:border-navy-300 transition">
+          <Link href="/companies" className="rounded-xl border border-navy-200 bg-white p-5 text-center hover:shadow-md hover:border-navy-300 hover:-translate-y-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2">
             <h3 className="font-bold text-navy-900 text-sm">Companies Hiring</h3>
             <p className="text-xs text-navy-500 mt-1">View all employers</p>
           </Link>

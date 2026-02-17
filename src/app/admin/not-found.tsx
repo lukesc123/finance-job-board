@@ -9,7 +9,7 @@ export default function AdminNotFound() {
         <div className="flex items-center justify-center gap-3">
           <Link
             href="/admin"
-            className="rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition"
+            className="rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
           >
             Admin Dashboard
           </Link>

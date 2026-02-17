@@ -1,9 +1,11 @@
+import { cache } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { timeAgo, formatSalary, formatDate, isGenericApplyUrl, slugify, getPipelineStageBadgeColor, extractHostname, safeUrl } from '@/lib/formatting'
+import { UUID_RE } from '@/lib/constants'
 import { Job } from '@/types'
 import dynamic from 'next/dynamic'
 
@@ -17,6 +19,8 @@ const SimilarJobs = dynamic(() => import('@/components/SimilarJobs'), {
     </div>
   ),
 })
+import ErrorBoundary from '@/components/ErrorBoundary'
+import ApplyButton from '@/components/ApplyButton'
 import JobDetailActions from '@/components/JobDetailActions'
 import TrackView from '@/components/TrackView'
 import JobDescription from '@/components/JobDescription'
@@ -29,25 +33,23 @@ interface JobDetailPageProps {
 }
 
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
-async function getJobData(id: string): Promise<Job | null> {
+const getJobData = cache(async function getJobData(id: string): Promise<Job | null> {
   // Validate UUID format to prevent unnecessary DB queries
   if (!UUID_RE.test(id)) return null
 
   try {
     const { data, error } = await supabaseAdmin
       .from('jobs')
-      .select('*, company:companies(*)')
+      .select('id,title,description,category,location,remote_type,job_type,pipeline_stage,salary_min,salary_max,posted_date,apply_url,source_url,is_active,company_id,grad_date_required,grad_date_earliest,grad_date_latest,licenses_required,licenses_info,years_experience_max,removal_detected_at,last_verified_at,is_verified,verification_count,created_at,updated_at,company:companies(id,name,website,careers_url,logo_url,description)')
       .eq('id', id)
       .single()
 
     if (error || !data) return null
-    return data as Job
+    return data as unknown as Job
   } catch {
     return null
   }
-}
+})
 
 export async function generateMetadata({ params }: JobDetailPageProps): Promise<Metadata> {
   const { id } = await params
@@ -296,39 +298,20 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               </div>
 
               {/* Apply Button - Desktop */}
-              {applyUrl && (
-                <div className="hidden sm:flex flex-col items-end gap-1.5 shrink-0">
-                  <a
-                    href={applyUrl}
-                    target="_blank"
-                    rel="noopener noreferrer nofollow"
-                    aria-label={`${isGenericApplyUrl(applyUrl) ? 'Careers' : 'Apply'} at ${job.company?.name || 'Company'} (opens in new tab)`}
-                    className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
-                  >
-                    {isGenericApplyUrl(applyUrl) ? `Careers at ${job.company?.name || 'Company'}` : `Apply at ${job.company?.name || 'Company'}`}
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
-                  <span className="text-[11px] text-navy-400 flex items-center gap-1">
-                    {isGenericApplyUrl(applyUrl) ? (
-                      <>
-                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        Opens {job.company?.name} careers page
-                      </>
-                    ) : applyDomain ? (
-                      <>
-                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                        {applyDomain}
-                      </>
-                    ) : null}
-                  </span>
-                </div>
-              )}
+              <div className="hidden sm:flex flex-col items-end gap-1.5 shrink-0">
+                <ApplyButton
+                  jobId={job.id}
+                  applyUrl={applyUrl}
+                  sourceUrl={safeUrl(job.source_url)}
+                  companyName={job.company?.name || 'Company'}
+                  companyWebsite={safeUrl(job.company?.website)}
+                  companyCareersUrl={safeUrl(job.company?.careers_url)}
+                  jobTitle={job.title}
+                  isGeneric={genericUrl}
+                  isRemoved={isRemoved}
+                  variant="primary"
+                />
+              </div>
             </div>
           </div>
 
@@ -375,6 +358,83 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
           {/* Content Body */}
           <div className="p-5 sm:p-8 space-y-8">
+            {/* Quick Facts Card */}
+            {(salary || (job.years_experience_max !== null) || hasLicenseInfo || (job.grad_date_required && (job.grad_date_earliest || job.grad_date_latest)) || job.remote_type) && (
+              <div className="rounded-xl bg-gradient-to-br from-navy-50 to-white border border-navy-200 p-4 sm:p-5">
+                <h2 className="text-sm font-bold text-navy-900 mb-3 flex items-center gap-2">
+                  <svg className="h-4 w-4 text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  At a Glance
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {salary && (
+                    <div className="flex items-start gap-2.5">
+                      <div className="mt-0.5 flex-shrink-0 w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center">
+                        <svg className="h-3.5 w-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-semibold text-navy-400 uppercase tracking-wider">Salary</p>
+                        <p className="text-sm font-bold text-emerald-700">{salary}</p>
+                      </div>
+                    </div>
+                  )}
+                  {job.years_experience_max !== null && (
+                    <div className="flex items-start gap-2.5">
+                      <div className="mt-0.5 flex-shrink-0 w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
+                        <svg className="h-3.5 w-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-semibold text-navy-400 uppercase tracking-wider">Experience</p>
+                        <p className="text-sm font-semibold text-navy-900">{job.years_experience_max === 0 ? 'None required' : `Up to ${job.years_experience_max} yr${job.years_experience_max > 1 ? 's' : ''}`}</p>
+                      </div>
+                    </div>
+                  )}
+                  {hasLicenseInfo && (
+                    <div className="flex items-start gap-2.5">
+                      <div className="mt-0.5 flex-shrink-0 w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center">
+                        <svg className="h-3.5 w-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-semibold text-navy-400 uppercase tracking-wider">Licenses</p>
+                        <p className="text-sm font-semibold text-navy-900">{job.licenses_required.filter(l => l !== 'None Required').join(', ')}</p>
+                      </div>
+                    </div>
+                  )}
+                  {job.grad_date_required && (job.grad_date_earliest || job.grad_date_latest) && (
+                    <div className="flex items-start gap-2.5">
+                      <div className="mt-0.5 flex-shrink-0 w-7 h-7 rounded-lg bg-purple-100 flex items-center justify-center">
+                        <svg className="h-3.5 w-3.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-semibold text-navy-400 uppercase tracking-wider">Graduation</p>
+                        <p className="text-sm font-semibold text-navy-900">{job.grad_date_earliest && job.grad_date_latest ? `${formatDate(job.grad_date_earliest)} - ${formatDate(job.grad_date_latest)}` : formatDate(job.grad_date_earliest || job.grad_date_latest || '')}</p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-start gap-2.5">
+                    <div className="mt-0.5 flex-shrink-0 w-7 h-7 rounded-lg bg-navy-100 flex items-center justify-center">
+                      <svg className="h-3.5 w-3.5 text-navy-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-semibold text-navy-400 uppercase tracking-wider">Type</p>
+                      <p className="text-sm font-semibold text-navy-900">{job.job_type} &middot; {job.remote_type}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Description */}
             <div>
               <h2 className="text-lg font-bold text-navy-900 mb-3">About this role</h2>
@@ -486,7 +546,9 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
           {/* Similar Jobs */}
           <div className="p-5 sm:p-8 border-t border-navy-100">
-            <SimilarJobs jobId={job.id} />
+            <ErrorBoundary fallback={<p className="text-sm text-navy-400">Could not load similar jobs.</p>}>
+              <SimilarJobs jobId={job.id} />
+            </ErrorBoundary>
           </div>
 
           {/* Browse More Links */}
@@ -533,7 +595,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 <p>Posted {timeAgo(job.posted_date)}</p>
                 {job.last_verified_at && <p>Verified {timeAgo(job.last_verified_at)}</p>}
                 <a
-                  href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Issue with listing: ${job.title} at ${job.company?.name || 'Company'}`)}&body=${encodeURIComponent(`Job URL: ${SITE_URL}/jobs/${job.id}\n\nPlease describe the issue:\n`)}`}
+                  href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Issue with listing: ${(job.title || '').replace(/[\r\n]/g, ' ')} at ${(job.company?.name || 'Company').replace(/[\r\n]/g, ' ')}`)}&body=${encodeURIComponent(`Job URL: ${SITE_URL}/jobs/${job.id}\n\nPlease describe the issue:\n`)}`}
                   className="text-xs text-navy-400 hover:text-navy-600 transition underline underline-offset-2 inline-flex items-center gap-1"
                 >
                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -542,70 +604,38 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                   Report an issue with this listing
                 </a>
               </div>
-              {applyUrl && (
-                <div className="flex flex-col items-center sm:items-end gap-1">
-                  <a
-                    href={applyUrl}
-                    target="_blank"
-                    rel="noopener noreferrer nofollow"
-                    aria-label={`${isGenericApplyUrl(applyUrl) ? 'Careers' : 'Apply'} at ${job.company?.name || 'Company'} (opens in new tab)`}
-                    className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-emerald-600 px-8 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
-                  >
-                    {isGenericApplyUrl(applyUrl) ? `Careers at ${job.company?.name || 'Company'}` : `Apply at ${job.company?.name || 'Company'}`}
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
-                  <span className="text-[11px] text-navy-400 flex items-center gap-1">
-                    {isGenericApplyUrl(applyUrl) ? (
-                      <>
-                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        Opens {job.company?.name} careers page
-                      </>
-                    ) : applyDomain ? (
-                      <>
-                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                        Opens {applyDomain}
-                      </>
-                    ) : null}
-                  </span>
-                </div>
-              )}
+              <ApplyButton
+                jobId={job.id}
+                applyUrl={applyUrl}
+                sourceUrl={safeUrl(job.source_url)}
+                companyName={job.company?.name || 'Company'}
+                companyWebsite={safeUrl(job.company?.website)}
+                companyCareersUrl={safeUrl(job.company?.careers_url)}
+                jobTitle={job.title}
+                isGeneric={genericUrl}
+                isRemoved={isRemoved}
+                variant="footer"
+              />
             </div>
           </div>
         </div>
       </div>
 
       {/* Sticky Mobile Apply Bar */}
-      {applyUrl && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden bg-white border-t border-navy-200 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
-          <a
-            href={applyUrl}
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-            aria-label={`${isGenericApplyUrl(applyUrl) ? 'Careers' : 'Apply'} at ${job.company?.name || 'Company'} (opens in new tab)`}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm"
-          >
-            {isGenericApplyUrl(applyUrl) ? (
-              <>
-                <svg className="h-4 w-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                Careers at {job.company?.name || 'Company'}
-              </>
-            ) : (
-              <>Apply at {job.company?.name || 'Company'}</>
-            )}
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-          </a>
-        </div>
-      )}
+      <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden bg-white border-t border-navy-200 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+        <ApplyButton
+          jobId={job.id}
+          applyUrl={applyUrl}
+          sourceUrl={safeUrl(job.source_url)}
+          companyName={job.company?.name || 'Company'}
+          companyWebsite={safeUrl(job.company?.website)}
+          companyCareersUrl={safeUrl(job.company?.careers_url)}
+          jobTitle={job.title}
+          isGeneric={genericUrl}
+          isRemoved={isRemoved}
+          variant="mobile"
+        />
+      </div>
     </div>
   )
 }

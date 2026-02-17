@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -10,7 +10,9 @@ type AuthStep = 'email' | 'otp' | 'success'
 export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/tracker'
+  // Validate redirect is a relative path to prevent open redirect attacks
+  const rawRedirect = searchParams.get('redirect') || '/tracker'
+  const redirect = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/tracker'
   const errorParam = searchParams.get('error')
 
   const [step, setStep] = useState<AuthStep>('email')
@@ -18,8 +20,21 @@ export default function LoginPage() {
   const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(errorParam === 'auth_failed' ? 'Authentication failed. Please try again.' : '')
+  const [resendCooldown, setResendCooldown] = useState(0)
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const supabase = createClient()
+  useEffect(() => {
+    if (resendCooldown <= 0) {
+      if (cooldownRef.current) clearInterval(cooldownRef.current)
+      return
+    }
+    cooldownRef.current = setInterval(() => {
+      setResendCooldown(prev => prev - 1)
+    }, 1000)
+    return () => { if (cooldownRef.current) clearInterval(cooldownRef.current) }
+  }, [resendCooldown > 0]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const supabase = useMemo(() => createClient(), [])
 
   const handleGoogleLogin = async () => {
     setLoading(true)
@@ -54,6 +69,7 @@ export default function LoginPage() {
       setError(otpError.message)
     } else {
       setStep('otp')
+      setResendCooldown(60)
     }
   }
 
@@ -110,7 +126,7 @@ export default function LoginPage() {
               type="button"
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 rounded-lg border border-navy-200 bg-white px-4 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-3 rounded-lg border border-navy-200 bg-white px-4 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-50 transition disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
             >
               <svg width="18" height="18" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -150,7 +166,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading || !email.trim()}
-                className="w-full rounded-lg bg-navy-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full rounded-lg bg-navy-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
               >
                 {loading ? 'Sending code...' : 'Send verification code'}
               </button>
@@ -175,31 +191,48 @@ export default function LoginPage() {
                 placeholder="123456"
                 required
                 autoFocus
-                className="w-full rounded-lg border border-navy-200 bg-white px-3.5 py-2.5 text-sm text-navy-900 text-center tracking-[0.3em] font-mono text-lg placeholder:text-navy-400 placeholder:tracking-[0.3em] focus:border-navy-400 focus:ring-2 focus:ring-navy-200 focus:outline-none transition"
+                className="w-full rounded-lg border border-navy-200 bg-white px-3.5 py-3 text-navy-900 text-center tracking-[0.3em] font-mono text-xl placeholder:text-navy-400 placeholder:tracking-[0.3em] focus:border-navy-400 focus:ring-2 focus:ring-navy-200 focus:outline-none transition"
               />
             </div>
             <button
               type="submit"
               disabled={loading || otp.length < 6}
-              className="w-full rounded-lg bg-navy-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-lg bg-navy-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
             >
               {loading ? 'Verifying...' : 'Verify and sign in'}
             </button>
-            <button
-              type="button"
-              onClick={() => { setStep('email'); setOtp(''); setError('') }}
-              className="w-full text-sm text-navy-500 hover:text-navy-700 transition"
-            >
-              Use a different email
-            </button>
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => { setStep('email'); setOtp(''); setError(''); setResendCooldown(0) }}
+                className="rounded-lg text-sm text-navy-500 hover:text-navy-700 transition py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
+              >
+                Use a different email
+              </button>
+              <button
+                type="button"
+                disabled={resendCooldown > 0 || loading}
+                onClick={async () => {
+                  setLoading(true)
+                  setError('')
+                  const { error: resendError } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: true } })
+                  setLoading(false)
+                  if (resendError) { setError(resendError.message) }
+                  else { setResendCooldown(60) }
+                }}
+                className="rounded-lg text-sm text-navy-500 hover:text-navy-700 transition py-2 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
+              >
+                {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code'}
+              </button>
+            </div>
           </form>
         )}
 
         <p className="mt-6 text-center text-xs text-navy-400">
           By signing in, you agree to our{' '}
-          <Link href="/terms" className="underline hover:text-navy-600">Terms</Link>
+          <Link href="/terms" className="underline hover:text-navy-600 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Terms</Link>
           {' '}and{' '}
-          <Link href="/privacy" className="underline hover:text-navy-600">Privacy Policy</Link>.
+          <Link href="/privacy" className="underline hover:text-navy-600 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Privacy Policy</Link>.
         </p>
       </div>
     </div>

@@ -55,7 +55,7 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
       tabIndex={-1}
       role="complementary"
       aria-label={`Preview: ${job.title} at ${companyName}`}
-      className="flex flex-col h-full bg-white border-l border-navy-200 outline-none"
+      className="flex flex-col h-full bg-white border-l border-navy-200 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-navy-400"
     >
       {/* Header */}
       <div className="flex-shrink-0 border-b border-navy-100 px-5 py-4">
@@ -81,7 +81,7 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
           <div className="flex items-center gap-1 flex-shrink-0">
             <Link
               href={`/jobs/${job.id}`}
-              className="p-1.5 rounded-lg text-navy-400 hover:text-navy-600 hover:bg-navy-50 transition"
+              className="p-2 rounded-lg text-navy-400 hover:text-navy-600 hover:bg-navy-50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400/50"
               title="Open full page"
               aria-label="Open full job page"
             >
@@ -91,7 +91,7 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
             </Link>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-navy-400 hover:text-navy-600 hover:bg-navy-50 transition"
+              className="p-2 rounded-lg text-navy-400 hover:text-navy-600 hover:bg-navy-50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400/50"
               aria-label="Close preview"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -217,7 +217,7 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
         <div className="prose prose-sm prose-navy max-w-none">
           <h3 className="text-sm font-bold text-navy-900 mb-2">About this role</h3>
           {descParagraphs.map((p, i) => (
-            <p key={i} className="text-sm text-navy-700 leading-relaxed mb-3 whitespace-pre-wrap">{p}</p>
+            <p key={i} className="text-sm text-navy-700 leading-relaxed mb-3 whitespace-pre-wrap break-words">{p}</p>
           ))}
         </div>
 
@@ -225,13 +225,13 @@ export default memo(function JobPreview({ job, onClose }: JobPreviewProps) {
         <div className="mt-6 pt-4 border-t border-navy-100">
           <p className="text-xs font-semibold text-navy-500 mb-2">Browse more</p>
           <div className="flex flex-wrap gap-2">
-            <Link href={`/category/${slugify(job.category)}`} className="text-xs font-medium text-navy-600 bg-navy-50 rounded-full px-3 py-1 hover:bg-navy-100 transition">
+            <Link href={`/category/${slugify(job.category)}`} className="text-xs font-medium text-navy-600 bg-navy-50 rounded-full px-3 py-1.5 hover:bg-navy-100 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400/50">
               All {job.category} Jobs
             </Link>
-            <Link href={`/location/${slugify(job.location)}`} className="text-xs font-medium text-navy-600 bg-navy-50 rounded-full px-3 py-1 hover:bg-navy-100 transition">
+            <Link href={`/location/${slugify(job.location)}`} className="text-xs font-medium text-navy-600 bg-navy-50 rounded-full px-3 py-1.5 hover:bg-navy-100 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400/50">
               Jobs in {job.location}
             </Link>
-            <Link href={`/companies/${slugify(companyName)}`} className="text-xs font-medium text-navy-600 bg-navy-50 rounded-full px-3 py-1 hover:bg-navy-100 transition">
+            <Link href={`/companies/${slugify(companyName)}`} className="text-xs font-medium text-navy-600 bg-navy-50 rounded-full px-3 py-1.5 hover:bg-navy-100 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400/50">
               All {companyName} Jobs
             </Link>
           </div>

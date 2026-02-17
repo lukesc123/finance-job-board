@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { requireAdmin } from '@/lib/auth'
+import { rateLimit, getClientIP } from '@/lib/rateLimit'
+import { logger } from '@/lib/logger'
 import { isGenericApplyUrl } from '@/lib/formatting'
 
 /**
  * GET /api/admin/audit-urls
  * Returns a report of all active jobs with URL quality analysis.
- * No auth required for read-only audit (public data).
+ * Requires admin auth.
  * Query params:
  *   ?filter=generic  - only generic/career-page URLs
  *   ?filter=missing   - only jobs with no apply_url
@@ -13,6 +16,14 @@ import { isGenericApplyUrl } from '@/lib/formatting'
  */
 export async function GET(request: NextRequest) {
   try {
+    const ip = getClientIP(request)
+    const { limited } = rateLimit(`admin-audit:${ip}`, 10, 60_000)
+    if (limited) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429, headers: { 'Retry-After': '60' } })
+    }
+
+    requireAdmin(request)
+
     const { searchParams } = new URL(request.url)
     const filter = searchParams.get('filter')
     const companyFilter = searchParams.get('company')
@@ -22,6 +33,7 @@ export async function GET(request: NextRequest) {
       .select('id, title, apply_url, source_url, is_active, posted_date, last_verified_at, removal_detected_at, company:companies(id, name, website, careers_url)')
       .eq('is_active', true)
       .order('posted_date', { ascending: false })
+      .limit(5000)
 
     if (error) throw error
 
@@ -100,7 +112,10 @@ export async function GET(request: NextRequest) {
       headers: { 'Cache-Control': 'no-store' },
     })
   } catch (error: unknown) {
-    console.error('Audit error:', error)
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    logger.error('Audit error:', error)
     return NextResponse.json({ error: 'Audit failed' }, { status: 500 })
   }
 }

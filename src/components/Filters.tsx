@@ -42,6 +42,19 @@ const SORT_OPTIONS = [
   { value: 'company_az', label: 'Company A-Z' },
 ]
 
+function getFilterLabel(key: keyof JobFilters, value: string): string {
+  if (key === 'grad_date') return `Grad: ${value}`
+  if (key === 'salary_min') {
+    const n = parseInt(value)
+    return `Min $${n >= 1000 ? `${Math.round(n / 1000)}K` : value}`
+  }
+  if (key === 'salary_max') {
+    const n = parseInt(value)
+    return `Max $${n >= 1000 ? `${Math.round(n / 1000)}K` : value}`
+  }
+  return value
+}
+
 export default memo(function Filters({
   filters,
   onFilterChange,
@@ -92,26 +105,6 @@ export default memo(function Filters({
     filters.category || filters.job_type || filters.pipeline_stage ||
     filters.remote_type || filters.license || filters.grad_date ||
     filters.salary_min || filters.salary_max || filters.company || filters.location
-
-  const getFilterLabel = (key: keyof JobFilters, value: string): string => {
-    const labels: Record<string, Record<string, string>> = {
-      category: { ...Object.fromEntries(JOB_CATEGORIES.map((c) => [c, c])) },
-      job_type: { ...Object.fromEntries(JOB_TYPES.map((t) => [t, t])) },
-      pipeline_stage: { ...Object.fromEntries(PIPELINE_STAGES.map((s) => [s, s])) },
-      remote_type: { ...Object.fromEntries(REMOTE_TYPES.map((r) => [r, r])) },
-      license: { ...Object.fromEntries(FINANCE_LICENSES.map((l) => [l, l])) },
-      company: { [value]: value },
-      location: { [value]: value },
-      grad_date: { [value]: `Grad: ${value}` },
-      salary_min: {
-        [value]: `Min $${parseInt(value) >= 1000 ? `${Math.round(parseInt(value) / 1000)}K` : value}`,
-      },
-      salary_max: {
-        [value]: `Max $${parseInt(value) >= 1000 ? `${Math.round(parseInt(value) / 1000)}K` : value}`,
-      },
-    }
-    return labels[key]?.[value] || value
-  }
 
   const activeFilters = [
     { key: 'category' as const, value: filters.category },
@@ -179,7 +172,8 @@ export default memo(function Filters({
 
       {/* Filter Grid */}
       {filtersOpen && (
-        <div className="rounded-xl border border-navy-200 bg-white p-4 space-y-4">
+        <fieldset className="rounded-xl border border-navy-200 bg-white p-4 space-y-4 animate-dropdown-in">
+          <legend className="sr-only">Job filters</legend>
           {/* Primary filters row */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             <select
@@ -269,21 +263,24 @@ export default memo(function Filters({
               ))}
             </select>
 
-            <div>
+            <div className="relative">
+              <label className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none transition-opacity ${filters.grad_date ? 'opacity-0' : 'text-navy-400 opacity-100'}`}>
+                Graduation Date
+              </label>
               <input
                 type="month"
                 value={filters.grad_date}
                 onChange={(e) => handleChange('grad_date', e.target.value)}
-                placeholder="Graduation date"
-                className={`${selectClassName} w-full`}
-                aria-label="Graduation date"
+                className={`${selectClassName} w-full ${!filters.grad_date ? 'text-transparent' : ''}`}
+                style={!filters.grad_date ? { colorScheme: 'light', WebkitTextFillColor: 'transparent' } : undefined}
+                aria-label="Graduation date filter"
               />
             </div>
           </div>
 
           {/* Salary range row */}
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs font-medium text-navy-500 uppercase tracking-wide">Salary</span>
+          <div className="flex flex-wrap items-center gap-3" role="group" aria-label="Salary range">
+            <span className="text-xs font-medium text-navy-500 uppercase tracking-wide" aria-hidden="true">Salary</span>
             <select
               value={filters.salary_min}
               onChange={(e) => handleChange('salary_min', e.target.value)}
@@ -308,7 +305,7 @@ export default memo(function Filters({
               ))}
             </select>
           </div>
-        </div>
+        </fieldset>
       )}
 
       {/* Active Filters Badges */}
@@ -330,7 +327,7 @@ export default memo(function Filters({
           {isFiltered && (
             <button
               onClick={handleClearAll}
-              className="text-xs font-medium text-navy-500 transition hover:text-navy-800 underline underline-offset-2"
+              className="text-xs font-medium text-navy-600 transition hover:text-navy-800 underline underline-offset-2 rounded px-1 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400/50"
             >
               Clear all ({activeFilterCount})
             </button>

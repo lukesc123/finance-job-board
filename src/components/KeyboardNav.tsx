@@ -38,7 +38,7 @@ export default memo(function KeyboardNav() {
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
 
       const cards = getJobCards()
-      if (cards.length === 0 && e.key !== '?') return
+      if (cards.length === 0 && e.key !== '?' && e.key !== 'Escape') return
 
       switch (e.key) {
         case 'j':
@@ -67,7 +67,7 @@ export default memo(function KeyboardNav() {
         }
         case 's': {
           if (focusIndex >= 0 && focusIndex < cards.length) {
-            const saveBtn = cards[focusIndex].querySelector<HTMLButtonElement>('[aria-label*="ave"]')
+            const saveBtn = cards[focusIndex].querySelector<HTMLButtonElement>('[data-save-btn]') || cards[focusIndex].querySelector<HTMLButtonElement>('[aria-label*="Save"]')
             if (saveBtn) saveBtn.click()
           }
           break
@@ -121,7 +121,7 @@ export default memo(function KeyboardNav() {
     return (
       <button
         onClick={() => setShowHelp(true)}
-        className="fixed bottom-6 left-6 z-50 hidden sm:flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900/80 text-white text-xs font-mono hover:bg-navy-800 transition-all shadow-lg backdrop-blur-sm"
+        className="fixed bottom-6 left-6 z-50 hidden sm:flex h-10 w-10 items-center justify-center rounded-lg bg-navy-900/80 text-white text-sm font-mono hover:bg-navy-800 transition-all shadow-lg backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2"
         aria-label="Keyboard shortcuts"
         title="Press ? for keyboard shortcuts"
       >
@@ -142,7 +142,7 @@ export default memo(function KeyboardNav() {
           <button
             ref={closeRef}
             onClick={() => setShowHelp(false)}
-            className="text-navy-400 hover:text-navy-600 transition"
+            className="text-navy-400 hover:text-navy-600 transition p-1.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400/50"
             aria-label="Close shortcuts"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

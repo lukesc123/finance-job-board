@@ -13,10 +13,19 @@ export async function GET() {
     .limit(50)
 
   function escapeXml(str: string): string {
-    return str.replace(/[<>&'"]/g, (c: string) => {
-      const map: Record<string, string> = { '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }
-      return map[c] || c
-    })
+    // First decode any existing HTML entities to avoid double-encoding,
+    // then encode for XML. The & replacement must come first.
+    return str
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&apos;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/'/g, '&apos;')
+      .replace(/"/g, '&quot;')
   }
 
   interface FeedJob {

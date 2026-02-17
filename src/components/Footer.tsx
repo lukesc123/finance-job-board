@@ -37,7 +37,7 @@ export default memo(function Footer() {
                 <li key={cat}>
                   <Link
                     href={`/category/${slugify(cat)}`}
-                    className="text-sm text-navy-400 hover:text-white transition"
+                    className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400"
                   >
                     {cat}
                   </Link>
@@ -54,28 +54,28 @@ export default memo(function Footer() {
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="text-sm text-navy-400 hover:text-white transition">Browse All Jobs</Link>
+                <Link href="/" className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Browse All Jobs</Link>
               </li>
               <li>
-                <Link href="/companies" className="text-sm text-navy-400 hover:text-white transition">Companies Hiring</Link>
+                <Link href="/companies" className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Companies Hiring</Link>
               </li>
               <li>
-                <Link href="/tracker" className="text-sm text-navy-400 hover:text-white transition">Application Tracker</Link>
+                <Link href="/tracker" className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Application Tracker</Link>
               </li>
               <li>
-                <Link href="/resources" className="text-sm text-navy-400 hover:text-white transition">Career Resources</Link>
+                <Link href="/resources" className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Career Resources</Link>
               </li>
               <li>
-                <Link href="/employers" className="text-sm text-navy-400 hover:text-white transition">For Employers</Link>
+                <Link href="/employers" className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">For Employers</Link>
               </li>
               <li>
-                <a href="https://www.finra.org/registration-exams-ce" target="_blank" rel="noopener noreferrer nofollow" className="text-sm text-navy-400 hover:text-white transition" aria-label="FINRA License Info (opens in new tab)">
+                <a href="https://www.finra.org/registration-exams-ce" target="_blank" rel="noopener noreferrer nofollow" className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400" aria-label="FINRA License Info (opens in new tab)">
                   FINRA License Info
                   <span className="sr-only"> (external link)</span>
                 </a>
               </li>
               <li>
-                <a href="https://www.aicpa-cima.com/resources/landing/cpa-exam" target="_blank" rel="noopener noreferrer nofollow" className="text-sm text-navy-400 hover:text-white transition" aria-label="CPA Exam Guide (opens in new tab)">
+                <a href="https://www.aicpa-cima.com/resources/landing/cpa-exam" target="_blank" rel="noopener noreferrer nofollow" className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400" aria-label="CPA Exam Guide (opens in new tab)">
                   CPA Exam Guide
                   <span className="sr-only"> (external link)</span>
                 </a>
@@ -97,36 +97,64 @@ export default memo(function Footer() {
               <Link href="/locations" className="hover:text-white transition">Top Locations</Link>
             </h3>
             <ul className="space-y-2">
-              <li><Link href="/location/new-york-ny" className="text-sm text-navy-400 hover:text-white transition">New York, NY</Link></li>
-              <li><Link href="/location/san-francisco-ca" className="text-sm text-navy-400 hover:text-white transition">San Francisco, CA</Link></li>
-              <li><Link href="/location/chicago-il" className="text-sm text-navy-400 hover:text-white transition">Chicago, IL</Link></li>
-              <li><Link href="/location/charlotte-nc" className="text-sm text-navy-400 hover:text-white transition">Charlotte, NC</Link></li>
-              <li><Link href="/location/boston-ma" className="text-sm text-navy-400 hover:text-white transition">Boston, MA</Link></li>
+              <li><Link href="/location/new-york-ny" className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">New York, NY</Link></li>
+              <li><Link href="/location/san-francisco-ca" className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">San Francisco, CA</Link></li>
+              <li><Link href="/location/chicago-il" className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Chicago, IL</Link></li>
+              <li><Link href="/location/charlotte-nc" className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Charlotte, NC</Link></li>
+              <li><Link href="/location/boston-ma" className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Boston, MA</Link></li>
               <li><Link href="/locations" className="text-sm text-navy-300 hover:text-white transition font-medium">View all locations &rarr;</Link></li>
             </ul>
             <h3 className="text-xs font-semibold text-navy-300 uppercase tracking-wider mb-3 mt-5">
               Top Companies
             </h3>
             <ul className="space-y-2">
-              <li><Link href="/companies/goldman-sachs" className="text-sm text-navy-400 hover:text-white transition">Goldman Sachs</Link></li>
-              <li><Link href="/companies/j-p-morgan" className="text-sm text-navy-400 hover:text-white transition">J.P. Morgan</Link></li>
-              <li><Link href="/companies/morgan-stanley" className="text-sm text-navy-400 hover:text-white transition">Morgan Stanley</Link></li>
+              <li><Link href="/companies/goldman-sachs" className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Goldman Sachs</Link></li>
+              <li><Link href="/companies/j-p-morgan" className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">J.P. Morgan</Link></li>
+              <li><Link href="/companies/morgan-stanley" className="text-sm text-navy-400 hover:text-white transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Morgan Stanley</Link></li>
               <li><Link href="/companies" className="text-sm text-navy-300 hover:text-white transition font-medium">View all companies &rarr;</Link></li>
             </ul>
           </div>
         </div>
 
+        {/* Popular Searches - SEO internal linking */}
+        <div className="mt-8 pt-6 border-t border-navy-800/60">
+          <h3 className="text-xs font-semibold text-navy-300 uppercase tracking-wider mb-3">Popular Searches</h3>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: 'IB Analyst NYC', href: '/?category=Investment+Banking&location=New+York%2C+NY' },
+              { label: 'Remote Accounting', href: '/?category=Accounting&remote_type=Remote' },
+              { label: 'Consulting Internships', href: '/?category=Consulting&pipeline_stage=Junior+Internship' },
+              { label: 'PE Analyst', href: '/?category=Private+Equity' },
+              { label: 'S&T New Grad', href: '/?category=Sales+%26+Trading&pipeline_stage=New+Grad' },
+              { label: 'Corporate Finance Remote', href: '/?category=Corporate+Finance&remote_type=Remote' },
+              { label: '$80K+ Finance Jobs', href: '/?salary_min=80000' },
+              { label: 'Chicago Finance', href: '/?location=Chicago%2C+IL' },
+              { label: 'Risk Management', href: '/?category=Risk+Management' },
+              { label: 'Research Analyst', href: '/?category=Research' },
+            ].map(({ label, href }) => (
+              <Link
+                key={label}
+                href={href}
+                className="rounded-full border border-navy-700 px-3 py-1 text-xs text-navy-400 hover:text-white hover:border-navy-500 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
         {/* Bottom Bar */}
-        <div className="mt-10 pt-6 border-t border-navy-800/60">
+        <div className="mt-8 pt-6 border-t border-navy-800/60">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-navy-500">
               &copy; {new Date().getFullYear()} Entry Level Finance Jobs. All rights reserved.
             </p>
             <div className="flex items-center gap-4 text-xs text-navy-500">
               <span>Job listings sourced from company career pages.</span>
-              <Link href="/privacy" className="hover:text-navy-300 transition">Privacy</Link>
-              <Link href="/terms" className="hover:text-navy-300 transition">Terms</Link>
-              <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-navy-300 transition">Contact</a>
+              <Link href="/about" className="hover:text-navy-300 transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">About</Link>
+              <Link href="/privacy" className="hover:text-navy-300 transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Privacy</Link>
+              <Link href="/terms" className="hover:text-navy-300 transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Terms</Link>
+              <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-navy-300 transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Contact</a>
             </div>
           </div>
         </div>

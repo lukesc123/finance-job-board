@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { STORAGE_KEYS } from '@/lib/constants'
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState('')
@@ -29,7 +30,7 @@ export default function AdminLoginPage() {
 
       const { token } = await res.json()
       try {
-        localStorage.setItem('admin_token', token)
+        localStorage.setItem(STORAGE_KEYS.ADMIN_TOKEN, token)
       } catch {
         setError('Unable to save login token. Check browser privacy settings.')
         setLoading(false)
@@ -76,7 +77,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-navy-900 py-3 text-sm font-semibold text-white transition hover:bg-navy-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-lg bg-navy-900 py-3 text-sm font-semibold text-white transition hover:bg-navy-800 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>

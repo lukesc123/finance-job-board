@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -34,10 +35,12 @@ interface CompanyJob {
   apply_url: string | null
 }
 
-async function getCompanyBySlug(slug: string): Promise<{ company: CompanyDetail; jobs: CompanyJob[] } | null> {
+const getCompanyBySlug = cache(async function getCompanyBySlug(slug: string): Promise<{ company: CompanyDetail; jobs: CompanyJob[] } | null> {
+  // Fetch companies with a reasonable limit (slug matching requires client-side filter)
   const { data: companies } = await supabaseAdmin
     .from('companies')
     .select('id, name, website, careers_url, logo_url, description')
+    .limit(2000)
   if (!companies) return null
 
   const company = (companies as CompanyDetail[]).find((c) => slugify(c.name) === slug)
@@ -49,9 +52,10 @@ async function getCompanyBySlug(slug: string): Promise<{ company: CompanyDetail;
     .eq('company_id', company.id)
     .eq('is_active', true)
     .order('posted_date', { ascending: false })
+    .limit(1000)
 
   return { company, jobs: jobs || [] }
-}
+})
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -126,9 +130,9 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
       <div className="bg-white border-b border-navy-100">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <nav className="flex items-center gap-1.5 text-xs text-navy-400" aria-label="Breadcrumb">
-            <Link href="/" className="hover:text-navy-700 transition">Home</Link>
+            <Link href="/" className="hover:text-navy-700 transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Home</Link>
             <svg className="h-3 w-3" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-            <Link href="/companies" className="hover:text-navy-700 transition">Companies</Link>
+            <Link href="/companies" className="hover:text-navy-700 transition rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400">Companies</Link>
             <svg className="h-3 w-3" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             <span className="text-navy-700 font-medium" aria-current="page">{company.name}</span>
           </nav>
@@ -216,7 +220,7 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
                     <Link
                       key={cat}
                       href={`/category/${slugify(cat)}`}
-                      className="rounded-full border border-navy-200 bg-white px-3 py-1 text-xs font-medium text-navy-600 hover:bg-navy-50 hover:border-navy-300 transition"
+                      className="rounded-full border border-navy-200 bg-white px-3.5 py-1.5 text-xs font-medium text-navy-600 hover:bg-navy-50 hover:border-navy-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
                     >
                       {cat}
                     </Link>
@@ -232,7 +236,7 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
                     <Link
                       key={loc}
                       href={`/location/${slugify(loc)}`}
-                      className="rounded-full border border-navy-200 bg-white px-3 py-1 text-xs font-medium text-navy-600 hover:bg-navy-50 hover:border-navy-300 transition"
+                      className="rounded-full border border-navy-200 bg-white px-3.5 py-1.5 text-xs font-medium text-navy-600 hover:bg-navy-50 hover:border-navy-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
                     >
                       {loc}
                     </Link>
@@ -245,10 +249,10 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
 
         {/* CTA */}
         <div className="mt-6 flex flex-wrap gap-3">
-          <Link href="/" className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition">
+          <Link href="/" className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2">
             Browse All Jobs
           </Link>
-          <Link href="/companies" className="inline-flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-5 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition">
+          <Link href="/companies" className="inline-flex items-center gap-2 rounded-lg border border-navy-200 bg-white px-5 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2">
             View All Companies
           </Link>
         </div>

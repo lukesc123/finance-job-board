@@ -5,14 +5,15 @@ import { usePathname } from 'next/navigation'
 import { useState, useEffect, useRef, useCallback, memo } from 'react'
 import { useListCount } from '@/hooks/useJobActions'
 import { useAuth } from '@/hooks/useAuth'
+import { STORAGE_KEYS } from '@/lib/constants'
 
 export default memo(function Navbar() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
   const hamburgerRef = useRef<HTMLButtonElement>(null)
-  const savedCount = useListCount('savedJobs')
-  const appliedCount = useListCount('appliedJobs')
+  const savedCount = useListCount(STORAGE_KEYS.SAVED)
+  const appliedCount = useListCount(STORAGE_KEYS.APPLIED)
   const { user, loading: authLoading, signOut } = useAuth()
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
@@ -22,7 +23,7 @@ export default memo(function Navbar() {
     setUserMenuOpen(false)
   }, [pathname])
 
-  // Close user menu on outside click
+  // Close user menu on outside click or Escape key
   useEffect(() => {
     if (!userMenuOpen) return
     const handleClick = (e: MouseEvent) => {
@@ -30,8 +31,15 @@ export default memo(function Navbar() {
         setUserMenuOpen(false)
       }
     }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setUserMenuOpen(false)
+    }
     document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', handleClick)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
   }, [userMenuOpen])
 
   // Close mobile menu on Escape key, lock body scroll, and trap focus
@@ -161,7 +169,7 @@ export default memo(function Navbar() {
           {!authLoading && !user && (
             <Link
               href="/login"
-              className="rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-navy-800 ml-2"
+              className="rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-navy-800 ml-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-400 focus-visible:ring-offset-2"
             >
               Sign In
             </Link>
@@ -170,29 +178,30 @@ export default memo(function Navbar() {
             <div className="relative ml-2" ref={userMenuRef}>
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center justify-center w-8 h-8 rounded-full bg-navy-100 text-navy-700 text-sm font-semibold hover:bg-navy-200 transition"
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-navy-100 text-navy-700 text-sm font-semibold hover:bg-navy-200 transition"
                 aria-label="User menu"
                 aria-expanded={userMenuOpen}
               >
                 {(user.email?.[0] || 'U').toUpperCase()}
               </button>
               {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-lg border border-navy-200 bg-white shadow-lg py-1 z-50">
+                <div className="absolute right-0 mt-2 w-56 rounded-lg border border-navy-200 bg-white shadow-lg py-1 z-50" role="menu" aria-label="User menu">
                   <div className="px-3 py-2 border-b border-navy-100">
                     <p className="text-xs text-navy-500 truncate">{user.email}</p>
                   </div>
-                  <Link href="/tracker" className="block px-3 py-2 text-sm text-navy-700 hover:bg-navy-50 transition" onClick={() => setUserMenuOpen(false)}>
+                  <Link href="/tracker" role="menuitem" className="block px-3 py-2.5 text-sm text-navy-700 hover:bg-navy-50 transition" onClick={() => setUserMenuOpen(false)}>
                     Application Tracker
                   </Link>
-                  <Link href="/settings" className="block px-3 py-2 text-sm text-navy-700 hover:bg-navy-50 transition" onClick={() => setUserMenuOpen(false)}>
+                  <Link href="/settings" role="menuitem" className="block px-3 py-2.5 text-sm text-navy-700 hover:bg-navy-50 transition" onClick={() => setUserMenuOpen(false)}>
                     Preferences
                   </Link>
-                  <Link href="/employers" className="block px-3 py-2 text-sm text-navy-700 hover:bg-navy-50 transition" onClick={() => setUserMenuOpen(false)}>
+                  <Link href="/employers" role="menuitem" className="block px-3 py-2.5 text-sm text-navy-700 hover:bg-navy-50 transition" onClick={() => setUserMenuOpen(false)}>
                     For Employers
                   </Link>
                   <button
+                    role="menuitem"
                     onClick={() => { signOut(); setUserMenuOpen(false) }}
-                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition"
+                    className="w-full text-left px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 transition"
                   >
                     Sign Out
                   </button>
@@ -206,7 +215,7 @@ export default memo(function Navbar() {
         <button
           ref={hamburgerRef}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="sm:hidden flex flex-col items-center justify-center gap-1.5 p-2 rounded-lg hover:bg-navy-50 transition"
+          className="sm:hidden flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-lg hover:bg-navy-50 transition"
           aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={mobileMenuOpen}
           aria-controls="mobile-nav"
@@ -240,21 +249,15 @@ export default memo(function Navbar() {
                 </span>
               )}
             </Link>
-            <Link href="/companies" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
-              Companies
-            </Link>
-            <Link href="/categories" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
-              Categories
-            </Link>
-            <Link href="/locations" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
-              Locations
-            </Link>
-            <Link href="/resources" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
-              Resources
-            </Link>
-            <Link href="/employers" className="rounded-lg px-3 py-2.5 text-sm font-medium text-navy-700 transition hover:bg-navy-50">
-              For Employers
-            </Link>
+            {/* Explore group */}
+            <div className="border-t border-navy-100 mt-1 pt-1">
+              <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-navy-400">Explore</p>
+              <div className="grid grid-cols-3 gap-1">
+                <Link href="/companies" className="rounded-lg px-3 py-2 text-xs font-medium text-navy-600 transition hover:bg-navy-50 text-center">Companies</Link>
+                <Link href="/categories" className="rounded-lg px-3 py-2 text-xs font-medium text-navy-600 transition hover:bg-navy-50 text-center">Categories</Link>
+                <Link href="/locations" className="rounded-lg px-3 py-2 text-xs font-medium text-navy-600 transition hover:bg-navy-50 text-center">Locations</Link>
+              </div>
+            </div>
             {!authLoading && !user && (
               <Link href="/login" className="rounded-lg bg-navy-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-800 text-center">
                 Sign In

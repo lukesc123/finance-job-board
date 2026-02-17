@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { rateLimit, getClientIP } from '@/lib/rateLimit'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/admin/verify-urls
@@ -90,11 +92,20 @@ function isSoft404(html: string, url: string): boolean {
 }
 
 export async function GET(request: NextRequest) {
+  const ip = getClientIP(request)
+  const { limited } = rateLimit(`admin-verify:${ip}`, 5, 60_000)
+  if (limited) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429, headers: { 'Retry-After': '60' } })
+  }
+
   const authHeader = request.headers.get('authorization')
   const { searchParams } = new URL(request.url)
   const keyParam = searchParams.get('key')
   const cronSecret = process.env.CRON_SECRET
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}` && keyParam !== cronSecret) {
+  if (!cronSecret) {
+    return NextResponse.json({ error: 'Cron secret not configured' }, { status: 500 })
+  }
+  if (authHeader !== `Bearer ${cronSecret}` && keyParam !== cronSecret) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -162,6 +173,16 @@ export async function GET(request: NextRequest) {
         }
 
         try {
+          // Block internal/private URLs (SSRF protection)
+          const parsedUrl = new URL(url)
+          const blockedHosts = ['localhost', '127.0.0.1', '::1', '0.0.0.0', '169.254.169.254', 'metadata.google.internal']
+          const blockedPrefixes = ['10.', '172.16.', '172.17.', '172.18.', '172.19.', '172.20.', '172.21.', '172.22.', '172.23.', '172.24.', '172.25.', '172.26.', '172.27.', '172.28.', '172.29.', '172.30.', '172.31.', '192.168.']
+          if (blockedHosts.includes(parsedUrl.hostname) || blockedPrefixes.some(p => parsedUrl.hostname.startsWith(p))) {
+            result.status = 'error'
+            result.error = 'Blocked: internal/private URL'
+            return result
+          }
+
           const controller = new AbortController()
           const timeout = setTimeout(() => controller.abort(), 15000)
 
@@ -284,7 +305,7 @@ export async function GET(request: NextRequest) {
       headers: { 'Cache-Control': 'no-store' },
     })
   } catch (error: unknown) {
-    console.error('Verify URLs error:', error)
+    logger.error('Verify URLs error:', error)
     return NextResponse.json({ error: 'Verification failed' }, { status: 500 })
   }
 }

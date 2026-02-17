@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/cron/verify-jobs
@@ -207,13 +208,14 @@ export async function GET(request: Request) {
 
     const now = new Date().toISOString()
 
-    // Step 4: Flag dead jobs
+    // Step 4: Flag dead jobs (batched)
     if (deadIds.length > 0) {
-      for (const id of deadIds) {
+      for (let i = 0; i < deadIds.length; i += 50) {
+        const chunk = deadIds.slice(i, i + 50)
         await supabaseAdmin
           .from('jobs')
           .update({ removal_detected_at: now, updated_at: now })
-          .eq('id', id)
+          .in('id', chunk)
       }
     }
 
@@ -245,12 +247,12 @@ export async function GET(request: Request) {
       elapsed_seconds: parseFloat(elapsed),
     }
 
-    console.log('[Cron: verify-jobs]', JSON.stringify(summary))
+    console.info('[Cron: verify-jobs]', JSON.stringify(summary))
 
     return NextResponse.json({ success: true, summary, log })
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'Unknown error'
-    console.error('[Cron: verify-jobs] Fatal error:', msg)
+    logger.error('[Cron: verify-jobs] Fatal error:', msg)
     return NextResponse.json({ error: msg, log }, { status: 500 })
   }
 }
