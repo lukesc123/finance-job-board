@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { logger } from '@/lib/logger'
+import { searchForJobUrl, canPerformSearch } from '@/lib/googleSearch'
 
 /**
  * GET /api/cron/verify-jobs
@@ -161,7 +162,7 @@ export async function GET(request: Request) {
       log.push(`Deactivated ${expiredJobs?.length || 0} jobs (flagged 3+ days ago)`)
     }
 
-    // Step 2: Fetch all active unflagged jobs
+    // Step 2: Fetch all active unflagged jobs (with company info for potential resolution)
     const { data: jobs, error: fetchErr } = await supabaseAdmin
       .from('jobs')
       .select('id, title, apply_url, removal_detected_at, company:companies(name)')
@@ -208,6 +209,68 @@ export async function GET(request: Request) {
 
     const now = new Date().toISOString()
 
+    // Step 3.5: Attempt Google Search resolution for dead jobs
+    let resolved = 0
+    const resolvedIds: string[] = []
+
+    if (deadIds.length > 0 && canPerformSearch()) {
+      log.push(`Attempting Google Search resolution for up to 20 dead jobs`)
+      const jobsToResolve = jobsToCheck.filter((j: Record<string, unknown>) => deadIds.includes(j.id as string))
+      const jobsForResolution = jobsToResolve.slice(0, 20) // Limit to 20 per run
+
+      for (const job of jobsForResolution) {
+        const jobId = job.id as string
+        const jobTitle = job.title as string
+        const companyData = job.company as unknown
+        const company = Array.isArray(companyData) ? companyData[0] : companyData
+        const companyName = (company as { name?: string } | null)?.name ?? null
+
+        if (!companyName || !jobTitle) {
+          continue
+        }
+
+        try {
+          const newUrl = await searchForJobUrl(companyName, jobTitle)
+          if (newUrl) {
+            // Update job with new URL and clear the removal flag
+            const { error: updateErr } = await supabaseAdmin
+              .from('jobs')
+              .update({
+                apply_url: newUrl,
+                removal_detected_at: null,
+                last_verified_at: now,
+                updated_at: now,
+              })
+              .eq('id', jobId)
+
+            if (!updateErr) {
+              resolved++
+              resolvedIds.push(jobId)
+              // Move from dead to alive
+              deadIds.splice(deadIds.indexOf(jobId), 1)
+              aliveIds.push(jobId)
+              log.push(`Resolved job ${jobId}: ${companyName} - ${jobTitle}`)
+            } else {
+              logger.error('[Cron: verify-jobs] Failed to update resolved job', {
+                jobId,
+                error: updateErr.message,
+              })
+            }
+          }
+        } catch (error: unknown) {
+          const msg = error instanceof Error ? error.message : 'Unknown error'
+          logger.error('[Cron: verify-jobs] Error during Google Search resolution', {
+            jobId,
+            error: msg,
+          })
+        }
+      }
+
+      if (resolved > 0) {
+        log.push(`Successfully resolved ${resolved} jobs via Google Search`)
+      }
+    }
+
     // Step 4: Flag dead jobs (batched)
     if (deadIds.length > 0) {
       for (let i = 0; i < deadIds.length; i += 50) {
@@ -242,6 +305,7 @@ export async function GET(request: Request) {
       redirect,
       error: errorCount,
       timeout,
+      google_search_resolved: resolved,
       newly_flagged: deadIds.length,
       deactivated_expired: expiredJobs?.length || 0,
       elapsed_seconds: parseFloat(elapsed),
